@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    /* LIGHT THEME (Warm Neutral, Premium Fintech Feel) */
-    --background: 38 25% 97%;       /* #FAF8F5 - Warm Neutral, not pure white */
-    --foreground: 24 12% 12%;       /* #1F1C1A - Dark Charcoal */
+    /* LIGHT THEME (Clean Pure White, High Legibility, Crisp Fintech Feel) */
+    --background: 0 0% 100%;        /* Pure White */
+    --foreground: 222 47% 11%;       /* Dark Slate Text */
     
-    --surface: 38 20% 94%;          /* Elevated surface */
-    --surface-hover: 38 20% 91%;
+    --surface: 210 20% 98%;          /* Crisp light surface */
+    --surface-hover: 210 20% 95%;
     
-    --card: 0 0% 100%;              /* Clean white cards on warm background */
-    --card-foreground: 24 12% 12%;
-    --card-hover: 38 30% 99%;
+    --card: 0 0% 100%;              /* Pure White cards */
+    --card-foreground: 222 47% 11%;
+    --card-hover: 210 20% 99%;
     
-    --primary: 24 12% 12%;          /* Dark primary brand color */
-    --primary-foreground: 38 25% 97%;
+    --primary: 222 47% 11%;          /* Primary brand color */
+    --primary-foreground: 0 0% 100%;
     
-    --secondary: 40 12% 91%;
-    --secondary-foreground: 24 12% 16%;
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 222 47% 11%;
     
-    --muted: 38 12% 92%;
-    --muted-foreground: 24 6% 45%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
     
     --accent: 38 30% 93%;
     --accent-foreground: 24 12% 12%;

@@ -1,22 +1,18 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 import { ContentWrapper } from "@/components/layout/content-wrapper";
-import { DashboardHeader } from "./dashboard-header";
-import { SummaryCards } from "./summary-cards";
 import { BalanceList } from "./balance-list";
-import { QuickActions } from "./quick-actions";
 import { RecentExpenseList } from "./recent-expense-list";
-import { MonthlySummary } from "./monthly-summary";
-import { StatisticsCard } from "./statistics-card";
-import { EmptyDashboard } from "./empty-dashboard";
-import { LoadingDashboard } from "./loading-dashboard";
-import { BudgetTracker } from "@/features/budget/components/budget-tracker";
 import { QuickAddBar } from "@/features/expenses/components/quick-add-bar";
-import { ActivityFeed } from "@/features/activity/components/activity-feed";
-import { ExportModal } from "@/features/export/components/export-modal";
+import { BudgetTracker } from "@/features/budget/components/budget-tracker";
+import { LoadingDashboard } from "./loading-dashboard";
 import { useDashboard } from "../hooks/use-dashboard";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Icons } from "@/lib/icons";
 
 export function DashboardShell() {
   const {
@@ -33,45 +29,53 @@ export function DashboardShell() {
 
   return (
     <PageWrapper>
-      {/* Page Header */}
-      <DashboardHeader />
-
-      <ContentWrapper>
-        {/* Quick Add Bar & Export Data */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-surface/40 p-3 rounded-2xl border border-border/60">
-          <div className="flex-1">
-            <QuickAddBar />
+      {/* Easy Clean Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/40">
+        <div>
+          <div className="flex items-center space-x-2">
+            <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              Room 304 Khata
+            </h1>
+            <Badge variant="success" className="font-mono text-xs gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Live Balances</span>
+            </Badge>
           </div>
-          <div className="shrink-0 self-end sm:self-center">
-            <ExportModal />
-          </div>
+          <p className="caption text-xs sm:text-sm text-muted-foreground mt-0.5">
+            Hostel room expenses & 6-way roommate settlement tracker.
+          </p>
         </div>
 
-        {/* Monthly Budget Tracker */}
-        <BudgetTracker currentMonthSpend={metrics.currentMonthSpend} />
+        <div className="flex items-center space-x-2.5 shrink-0">
+          <Link href="/expenses/new">
+            <Button size="lg" className="gap-2 shadow-subtle font-semibold bg-emerald-700 hover:bg-emerald-800 text-white">
+              <Icons.plus className="h-5 w-5" />
+              <span>Naya Kharcha Jodein</span>
+            </Button>
+          </Link>
+          <Link href="/settlements/new">
+            <Button variant="outline" size="lg" className="gap-1.5 font-semibold text-xs">
+              <Icons.checkCircle className="h-4 w-4 text-emerald-600" />
+              <span>Settle Up</span>
+            </Button>
+          </Link>
+        </div>
+      </div>
 
-        {/* Room Summary Stat Cards */}
-        <SummaryCards metrics={metrics} />
+      <ContentWrapper>
+        {/* Quick Add Template Pills */}
+        <div className="p-4 rounded-2xl bg-white border border-border/80 shadow-subtle space-y-3">
+          <QuickAddBar />
+        </div>
 
         {/* Current Balances - Auto-sorted 6 Roommates */}
         <BalanceList balances={sortedBalances} />
 
-        {/* Quick Actions Shortcuts */}
-        <QuickActions />
+        {/* Monthly Budget Tracker */}
+        <BudgetTracker currentMonthSpend={metrics.currentMonthSpend} />
 
-        {/* Recent Expenses & Activity Feed */}
-        {expenses.length === 0 ? (
-          <EmptyDashboard />
-        ) : (
-          <>
-            <RecentExpenseList expenses={recentExpenses} />
-            <ActivityFeed />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <MonthlySummary metrics={metrics} />
-              <StatisticsCard metrics={metrics} />
-            </div>
-          </>
-        )}
+        {/* Recent Expenses List */}
+        <RecentExpenseList expenses={recentExpenses} />
       </ContentWrapper>
     </PageWrapper>
   );

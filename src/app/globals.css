@@ -1,0 +1,146 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@layer base {
+  :root {
+    /* LIGHT THEME (Warm Neutral, Premium Fintech Feel) */
+    --background: 38 25% 97%;       /* #FAF8F5 - Warm Neutral, not pure white */
+    --foreground: 24 12% 12%;       /* #1F1C1A - Dark Charcoal */
+    
+    --surface: 38 20% 94%;          /* Elevated surface */
+    --surface-hover: 38 20% 91%;
+    
+    --card: 0 0% 100%;              /* Clean white cards on warm background */
+    --card-foreground: 24 12% 12%;
+    --card-hover: 38 30% 99%;
+    
+    --primary: 24 12% 12%;          /* Dark primary brand color */
+    --primary-foreground: 38 25% 97%;
+    
+    --secondary: 40 12% 91%;
+    --secondary-foreground: 24 12% 16%;
+    
+    --muted: 38 12% 92%;
+    --muted-foreground: 24 6% 45%;
+    
+    --accent: 38 30% 93%;
+    --accent-foreground: 24 12% 12%;
+    
+    /* Semantic Colors - Light Mode */
+    --success: 142 72% 29%;         /* #15803D - Deep Green */
+    --success-foreground: 0 0% 100%;
+    --success-subtle: 142 50% 95%;
+
+    --danger: 16 85% 42%;          /* #C2410C - Terracotta Red */
+    --danger-foreground: 0 0% 100%;
+    --danger-subtle: 16 85% 96%;
+
+    --warning: 38 92% 44%;         /* Warm Amber */
+    --warning-foreground: 0 0% 100%;
+    --warning-subtle: 38 92% 95%;
+
+    --border: 38 12% 88%;           /* Soft Gray */
+    --input: 38 12% 88%;
+    --ring: 24 12% 20%;
+    
+    --radius: 0.75rem;
+
+    --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    --shadow-card: 0 1px 3px 0 rgba(28, 25, 23, 0.05), 0 1px 2px -1px rgba(28, 25, 23, 0.05);
+    --shadow-glow: 0 0 15px -3px rgba(21, 128, 61, 0.15);
+  }
+
+  .dark {
+    /* DARK THEME (Deep Charcoal, Warm Accents, NO pure black) */
+    --background: 240 6% 9%;       /* #161618 - Deep Charcoal */
+    --foreground: 30 15% 95%;      /* #F4F3F1 - Warm White */
+    
+    --surface: 240 5% 13%;         /* Slightly lighter surface */
+    --surface-hover: 240 5% 17%;
+    
+    --card: 240 5% 13%;            /* #212124 - Card background */
+    --card-foreground: 30 15% 95%;
+    --card-hover: 240 5% 16%;
+    
+    --primary: 30 15% 95%;         /* Warm white primary button in dark mode */
+    --primary-foreground: 240 6% 9%;
+    
+    --secondary: 240 5% 18%;
+    --secondary-foreground: 30 15% 95%;
+    
+    --muted: 240 5% 18%;
+    --muted-foreground: 240 4% 65%;
+    
+    --accent: 240 5% 18%;
+    --accent-foreground: 30 15% 95%;
+    
+    /* Semantic Colors - Dark Mode (Muted emerald & terracotta) */
+    --success: 142 60% 45%;        /* #22C55E - Muted Green */
+    --success-foreground: 240 6% 9%;
+    --success-subtle: 142 60% 12%;
+
+    --danger: 0 72% 55%;           /* #EF4444 - Muted Red */
+    --danger-foreground: 0 0% 100%;
+    --danger-subtle: 0 72% 13%;
+
+    --warning: 38 85% 55%;
+    --warning-foreground: 240 6% 9%;
+    --warning-subtle: 38 85% 12%;
+
+    --border: 240 5% 20%;          /* Muted dark border */
+    --input: 240 5% 20%;
+    --ring: 30 15% 85%;
+
+    --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    --shadow-card: 0 2px 8px 0 rgba(0, 0, 0, 0.3);
+    --shadow-glow: 0 0 20px -2px rgba(34, 197, 94, 0.15);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased selection:bg-muted selection:text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight text-foreground;
+  }
+}
+
+/* Reusable Typography Utility Classes */
+@layer utilities {
+  .heading-xl {
+    @apply font-heading text-3xl sm:text-4xl font-bold tracking-tight text-foreground;
+  }
+
+  .heading-lg {
+    @apply font-heading text-2xl sm:text-3xl font-semibold tracking-tight text-foreground;
+  }
+
+  .heading-md {
+    @apply font-heading text-lg sm:text-xl font-medium tracking-tight text-foreground;
+  }
+
+  .body {
+    @apply font-body text-sm sm:text-base font-normal text-foreground/90 leading-relaxed;
+  }
+
+  .caption {
+    @apply font-body text-xs sm:text-sm font-normal text-muted-foreground;
+  }
+
+  .numeric {
+    @apply font-mono tabular-nums tracking-tight;
+  }
+}

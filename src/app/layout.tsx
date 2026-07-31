@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Bitter, Inter, JetBrains_Mono } from "next/font/google";
 import { AppProviders } from "@/providers";
 import { AppLayout } from "@/components/layout/app-layout";
+import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -34,17 +36,22 @@ export const metadata: Metadata = {
     "Hostel Room Expense Tracker",
     "Roommate Split",
     "Room Expenses",
-    "Splitwise Alternative",
+    "PWA App",
   ],
   authors: [{ name: "KamraKhata Team" }],
   creator: "KamraKhata",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "KamraKhata",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FAF8F5" },
-    { media: "(prefers-color-scheme: dark)", color: "#161618" },
-  ],
+  themeColor: "#FFFFFF",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -61,9 +68,11 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${bitter.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-screen bg-background font-body text-foreground antialiased">
+      <body className="min-h-screen bg-background font-body text-foreground antialiased select-none">
+        <ServiceWorkerRegister />
         <AppProviders>
           <AppLayout>{children}</AppLayout>
+          <InstallPrompt />
         </AppProviders>
       </body>
     </html>

@@ -1,55 +1,6 @@
 import { Roommate, StatCardData, QuickActionItem } from "@/types";
 
-export const MOCK_ROOMMATES: Roommate[] = [
-  {
-    id: "rm-1",
-    name: "Waheed",
-    role: "Room Admin",
-    isCurrentUser: true,
-    status: "Settled",
-    netBalance: 0,
-  },
-  {
-    id: "rm-2",
-    name: "Usman",
-    role: "Roommate",
-    isCurrentUser: false,
-    status: "Settled",
-    netBalance: 0,
-  },
-  {
-    id: "rm-3",
-    name: "Ali",
-    role: "Roommate",
-    isCurrentUser: false,
-    status: "Settled",
-    netBalance: 0,
-  },
-  {
-    id: "rm-4",
-    name: "Aman",
-    role: "Roommate",
-    isCurrentUser: false,
-    status: "Settled",
-    netBalance: 0,
-  },
-  {
-    id: "rm-5",
-    name: "Sadam",
-    role: "Roommate",
-    isCurrentUser: false,
-    status: "Settled",
-    netBalance: 0,
-  },
-  {
-    id: "rm-6",
-    name: "Masood",
-    role: "Roommate",
-    isCurrentUser: false,
-    status: "Settled",
-    netBalance: 0,
-  },
-];
+export const MOCK_ROOMMATES: Roommate[] = [];
 
 export const MOCK_STATS: StatCardData[] = [
   {

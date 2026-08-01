@@ -5,16 +5,51 @@ import { ExpenseWithSplits, UserRow, UserBalanceSummary } from "@/types/database
 import { CreateExpenseInput } from "@/lib/validations/expense";
 import { BalanceService } from "@/services/balance.service";
 import { calculateSplit } from "@/utils/calc-utils";
-import { DEV_SEED_USERS, DEV_SEED_EXPENSES, DEV_SEED_SPLITS } from "@/services/seed.service";
+import { useAuth } from "@/hooks/use-auth";
 
 // In-memory store for clean slate expense tracking
 let globalExpensesStore: ExpenseWithSplits[] = [];
 
 export function useExpenses() {
+  const { user } = useAuth();
   const [expenses, setExpenses] = React.useState<ExpenseWithSplits[]>(globalExpensesStore);
-  const [roommates] = React.useState<UserRow[]>(DEV_SEED_USERS);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const balanceService = React.useMemo(() => new BalanceService(), []);
+
+  // Dynamically compute list of registered roommates
+  const roommates: UserRow[] = React.useMemo(() => {
+    const list: UserRow[] = [];
+    if (typeof window !== "undefined") {
+      try {
+        const stored = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
+        stored.forEach((u: any) => {
+          if (!list.some((existing) => existing.name.toLowerCase() === u.name.toLowerCase())) {
+            list.push({
+              id: u.id || `rm-${u.name}`,
+              name: u.name,
+              email: u.email,
+              avatar_color: "#10B981",
+              theme: "dark",
+              created_at: new Date().toISOString(),
+            });
+          }
+        });
+      } catch (e) {
+        console.error("Failed to load registered roommates", e);
+      }
+    }
+    if (user && !list.some((u) => u.name.toLowerCase() === user.name.toLowerCase())) {
+      list.push({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar_color: "#10B981",
+        theme: "dark",
+        created_at: new Date().toISOString(),
+      });
+    }
+    return list;
+  }, [user]);
 
   // Update store helper
   const updateStore = (newList: ExpenseWithSplits[]) => {

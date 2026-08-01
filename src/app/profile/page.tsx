@@ -7,48 +7,57 @@ import { SectionCard } from "@/components/common/section-card";
 import { ProfileCard } from "@/features/profile/components/profile-card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MOCK_ROOMMATES } from "@/constants/mock-data";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
+import { useExpenses } from "@/features/expenses/hooks/use-expenses";
 import { Icons } from "@/lib/icons";
+import { siteConfig } from "@/config/site";
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const { roommates } = useExpenses();
 
   return (
     <PageWrapper>
       <PageHeader
-        title="Room & Profile"
-        subtitle="Manage your hostel room session and account preferences."
+        title="Roommate Profile"
+        subtitle={`${siteConfig.roomNumber}, ${siteConfig.hostelName} session and preferences.`}
       />
 
       <div className="space-y-6">
         {/* Profile Details & Financial Metrics */}
         <ProfileCard />
 
-        {/* Room Details & 6 Fixed Roommates */}
-        <SectionCard title="Room 304 Members" description="6 Fixed roommates in this hostel group">
+        {/* Room Details & Registered Roommates */}
+        <SectionCard
+          title={`${siteConfig.roomNumber} Registered Roommates`}
+          description={`${siteConfig.hostelName} active group members`}
+        >
           <div className="divide-y divide-border/60">
-            {MOCK_ROOMMATES.map((rm) => {
-              const isSelf = user?.name.toLowerCase() === rm.name.toLowerCase();
-              return (
-                <div key={rm.id} className="py-3 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Avatar name={rm.name} size="sm" />
-                    <div>
-                      <span className="text-sm font-semibold">{rm.name}</span>
-                      <p className="caption text-xs">{rm.role}</p>
+            {roommates.length === 0 ? (
+              <p className="text-xs text-muted-foreground py-3">No other registered roommates yet.</p>
+            ) : (
+              roommates.map((rm) => {
+                const isSelf = user?.name && rm.name ? user.name.toLowerCase() === rm.name.toLowerCase() : false;
+                return (
+                  <div key={rm.id} className="py-3 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Avatar name={rm.name} size="sm" />
+                      <div>
+                        <span className="text-sm font-semibold">{rm.name}</span>
+                        <p className="caption text-xs">Roommate</p>
+                      </div>
                     </div>
+                    <Badge
+                      variant={isSelf ? "default" : "secondary"}
+                      className="text-[10px] font-mono"
+                    >
+                      {isSelf ? "Active User" : "Roommate"}
+                    </Badge>
                   </div>
-                  <Badge
-                    variant={isSelf ? "default" : "secondary"}
-                    className="text-[10px] font-mono"
-                  >
-                    {isSelf ? "Active User" : "Roommate"}
-                  </Badge>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </SectionCard>
 

@@ -4,7 +4,6 @@ import * as React from "react";
 import { SectionCard } from "@/components/common/section-card";
 import { Avatar } from "@/components/ui/avatar";
 import { StatusBadge } from "@/components/common/status-badge";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useExpenses } from "@/features/expenses/hooks/use-expenses";
@@ -16,13 +15,20 @@ export function ProfileCard() {
   const { user, logout, isLoading } = useAuth();
   const { expenses, roommates, roomBalances } = useExpenses();
 
-  const activeUserName = user?.name || "Waheed";
+  const activeUserName = user?.name || "Roommate";
   const activeUserObj =
-    roommates.find((r) => r.name.toLowerCase() === activeUserName.toLowerCase()) || roommates[0];
+    roommates.find((r) => r.name.toLowerCase() === activeUserName.toLowerCase()) || {
+      id: user?.id || "rm-current",
+      name: activeUserName,
+      email: user?.email || "",
+      avatar_color: "#10B981",
+      theme: "dark",
+      created_at: new Date().toISOString(),
+    };
 
-  const userSummary = roomBalances.find((b) => b.user.id === activeUserObj?.id);
+  const userSummary = roomBalances.find((b) => b.user.id === activeUserObj.id || b.user.name.toLowerCase() === activeUserName.toLowerCase());
   const userExpensesAdded = expenses.filter(
-    (e) => e.paid_by === activeUserObj?.id || e.payer?.name === activeUserObj?.name
+    (e) => e.paid_by === activeUserObj.id || e.payer?.name?.toLowerCase() === activeUserName.toLowerCase()
   );
 
   const totalPaid = userExpensesAdded.reduce((sum, e) => sum + Number(e.amount), 0);
@@ -42,7 +48,7 @@ export function ProfileCard() {
             size="sm"
             onClick={() => logout()}
             disabled={isLoading}
-            className="gap-2 text-rose-600 dark:text-rose-400 border-rose-500/20 hover:bg-rose-500/10"
+            className="gap-2 text-rose-600 dark:text-rose-400 border-rose-500/20 hover:bg-rose-500/10 font-semibold"
           >
             <Icons.logout className="h-4 w-4" />
             <span>Log Out</span>
@@ -58,7 +64,7 @@ export function ProfileCard() {
                 <StatusBadge status={user?.role === "Room Admin" ? "Admin" : "Active"} />
               </div>
               <p className="caption text-xs font-mono text-muted-foreground">
-                {user?.email || "waheed@kamrakhata.internal"} • {siteConfig.roomNumber} ({siteConfig.hostelName})
+                {user?.email || "roommate@kamrakhata.internal"} • {siteConfig.roomNumber} ({siteConfig.hostelName})
               </p>
             </div>
           </div>

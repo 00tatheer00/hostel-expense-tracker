@@ -4,7 +4,6 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import { siteConfig } from "@/config/site";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
 import { fadeIn, scaleIn } from "@/lib/motion";
 import { useAuth } from "@/hooks/use-auth";
@@ -13,12 +12,12 @@ import { InfoPopover } from "@/components/common/info-popover";
 export function LandingHero() {
   const { login, register: registerAuth, isLoading } = useAuth();
 
-  // Active form view: null | "login" | "register" | "guide"
+  // Active form view: "login" | "register" | "guide"
   const [activeFormTab, setActiveFormTab] = React.useState<"login" | "register" | "guide">("login");
 
   // Form states
-  const [loginEmail, setLoginEmail] = React.useState("waheed@kamrakhata.internal");
-  const [loginPassword, setLoginPassword] = React.useState("password123");
+  const [loginEmail, setLoginEmail] = React.useState("");
+  const [loginPassword, setLoginPassword] = React.useState("");
 
   const [regName, setRegName] = React.useState("");
   const [regEmail, setRegEmail] = React.useState("");
@@ -28,6 +27,12 @@ export function LandingHero() {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
+
+    if (!loginEmail.trim()) {
+      setServerError("Meharbani karke apna naam ya email likhein");
+      return;
+    }
+
     const res = await login(loginEmail, loginPassword);
     if (!res.success && res.error) {
       setServerError(res.error);
@@ -51,10 +56,6 @@ export function LandingHero() {
     if (!res.success && res.error) {
       setServerError(res.error);
     }
-  };
-
-  const handleQuickLogin = (email: string) => {
-    login(email, "password123");
   };
 
   return (
@@ -86,53 +87,12 @@ export function LandingHero() {
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
           Khaass <strong className="text-foreground">Room 14, Al Syed Hostel</strong> ke liye banaya gaya aasan daily kharcha tracker.
-          Portal kholeinaur roommates ke aapas ka daily hisaab-kitaab live dekhein.
+          Apna account banayein ya log in karein aur roommates ke aapas ka daily hisaab-kitaab live dekhein.
           <InfoPopover
             title="Room 14 App"
             explanation="Yeh app Room 14 ke roommates ke daily kharchay (doodh, roti, sabzi, grocery) ko 100% clear rakhne ke liye hai."
           />
         </p>
-      </motion.div>
-
-      {/* Quick Test Login Bar for Roommates */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={fadeIn}
-        className="w-full max-w-lg p-4 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-md shadow-card space-y-2.5"
-      >
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground flex items-center">
-            <span>⚡ Room 14 Member Quick Login</span>
-            <InfoPopover
-              title="Quick Test Login"
-              explanation="Test karne ke liye kisi bhi roommate ke naam par click karein. Aap bina password type kiye foran dashboard mein enter ho jayenge."
-            />
-          </span>
-          <Badge variant="secondary" className="text-[9px]">
-            Direct Entry
-          </Badge>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { name: "Waheed", email: "waheed@kamrakhata.internal" },
-            { name: "Usman", email: "usman@kamrakhata.internal" },
-            { name: "Ali", email: "ali@kamrakhata.internal" },
-            { name: "Aman", email: "aman@kamrakhata.internal" },
-            { name: "Sadam", email: "sadam@kamrakhata.internal" },
-            { name: "Masood", email: "masood@kamrakhata.internal" },
-          ].map((m) => (
-            <button
-              key={m.name}
-              onClick={() => handleQuickLogin(m.email)}
-              className="flex items-center justify-between p-2 rounded-xl border border-border/60 bg-surface/50 hover:bg-primary/10 hover:border-primary/50 transition-all text-xs font-medium text-foreground group"
-            >
-              <span>{m.name}</span>
-              <Icons.chevronRight className="h-3 w-3 text-muted-foreground group-hover:text-primary transition-transform group-hover:translate-x-0.5" />
-            </button>
-          ))}
-        </div>
       </motion.div>
 
       {/* Form Tabs Switcher (Login / Register / Tareeqa) */}
@@ -196,7 +156,7 @@ export function LandingHero() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Waheed ya waheed@kamrakhata.internal"
+                  placeholder="e.g. Masood ya masood@gmail.com"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -288,7 +248,7 @@ export function LandingHero() {
                 <span>App Use Karne Ka Quick Tareeqa</span>
               </h4>
               <p>
-                • <strong>Step 1:</strong> Upar diye gaye quick test login buttons par click karke log in karein ya naya account register karein.
+                • <strong>Step 1:</strong> Apna account <strong>Register</strong> tab par banayein ya <strong>Log In</strong> tab se sign in karein.
               </p>
               <p>
                 • <strong>Step 2:</strong> Dashboard par daily kharcha (milk, roti, gas, grocery) add karein.

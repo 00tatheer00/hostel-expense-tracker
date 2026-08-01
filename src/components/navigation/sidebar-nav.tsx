@@ -57,7 +57,7 @@ export function SidebarNav() {
   const isNegative = netBalance < -0.01;
 
   return (
-    <aside className="w-64 shrink-0 hidden md:flex flex-col justify-between h-screen sticky top-0 border-r border-border/60 bg-card/60 backdrop-blur-md p-4 selection:bg-muted">
+    <aside className="fixed top-0 left-0 bottom-0 w-64 z-40 hidden md:flex flex-col justify-between h-screen border-r border-white/10 bg-slate-900/85 backdrop-blur-2xl p-4 overflow-y-auto selection:bg-muted">
       <div className="space-y-6">
         {/* Header Branding */}
         <div className="space-y-2 pb-4 border-b border-border/40">

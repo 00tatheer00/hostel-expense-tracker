@@ -20,7 +20,7 @@ export function SectionCard({
   ...props
 }: SectionCardProps) {
   return (
-    <Card className={cn("overflow-hidden", className)} {...props}>
+    <Card className={cn("overflow-hidden glass-card border border-white/15 dark:border-white/10 shadow-2xl backdrop-blur-xl bg-card/80", className)} {...props}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <div>
           <CardTitle className="font-heading text-base font-semibold sm:text-lg">

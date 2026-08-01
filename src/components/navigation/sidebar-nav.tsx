@@ -21,15 +21,16 @@ export function SidebarNav() {
   const { roomBalances } = useExpenses();
   const [pendingCount, setPendingCount] = React.useState<number>(0);
 
-  const checkPendingUsers = React.useCallback(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
-        const pending = stored.filter((u: any) => u.status === "pending").length;
+  const checkPendingUsers = React.useCallback(async () => {
+    try {
+      const res = await fetch("/api/profiles");
+      const data = await res.json();
+      if (data.profiles && Array.isArray(data.profiles)) {
+        const pending = data.profiles.filter((u: any) => u.status === "pending").length;
         setPendingCount(pending);
-      } catch (e) {
-        console.error("Failed to parse custom roommates", e);
       }
+    } catch (e) {
+      console.error("Failed to fetch profiles for sidebar pending badge", e);
     }
   }, []);
 

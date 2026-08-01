@@ -1,58 +1,89 @@
 "use client";
 
 import * as React from "react";
-import { ExpenseWithSplits, UserRow, UserBalanceSummary } from "@/types/database";
+import { ExpenseWithSplits, UserRow, UserBalanceSummary, SettlementRow } from "@/types/database";
 import { CreateExpenseInput } from "@/lib/validations/expense";
 import { BalanceService } from "@/services/balance.service";
 import { calculateSplit } from "@/utils/calc-utils";
 import { useAuth } from "@/hooks/use-auth";
-import { createClient } from "@/lib/supabase/client";
-import { SettlementRow } from "@/types/database";
-
-// Local storage helper for expenses & settlements
-const getStoredExpenses = (): ExpenseWithSplits[] => {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem("kamrakhata_expenses");
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    console.error("Failed to load expenses from localStorage", e);
-    return [];
-  }
-};
-
-const setStoredExpenses = (list: ExpenseWithSplits[]) => {
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.setItem("kamrakhata_expenses", JSON.stringify(list));
-      window.dispatchEvent(new Event("kamrakhata_data_change"));
-    } catch (e) {
-      console.error("Failed to save expenses to localStorage", e);
-    }
-  }
-};
-
-const getStoredSettlements = (): SettlementRow[] => {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem("kamrakhata_settlements");
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    console.error("Failed to load settlements from localStorage", e);
-    return [];
-  }
-};
 
 export function useExpenses() {
   const { user } = useAuth();
   const [expenses, setExpenses] = React.useState<ExpenseWithSplits[]>([]);
   const [settlements, setSettlements] = React.useState<SettlementRow[]>([]);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [dbRoommates, setDbRoommates] = React.useState<UserRow[]>([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const balanceService = React.useMemo(() => new BalanceService(), []);
 
-  const refreshData = React.useCallback(() => {
-    setExpenses(getStoredExpenses());
-    setSettlements(getStoredSettlements());
+  // Fetch central database data (expenses, settlements, profiles)
+  const refreshData = React.useCallback(async () => {
+    try {
+      // 1. Fetch expenses
+      const expRes = await fetch("/api/expenses");
+      const expData = await expRes.json();
+      if (expData.expenses) {
+        setExpenses(expData.expenses);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("kamrakhata_expenses", JSON.stringify(expData.expenses));
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch expenses from API", e);
+      // Fallback to localStorage
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("kamrakhata_expenses");
+          if (raw) setExpenses(JSON.parse(raw));
+        } catch {}
+      }
+    }
+
+    try {
+      // 2. Fetch settlements
+      const stlRes = await fetch("/api/settlements");
+      const stlData = await stlRes.json();
+      if (stlData.settlements) {
+        setSettlements(stlData.settlements);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("kamrakhata_settlements", JSON.stringify(stlData.settlements));
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch settlements from API", e);
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("kamrakhata_settlements");
+          if (raw) setSettlements(JSON.parse(raw));
+        } catch {}
+      }
+    }
+
+    try {
+      // 3. Fetch profiles for roommates
+      const profRes = await fetch("/api/profiles");
+      const profData = await profRes.json();
+      if (profData.profiles && Array.isArray(profData.profiles)) {
+        const approved = profData.profiles.filter(
+          (p: any) => p.status === "approved" || !p.status
+        );
+        const mapped: UserRow[] = approved.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          email: p.email,
+          avatar_color: "#10B981",
+          theme: "dark",
+          created_at: p.created_at || new Date().toISOString(),
+        }));
+        setDbRoommates(mapped);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(profData.profiles));
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch profiles from API", e);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   React.useEffect(() => {
@@ -71,15 +102,25 @@ export function useExpenses() {
     };
   }, [refreshData]);
 
-  // Dynamically compute list of registered roommates (excluding Room Admin)
+  // Compute clean list of roommates (excluding Room Admin)
   const roommates: UserRow[] = React.useMemo(() => {
     const list: UserRow[] = [];
-    if (typeof window !== "undefined") {
+
+    // Filter out Admin accounts from dbRoommates
+    dbRoommates.forEach((u) => {
+      const isAdmin = u.name?.toLowerCase().includes("admin") || u.email?.toLowerCase().includes("admin");
+      if (!isAdmin && !list.some((existing) => existing.id === u.id || existing.name.toLowerCase() === u.name.toLowerCase())) {
+        list.push(u);
+      }
+    });
+
+    // Fallback to localStorage if API roommates are empty
+    if (list.length === 0 && typeof window !== "undefined") {
       try {
         const stored = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
         stored.forEach((u: any) => {
           const isAdmin = u.role === "Room Admin" || u.name?.toLowerCase().includes("admin");
-          if (!isAdmin && !list.some((existing) => existing.name.toLowerCase() === u.name.toLowerCase())) {
+          if (!isAdmin && (u.status === "approved" || !u.status) && !list.some((existing) => existing.name.toLowerCase() === u.name.toLowerCase())) {
             list.push({
               id: u.id || `rm-${u.name}`,
               name: u.name,
@@ -91,12 +132,13 @@ export function useExpenses() {
           }
         });
       } catch (e) {
-        console.error("Failed to load registered roommates", e);
+        console.error("Failed to load local roommates", e);
       }
     }
+
     if (user) {
       const isUserAdmin = user.role === "Room Admin" || user.name?.toLowerCase().includes("admin");
-      if (!isUserAdmin && !list.some((u) => u.name.toLowerCase() === user.name.toLowerCase())) {
+      if (!isUserAdmin && !list.some((u) => u.id === user.id || u.name.toLowerCase() === user.name.toLowerCase())) {
         list.push({
           id: user.id,
           name: user.name,
@@ -107,14 +149,9 @@ export function useExpenses() {
         });
       }
     }
-    return list;
-  }, [user]);
 
-  // Update store helper
-  const updateStore = (newList: ExpenseWithSplits[]) => {
-    setStoredExpenses(newList);
-    setExpenses([...newList]);
-  };
+    return list;
+  }, [dbRoommates, user]);
 
   const createExpense = async (input: CreateExpenseInput): Promise<ExpenseWithSplits> => {
     setIsLoading(true);
@@ -123,6 +160,44 @@ export function useExpenses() {
     const payer = roommates.find((r) => r.id === input.paidBy) || roommates[0];
 
     const newExpenseId = `exp-${Date.now()}`;
+    const splitsPayload = input.splitUserIds.map((uId, idx) => ({
+      id: `sp-${Date.now()}-${idx}`,
+      userId: uId,
+      user_id: uId,
+      shareAmount: shares[idx],
+      share_amount: shares[idx],
+    }));
+
+    // Post to API / Supabase
+    try {
+      const res = await fetch("/api/expenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: newExpenseId,
+          amount: input.amount,
+          description: input.description,
+          category: input.category,
+          paidBy: input.paidBy,
+          splits: splitsPayload,
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        console.error("Failed to save expense to DB via API:", data.error);
+      }
+    } catch (e) {
+      console.error("Failed to call POST /api/expenses:", e);
+    }
+
+    await refreshData();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("kamrakhata_data_change"));
+    }
+
+    setIsLoading(false);
+
     const newSplits = input.splitUserIds.map((uId, idx) => ({
       id: `sp-${Date.now()}-${idx}`,
       expense_id: newExpenseId,
@@ -132,7 +207,7 @@ export function useExpenses() {
       user: roommates.find((r) => r.id === uId),
     }));
 
-    const newExpense: ExpenseWithSplits = {
+    return {
       id: newExpenseId,
       amount: input.amount,
       description: input.description,
@@ -142,39 +217,6 @@ export function useExpenses() {
       payer,
       splits: newSplits,
     };
-
-    // Save to local store
-    const current = getStoredExpenses();
-    const updated = [newExpense, ...current];
-    updateStore(updated);
-
-    // Sync to Supabase Database
-    try {
-      const supabase = createClient();
-      await supabase.from("expenses").insert({
-        id: newExpense.id,
-        amount: newExpense.amount,
-        description: newExpense.description,
-        category: newExpense.category,
-        paid_by: newExpense.paid_by,
-        created_at: newExpense.created_at,
-      });
-
-      const splitsPayload = newSplits.map((s) => ({
-        id: s.id,
-        expense_id: s.expense_id,
-        user_id: s.user_id,
-        share_amount: s.share_amount,
-        created_at: s.created_at,
-      }));
-
-      await supabase.from("splits").insert(splitsPayload);
-    } catch (e) {
-      console.log("Supabase sync note:", e);
-    }
-
-    setIsLoading(false);
-    return newExpense;
   };
 
   const updateExpense = async (
@@ -182,10 +224,40 @@ export function useExpenses() {
     input: CreateExpenseInput
   ): Promise<ExpenseWithSplits> => {
     setIsLoading(true);
-    await new Promise((res) => setTimeout(res, 400));
 
     const shares = calculateSplit(input.amount, input.splitUserIds.length);
     const payer = roommates.find((r) => r.id === input.paidBy) || roommates[0];
+
+    const splitsPayload = input.splitUserIds.map((uId, idx) => ({
+      id: `sp-${Date.now()}-${idx}`,
+      userId: uId,
+      user_id: uId,
+      shareAmount: shares[idx],
+      share_amount: shares[idx],
+    }));
+
+    try {
+      await fetch(`/api/expenses/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: input.amount,
+          description: input.description,
+          category: input.category,
+          paidBy: input.paidBy,
+          splits: splitsPayload,
+        }),
+      });
+    } catch (e) {
+      console.error("Failed to update expense via API:", e);
+    }
+
+    await refreshData();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("kamrakhata_data_change"));
+    }
+
+    setIsLoading(false);
 
     const updatedSplits = input.splitUserIds.map((uId, idx) => ({
       id: `sp-${Date.now()}-${idx}`,
@@ -196,33 +268,33 @@ export function useExpenses() {
       user: roommates.find((r) => r.id === uId),
     }));
 
-    const current = getStoredExpenses();
-    const updatedList = current.map((e) => {
-      if (e.id === id) {
-        return {
-          ...e,
-          amount: input.amount,
-          description: input.description,
-          category: input.category,
-          paid_by: input.paidBy,
-          payer,
-          splits: updatedSplits,
-        };
-      }
-      return e;
-    });
-
-    updateStore(updatedList);
-    setIsLoading(false);
-    return updatedList.find((e) => e.id === id)!;
+    return {
+      id,
+      amount: input.amount,
+      description: input.description,
+      category: input.category,
+      paid_by: input.paidBy,
+      created_at: new Date().toISOString(),
+      payer,
+      splits: updatedSplits,
+    };
   };
 
   const deleteExpense = async (id: string): Promise<boolean> => {
     setIsLoading(true);
-    await new Promise((res) => setTimeout(res, 300));
-    const current = getStoredExpenses();
-    const filtered = current.filter((e) => e.id !== id);
-    updateStore(filtered);
+    try {
+      await fetch(`/api/expenses/${id}`, {
+        method: "DELETE",
+      });
+    } catch (e) {
+      console.error("Failed to delete expense via API:", e);
+    }
+
+    await refreshData();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("kamrakhata_data_change"));
+    }
+
     setIsLoading(false);
     return true;
   };
@@ -243,7 +315,7 @@ export function useExpenses() {
     }));
 
     const rawSplits = expenses.flatMap((e) =>
-      e.splits.map((s) => ({
+      (e.splits || []).map((s) => ({
         id: s.id,
         expense_id: s.expense_id,
         user_id: s.user_id,

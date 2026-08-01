@@ -38,12 +38,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } = await supabase.auth.getUser();
 
         if (supabaseUser) {
+          // Fetch actual status from DB profile (user_metadata may not have status)
+          let dbStatus: string = "approved";
+          try {
+            const res = await fetch("/api/profiles");
+            const data = await res.json();
+            const dbProfiles: UserProfile[] = data.profiles || [];
+            const dbProfile = dbProfiles.find((p: any) => p.id === supabaseUser.id || p.email === supabaseUser.email);
+            if (dbProfile) dbStatus = dbProfile.status || "approved";
+          } catch {}
           const profile: UserProfile = {
             id: supabaseUser.id,
             name: supabaseUser.user_metadata?.name || supabaseUser.email?.split("@")[0] || "Roommate",
             email: supabaseUser.email || "",
             role: supabaseUser.user_metadata?.role || "Roommate",
-            status: supabaseUser.user_metadata?.status || "approved",
+            status: dbStatus as any,
           };
           setUser(profile);
           setAuthCookie(profile);
@@ -93,15 +102,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        const profile: UserProfile = {
-          id: session.user.id,
-          name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "Roommate",
-          email: session.user.email || "",
-          role: session.user.user_metadata?.role || "Roommate",
-          status: session.user.user_metadata?.status || "approved",
-        };
-        setUser(profile);
-        setAuthCookie(profile);
+        // Don't override user state from onAuthStateChange — login() already handles profile with correct status
+        // Only update if no user is currently set (e.g. page refresh with active Supabase session)
+        setUser((currentUser) => {
+          if (currentUser) return currentUser; // already set by login() or initializeAuth()
+          return {
+            id: session.user.id,
+            name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "Roommate",
+            email: session.user.email || "",
+            role: session.user.user_metadata?.role || "Roommate",
+            status: "pending", // safe default; initializeAuth will correct this
+          };
+        });
       }
     });
 
@@ -118,16 +130,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
     const normalizedEmail = email.trim().toLowerCase();
 
-    const DEFAULT_ROOMMATES: UserProfile[] = [
-      { id: "rm-admin-01", name: "Room Admin", email: "admin@kamrakhata.internal", role: "Room Admin", status: "approved" },
-      { id: "rm-masood", name: "Masood", email: "masood@gmail.com", role: "Roommate", status: "approved" },
-      { id: "rm-saddam", name: "Saddam", email: "saddam@gmail.com", role: "Roommate", status: "approved" },
-      { id: "rm-ali", name: "Ali", email: "ali@gmail.com", role: "Roommate", status: "approved" },
-      { id: "rm-tatheer", name: "Tatheer", email: "tatheer@gmail.com", role: "Roommate", status: "approved" },
-      { id: "rm-hamza", name: "Hamza", email: "hamza@gmail.com", role: "Roommate", status: "approved" },
-      { id: "rm-bilal", name: "Bilal", email: "bilal@gmail.com", role: "Roommate", status: "approved" },
-    ];
-
     let matchedUser: UserProfile | null = null;
 
     // 0. Strict check for Room Admin credentials (username: admin, password: TatheerIsAdmin.123)
@@ -141,7 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       matchedUser = {
-        id: "rm-admin-01",
+        id: "a1b2c3d4-0000-4000-8000-000000000000",
         name: "Room Admin",
         email: "admin@kamrakhata.internal",
         role: "Room Admin",
@@ -149,14 +151,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
-    // 1. Check default Room 14 members
+    // 2. Check registered roommates from central database (cross-device)
     if (!matchedUser) {
-      matchedUser = DEFAULT_ROOMMATES.find(
-        (u) => u.email.toLowerCase() === normalizedEmail || u.name.toLowerCase() === normalizedEmail
-      ) || null;
+      try {
+        const res = await fetch("/api/profiles");
+        const data = await res.json();
+        const dbProfiles: UserProfile[] = data.profiles || [];
+
+        matchedUser = dbProfiles.find(
+          (u: any) =>
+            u.email?.toLowerCase() === normalizedEmail ||
+            u.name?.toLowerCase() === normalizedEmail ||
+            u.email?.toLowerCase()?.split("@")[0] === normalizedEmail
+        ) || null;
+
+        // Also sync to localStorage for faster subsequent lookups
+        if (typeof window !== "undefined" && dbProfiles.length > 0) {
+          localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(dbProfiles));
+        }
+      } catch (e) {
+        console.error("Failed to fetch profiles from API", e);
+      }
     }
 
-    // 2. Check custom registered roommates in localStorage & Supabase
+    // 3. Fallback: Check localStorage only
     if (!matchedUser && typeof window !== "undefined") {
       const customUsersRaw = localStorage.getItem("kamrakhata_custom_roommates");
       if (customUsersRaw) {
@@ -166,7 +184,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             (u) =>
               u.email.toLowerCase() === normalizedEmail ||
               u.name.toLowerCase() === normalizedEmail ||
-              u.email.toLowerCase().startsWith(normalizedEmail + "@") ||
               u.email.toLowerCase().split("@")[0] === normalizedEmail
           ) || null;
         } catch (e) {
@@ -239,15 +256,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password?: string
   ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
-    const supabase = createClient();
     const cleanName = name.trim();
     const cleanEmail = email.trim().toLowerCase();
 
-    // Check if first user or explicitly Admin
+    // Check if explicitly Admin
     const isAdminRegistration = cleanName.toLowerCase().includes("admin") || cleanEmail.includes("admin");
 
     const newUserProfile: UserProfile = {
-      id: `rm-${Date.now()}`,
+      id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "a1b2c3d4-0000-4000-8000-" + Date.now().toString(16).slice(-12).padStart(12, '0'),
       name: cleanName,
       email: cleanEmail.includes("@") ? cleanEmail : `${cleanEmail}@kamrakhata.internal`,
       role: isAdminRegistration ? "Room Admin" : "Roommate",
@@ -255,7 +271,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       themePreference: "dark",
     };
 
-    // Save to local custom users store
+    // 1. Save to central database via server-side API route (cross-device)
+    try {
+      const res = await fetch("/api/profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUserProfile),
+      });
+      const result = await res.json();
+      if (!result.success && result.error) {
+        console.error("API profile save error:", result.error);
+      }
+    } catch (e) {
+      console.error("Failed to save profile to API:", e);
+    }
+
+    // 2. Also save to localStorage for same-device instant access
     if (typeof window !== "undefined") {
       try {
         const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
@@ -264,39 +295,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         window.dispatchEvent(new Event("kamrakhata_data_change"));
         window.dispatchEvent(new Event("storage"));
       } catch (e) {
-        console.error("Failed to store custom roommate", e);
+        console.error("Failed to store custom roommate locally", e);
       }
-    }
-
-    try {
-      // Sync to Supabase profiles database table
-      await supabase.from("profiles").upsert({
-        id: newUserProfile.id,
-        name: newUserProfile.name,
-        email: newUserProfile.email,
-        role: newUserProfile.role,
-        status: newUserProfile.status,
-        created_at: new Date().toISOString(),
-      });
-
-      if (password) {
-        await supabase.auth.signUp({
-          email: newUserProfile.email,
-          password: password,
-          options: {
-            data: { name: cleanName, role: newUserProfile.role, status: newUserProfile.status },
-          },
-        });
-      }
-    } catch (err) {
-      console.log("Supabase profile sync note:", err);
     }
 
     setIsLoading(false);
 
     if (newUserProfile.status === "pending") {
       return {
-        success: false,
+        success: true,
         error: "Aap ka account ban gaya hai! Approval ke liye Room Admin ko bhej diya gaya hai. Admin jab tak approve nahi karega, aap enter nahi ho sakte.",
       };
     }
@@ -308,13 +315,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const approveUser = async (userId: string) => {
-    const supabase = createClient();
+    // Call server-side API to update DB + send email
     try {
-      await supabase.from("profiles").update({ status: "approved" }).eq("id", userId);
+      // Fetch user details from API first (cross-device safe)
+      let targetUser: UserProfile | undefined;
+      try {
+        const res = await fetch("/api/profiles");
+        const data = await res.json();
+        const dbProfiles: UserProfile[] = data.profiles || [];
+        targetUser = dbProfiles.find((u: any) => u.id === userId);
+      } catch {}
+
+      // Fallback to localStorage if API didn't return the user
+      if (!targetUser && typeof window !== "undefined") {
+        const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
+        targetUser = existing.find((u) => u.id === userId);
+      }
+
+      await fetch("/api/profiles/approve", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          action: "approve",
+          userEmail: targetUser?.email,
+          userName: targetUser?.name,
+        }),
+      });
     } catch (e) {
-      console.error("Failed to approve in Supabase", e);
+      console.error("Failed to approve via API", e);
     }
 
+    // Update localStorage
     if (typeof window !== "undefined") {
       try {
         const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
@@ -323,19 +355,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         window.dispatchEvent(new Event("kamrakhata_data_change"));
         window.dispatchEvent(new Event("storage"));
       } catch (e) {
-        console.error("Failed to approve user", e);
+        console.error("Failed to approve user locally", e);
       }
     }
   };
 
   const rejectUser = async (userId: string) => {
-    const supabase = createClient();
+    // Call server-side API to update DB + send email
     try {
-      await supabase.from("profiles").update({ status: "rejected" }).eq("id", userId);
+      // Fetch user details from API first (cross-device safe)
+      let targetUser: UserProfile | undefined;
+      try {
+        const res = await fetch("/api/profiles");
+        const data = await res.json();
+        const dbProfiles: UserProfile[] = data.profiles || [];
+        targetUser = dbProfiles.find((u: any) => u.id === userId);
+      } catch {}
+
+      // Fallback to localStorage if API didn't return the user
+      if (!targetUser && typeof window !== "undefined") {
+        const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
+        targetUser = existing.find((u) => u.id === userId);
+      }
+
+      await fetch("/api/profiles/approve", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          action: "reject",
+          userEmail: targetUser?.email,
+          userName: targetUser?.name,
+        }),
+      });
     } catch (e) {
-      console.error("Failed to reject in Supabase", e);
+      console.error("Failed to reject via API", e);
     }
 
+    // Update localStorage
     if (typeof window !== "undefined") {
       try {
         const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
@@ -344,7 +401,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         window.dispatchEvent(new Event("kamrakhata_data_change"));
         window.dispatchEvent(new Event("storage"));
       } catch (e) {
-        console.error("Failed to reject user", e);
+        console.error("Failed to reject user locally", e);
       }
     }
   };

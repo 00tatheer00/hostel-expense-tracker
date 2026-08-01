@@ -30,15 +30,16 @@ export function DashboardShell() {
 
   const [pendingUsers, setPendingUsers] = React.useState<any[]>([]);
 
-  const checkPendingUsers = React.useCallback(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
-        const pending = stored.filter((u: any) => u.status === "pending");
+  const checkPendingUsers = React.useCallback(async () => {
+    try {
+      const res = await fetch("/api/profiles");
+      const data = await res.json();
+      if (data.profiles && Array.isArray(data.profiles)) {
+        const pending = data.profiles.filter((u: any) => u.status === "pending");
         setPendingUsers(pending);
-      } catch (e) {
-        console.error("Failed to parse custom roommates", e);
       }
+    } catch (e) {
+      console.error("Failed to fetch profiles for pending notification", e);
     }
   }, []);
 

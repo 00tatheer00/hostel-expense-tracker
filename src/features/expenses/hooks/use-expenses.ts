@@ -7,68 +7,8 @@ import { BalanceService } from "@/services/balance.service";
 import { calculateSplit } from "@/utils/calc-utils";
 import { DEV_SEED_USERS, DEV_SEED_EXPENSES, DEV_SEED_SPLITS } from "@/services/seed.service";
 
-// In-memory store for Phase 4 reactive state
-let globalExpensesStore: ExpenseWithSplits[] = [
-  {
-    id: "exp-sample-1",
-    amount: 600,
-    description: "Hostel Grocery & Supplies",
-    category: "Food",
-    paid_by: DEV_SEED_USERS[2].id, // Ali paid 600
-    created_at: new Date().toISOString(),
-    payer: DEV_SEED_USERS[2],
-    splits: [
-      {
-        id: "sp-1",
-        expense_id: "exp-sample-1",
-        user_id: DEV_SEED_USERS[0].id, // Waheed
-        share_amount: 100,
-        created_at: new Date().toISOString(),
-        user: DEV_SEED_USERS[0],
-      },
-      {
-        id: "sp-2",
-        expense_id: "exp-sample-1",
-        user_id: DEV_SEED_USERS[1].id, // Usman
-        share_amount: 100,
-        created_at: new Date().toISOString(),
-        user: DEV_SEED_USERS[1],
-      },
-      {
-        id: "sp-3",
-        expense_id: "exp-sample-1",
-        user_id: DEV_SEED_USERS[2].id, // Ali
-        share_amount: 100,
-        created_at: new Date().toISOString(),
-        user: DEV_SEED_USERS[2],
-      },
-      {
-        id: "sp-4",
-        expense_id: "exp-sample-1",
-        user_id: DEV_SEED_USERS[3].id, // Aman
-        share_amount: 100,
-        created_at: new Date().toISOString(),
-        user: DEV_SEED_USERS[3],
-      },
-      {
-        id: "sp-5",
-        expense_id: "exp-sample-1",
-        user_id: DEV_SEED_USERS[4].id, // Sadam
-        share_amount: 100,
-        created_at: new Date().toISOString(),
-        user: DEV_SEED_USERS[4],
-      },
-      {
-        id: "sp-6",
-        expense_id: "exp-sample-1",
-        user_id: DEV_SEED_USERS[5].id, // Masood
-        share_amount: 100,
-        created_at: new Date().toISOString(),
-        user: DEV_SEED_USERS[5],
-      },
-    ],
-  },
-];
+// In-memory store for clean slate expense tracking
+let globalExpensesStore: ExpenseWithSplits[] = [];
 
 export function useExpenses() {
   const [expenses, setExpenses] = React.useState<ExpenseWithSplits[]>(globalExpensesStore);

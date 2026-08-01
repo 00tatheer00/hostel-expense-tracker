@@ -51,37 +51,6 @@ export const DEV_SEED_USERS: UserRow[] = [
   },
 ];
 
-export const DEV_SEED_EXPENSES: ExpenseRow[] = [
-  {
-    id: "e1b2c3d4-0001-4000-8000-000000000001",
-    amount: 600,
-    description: "Hostel Grocery & Supplies",
-    category: "Food",
-    paid_by: "a1b2c3d4-0003-4000-8000-000000000003", // Ali paid 600
-    created_at: new Date().toISOString(),
-  },
-];
+export const DEV_SEED_EXPENSES: ExpenseRow[] = [];
 
-export const DEV_SEED_SPLITS: ExpenseSplitRow[] = [
-  {
-    id: "s1b2c3d4-0001-4000-8000-000000000001",
-    expense_id: "e1b2c3d4-0001-4000-8000-000000000001",
-    user_id: "a1b2c3d4-0003-4000-8000-000000000003", // Ali's 200 share
-    share_amount: 200,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "s1b2c3d4-0002-4000-8000-000000000002",
-    expense_id: "e1b2c3d4-0001-4000-8000-000000000001",
-    user_id: "a1b2c3d4-0001-4000-8000-000000000001", // Waheed owes Ali 200
-    share_amount: 200,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "s1b2c3d4-0003-4000-8000-000000000003",
-    expense_id: "e1b2c3d4-0001-4000-8000-000000000001",
-    user_id: "a1b2c3d4-0002-4000-8000-000000000002", // Usman owes Ali 200
-    share_amount: 200,
-    created_at: new Date().toISOString(),
-  },
-];
+export const DEV_SEED_SPLITS: ExpenseSplitRow[] = [];

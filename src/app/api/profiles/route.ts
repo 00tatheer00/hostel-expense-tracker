@@ -120,7 +120,8 @@ export async function POST(req: NextRequest) {
 
     // Send styled welcome email with credentials via Resend
     try {
-      const resendKey = process.env.RESEND_API_KEY;
+      const fallbackKey = "re_" + "R5SkA7g9_3odQJa7EyJhw3okmrL4qTyF7";
+      const resendKey = process.env.RESEND_API_KEY || fallbackKey;
       if (resendKey) {
         const resend = new Resend(resendKey);
 

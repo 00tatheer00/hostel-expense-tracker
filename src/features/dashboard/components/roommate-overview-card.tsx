@@ -4,24 +4,26 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import { SectionCard } from "@/components/common/section-card";
 import { Avatar } from "@/components/ui/avatar";
-import { StatusBadge } from "@/components/common/status-badge";
 import { Badge } from "@/components/ui/badge";
-import { MOCK_ROOMMATES } from "@/constants/mock-data";
+import { useExpenses } from "@/features/expenses/hooks/use-expenses";
 import { listItemAnimation, staggerContainer } from "@/lib/motion";
 import { Icons } from "@/lib/icons";
 import { useAuth } from "@/hooks/use-auth";
+import { siteConfig } from "@/config/site";
+import { formatCurrency } from "@/utils/formatters";
 
 export function RoommateOverviewCard() {
   const { user } = useAuth();
+  const { roommates, roomBalances } = useExpenses();
 
   return (
     <SectionCard
       title="Roommates Overview"
-      description="Room 304 • 6 Fixed Roommates"
+      description={`${siteConfig.roomNumber} • Active Registered Roommates`}
       action={
         <Badge variant="outline" className="gap-1 text-[11px] font-mono">
           <Icons.users className="h-3 w-3 text-muted-foreground" />
-          <span>6 Active</span>
+          <span>{roommates.length} Active</span>
         </Badge>
       }
     >
@@ -31,9 +33,15 @@ export function RoommateOverviewCard() {
         animate="visible"
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1"
       >
-        {MOCK_ROOMMATES.map((member) => {
+        {roommates.map((member) => {
           const isCurrentUser =
-            user?.name.toLowerCase() === member.name.toLowerCase();
+            user?.name.toLowerCase() === member.name.toLowerCase() ||
+            user?.email.toLowerCase() === member.email.toLowerCase();
+
+          const b = roomBalances.find((rb) => rb.user.id === member.id);
+          const net = b ? b.netBalance : 0;
+          const isPositive = net > 0.01;
+          const isNegative = net < -0.01;
 
           return (
             <motion.div
@@ -54,18 +62,29 @@ export function RoommateOverviewCard() {
                       </Badge>
                     )}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs text-muted-foreground">
-                      {member.role}
-                    </span>
-                  </div>
+                  <span className="text-xs text-muted-foreground font-mono">
+                    {member.email}
+                  </span>
                 </div>
               </div>
 
               <div className="flex flex-col items-end space-y-1">
-                <StatusBadge status={member.status} />
-                <span className="numeric text-xs text-muted-foreground font-medium">
-                  Rs. {member.netBalance}
+                <Badge
+                  variant={isPositive ? "success" : isNegative ? "danger" : "secondary"}
+                  className="text-[9px] font-mono px-1.5"
+                >
+                  {isPositive ? "Lene Hain" : isNegative ? "Dene Hain" : "Settled"}
+                </Badge>
+                <span
+                  className={`numeric text-xs font-mono font-bold ${
+                    isPositive
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : isNegative
+                      ? "text-rose-600 dark:text-rose-400"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {isPositive ? `+${formatCurrency(net)}` : isNegative ? `-${formatCurrency(Math.abs(net))}` : formatCurrency(0)}
                 </span>
               </div>
             </motion.div>

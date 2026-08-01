@@ -17,6 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/lib/icons";
 
+import { siteConfig } from "@/config/site";
+
 export default function ExpensesPage() {
   const { expenses } = useExpenses();
   const { user } = useAuth();
@@ -97,7 +99,7 @@ export default function ExpensesPage() {
         }
       />
 
-      <SectionCard title="Expense History & Instant Search" description="Filter and search Room 304 transactions">
+      <SectionCard title="Expense History & Instant Search" description={`Filter and search ${siteConfig.roomNumber} transactions`}>
         <div className="space-y-4">
           {/* Search Bar & Sort Menu */}
           <div className="flex flex-col sm:flex-row gap-3">

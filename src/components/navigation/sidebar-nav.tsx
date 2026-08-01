@@ -38,11 +38,11 @@ export function SidebarNav() {
         {/* Header Branding */}
         <div className="space-y-2 pb-4 border-b border-border/40">
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-subtle transition-transform group-hover:scale-105">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-lg transition-transform group-hover:scale-105">
               <Icons.building className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
-              <span className="font-heading text-lg font-bold tracking-tight text-foreground">
+              <span className="font-heading text-lg font-extrabold tracking-tight text-foreground">
                 {siteConfig.name}
               </span>
               <span className="caption text-[11px] font-mono text-muted-foreground -mt-0.5">
@@ -50,14 +50,14 @@ export function SidebarNav() {
               </span>
             </div>
           </Link>
-          <Badge variant="success" className="text-[10px] font-mono gap-1 w-fit">
+          <Badge variant="success" className="text-[10px] font-mono gap-1 w-fit bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>Room 14 Live Khata</span>
           </Badge>
         </div>
 
         {/* User Profile Card */}
-        <div className="flex items-center justify-between p-3 rounded-xl border border-border/60 bg-surface/40">
+        <div className="flex items-center justify-between p-3 rounded-xl border border-border/60 bg-gradient-to-r from-surface/60 to-surface/30">
           <div className="flex items-center space-x-2.5 min-w-0">
             <Avatar name={user.name} size="sm" />
             <div className="truncate">
@@ -65,7 +65,7 @@ export function SidebarNav() {
               <p className="caption text-[10px] text-muted-foreground leading-none">{user.role}</p>
             </div>
           </div>
-          <Badge variant="outline" className="text-[9px] font-mono px-1.5">
+          <Badge variant="outline" className="text-[9px] font-mono px-1.5 border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
             Active
           </Badge>
         </div>
@@ -86,9 +86,9 @@ export function SidebarNav() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center space-x-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-150",
+                  "flex items-center space-x-3 rounded-xl px-3 py-2.5 text-xs font-bold transition-all duration-150",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-subtle"
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md"
                     : "text-muted-foreground hover:text-foreground hover:bg-surface/80"
                 )}
               >

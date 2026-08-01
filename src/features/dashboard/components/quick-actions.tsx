@@ -4,6 +4,7 @@ import * as React from "react";
 import { QuickActionCard } from "@/components/common/quick-action-card";
 import { QuickActionItem } from "@/types";
 import { SectionWrapper } from "@/components/layout/section-wrapper";
+import { siteConfig } from "@/config/site";
 
 export function QuickActions() {
   const actions: QuickActionItem[] = [
@@ -24,26 +25,25 @@ export function QuickActions() {
       disabled: false,
     },
     {
-      id: "qa-profile",
-      title: "My Profile",
-      description: "Room 304 members & settings",
-      icon: "profile",
-      href: "/profile",
+      id: "qa-settle",
+      title: "Khaata Safaya",
+      description: "Settle room balances & repayments",
+      icon: "wallet",
+      href: "/settlements/new",
       disabled: false,
     },
     {
       id: "qa-analytics",
-      title: "Analytics (Soon)",
-      description: "Visual graphs & category trends",
+      title: "Analytics & Trends",
+      description: "Category breakdown & spending graphs",
       icon: "analytics",
-      href: "#",
-      disabled: true,
-      badgeText: "Phase 6",
+      href: "/analytics",
+      disabled: false,
     },
   ];
 
   return (
-    <SectionWrapper title="Quick Actions" subtitle="Shortcuts for common hostel operations">
+    <SectionWrapper title="Quick Actions" subtitle={`Shortcuts for common ${siteConfig.roomNumber} operations`}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {actions.map((action) => (
           <QuickActionCard key={action.id} action={action} />

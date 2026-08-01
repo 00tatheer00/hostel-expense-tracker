@@ -7,6 +7,8 @@ import { DashboardMetrics } from "../hooks/use-dashboard";
 import { formatCurrency, formatDate } from "@/utils/formatters";
 import { staggerContainer, listItemAnimation } from "@/lib/motion";
 
+import { siteConfig } from "@/config/site";
+
 export interface SummaryCardsProps {
   metrics: DashboardMetrics;
 }
@@ -50,7 +52,7 @@ export function SummaryCards({ metrics }: SummaryCardsProps) {
           id="m-3"
           title="Active Roommates"
           value={`${metrics.activeRoommatesCount} Members`}
-          subtitle="Room 304 - Equal 6-way split"
+          subtitle={`${siteConfig.roomNumber} - Equal split`}
           icon="users"
           badgeText="Full Room"
           variant="success"

@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
 
+import { siteConfig } from "@/config/site";
+
 export default function SettlementsPage() {
   const { smartSuggestions, settlements, roommates, deleteSettlement } = useSettlements();
 
@@ -51,7 +53,7 @@ export default function SettlementsPage() {
                 Sab ka hisaab barabar hai.
               </h3>
               <p className="caption text-xs text-muted-foreground max-w-md mx-auto">
-                No active debts pending in Room 304. Everyone is completely settled up!
+                No active debts pending in {siteConfig.roomNumber}. Everyone is completely settled up!
               </p>
             </div>
           ) : (

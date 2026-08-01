@@ -15,6 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
 import { InfoPopover } from "@/components/common/info-popover";
 
+import { PersonalDebtAnalyticsCard } from "./personal-debt-analytics-card";
+
 export function DashboardShell() {
   const {
     recentExpenses,
@@ -34,10 +36,10 @@ export function DashboardShell() {
         <div>
           <div className="flex items-center space-x-2">
             <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center">
-              <span>Room 14 Daily Kharcha</span>
+              <span>Room 14 Live Khata</span>
               <InfoPopover
                 title="Room 14 Dashboard"
-                explanation="Yeh Room 14 (Al Syed Hostel) ka main dashboard hai jahan live hisaab-kitaab aur rozana ke kharchay dikhayi dete hain."
+                explanation="Yeh Room 14 (Al Syed Hostel) ka main dashboard hai jahan live personal hisaab, qarza analytics aur rozana ke kharchay dikhayi dete hain."
               />
             </h1>
             <Badge variant="success" className="font-mono text-xs gap-1">
@@ -46,7 +48,7 @@ export function DashboardShell() {
             </Badge>
           </div>
           <p className="caption text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Simple daily expense & equal roommate split tracker.
+            Personal debt analytics & equal roommate split tracker.
           </p>
         </div>
 
@@ -58,13 +60,13 @@ export function DashboardShell() {
             </Button>
           </Link>
           <Link href="/expenses/new">
-            <Button size="lg" className="gap-2 shadow-subtle font-semibold bg-emerald-700 hover:bg-emerald-800 text-white">
+            <Button size="lg" className="gap-2 shadow-subtle font-semibold bg-emerald-600 hover:bg-emerald-700 text-white">
               <Icons.plus className="h-5 w-5" />
               <span>Naya Kharcha Jodein</span>
             </Button>
           </Link>
           <Link href="/settlements/new">
-            <Button variant="outline" size="lg" className="gap-1.5 font-semibold text-xs">
+            <Button variant="outline" size="lg" className="gap-1.5 font-semibold text-xs border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
               <Icons.checkCircle className="h-4 w-4 text-emerald-600" />
               <span>Khaata Safaya (Settle)</span>
             </Button>
@@ -73,15 +75,18 @@ export function DashboardShell() {
       </div>
 
       <ContentWrapper>
-        {/* Quick Add Template Pills */}
+        {/* 1. Personalized Debt Analytics & Person-by-Person Breakdown */}
+        <PersonalDebtAnalyticsCard />
+
+        {/* 2. Quick Add Template Pills */}
         <div className="p-4 rounded-2xl bg-white dark:bg-card border border-border/80 shadow-subtle space-y-3">
           <QuickAddBar />
         </div>
 
-        {/* Current Balances - Auto-sorted 6 Roommates */}
+        {/* 3. Current Balances - Auto-sorted Roommates */}
         <BalanceList balances={sortedBalances} />
 
-        {/* Monthly Budget Tracker */}
+        {/* 4. Monthly Budget Tracker */}
         <BudgetTracker currentMonthSpend={metrics.currentMonthSpend} />
 
         {/* Recent Expenses List */}

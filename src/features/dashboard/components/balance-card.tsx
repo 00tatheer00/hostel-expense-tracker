@@ -43,15 +43,30 @@ export function BalanceCard({ summary }: BalanceCardProps) {
 
   return (
     <motion.div
-      whileHover={{ y: -2 }}
+      whileHover={{ y: -3, scale: 1.01 }}
       transition={{ duration: 0.2 }}
-      className="flex items-center justify-between p-4 rounded-xl border border-border/70 bg-card hover:bg-surface/50 transition-all shadow-subtle"
+      className={cn(
+        "flex items-center justify-between p-4.5 rounded-2xl border transition-all shadow-card",
+        isPositive
+          ? "border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent hover:border-emerald-500/60"
+          : isNegative
+          ? "border-rose-500/40 bg-gradient-to-r from-rose-500/10 via-pink-500/5 to-transparent hover:border-rose-500/60"
+          : "border-border/80 bg-card hover:bg-surface/60"
+      )}
     >
       <div className="flex items-center space-x-3.5 min-w-0">
-        <Avatar name={user.name} size="md" />
+        <div className="relative">
+          <Avatar name={user.name} size="md" />
+          <span
+            className={cn(
+              "absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-background",
+              isPositive ? "bg-emerald-500 animate-pulse" : isNegative ? "bg-rose-500" : "bg-slate-400"
+            )}
+          />
+        </div>
         <div className="space-y-0.5 truncate">
           <div className="flex items-center">
-            <h4 className="text-sm font-semibold text-foreground truncate">
+            <h4 className="text-sm font-bold text-foreground truncate">
               {user.name}
             </h4>
             <InfoPopover title={`${user.name} Ka Status`} explanation={infoExplanation} />
@@ -59,7 +74,7 @@ export function BalanceCard({ summary }: BalanceCardProps) {
           <div className="flex items-center space-x-2">
             <Badge
               variant={badgeVariant}
-              className="gap-1 font-mono text-[10px] py-0 px-2 font-semibold"
+              className="gap-1 font-mono text-[10px] py-0.5 px-2.5 font-bold shadow-subtle"
             >
               <BadgeIcon className="h-3 w-3" />
               <span>{badgeLabel}</span>
@@ -69,10 +84,10 @@ export function BalanceCard({ summary }: BalanceCardProps) {
       </div>
 
       <div className="flex flex-col items-end shrink-0 pl-2">
-        <span className={cn("numeric text-base sm:text-lg font-bold tracking-tight", textClass)}>
+        <span className={cn("numeric text-base sm:text-lg font-black tracking-tight font-mono", textClass)}>
           {isPositive ? `+ ${formatCurrency(netBalance)}` : isNegative ? `- ${formatCurrency(Math.abs(netBalance))}` : formatCurrency(0)}
         </span>
-        <span className="caption text-[11px] text-muted-foreground font-mono">
+        <span className="caption text-[10px] text-muted-foreground font-mono uppercase font-semibold">
           Net Hisaab
         </span>
       </div>

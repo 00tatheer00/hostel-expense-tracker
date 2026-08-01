@@ -42,7 +42,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: supabaseUser.id,
             name: supabaseUser.user_metadata?.name || supabaseUser.email?.split("@")[0] || "Roommate",
             email: supabaseUser.email || "",
-            role: "Roommate",
+            role: supabaseUser.user_metadata?.role || "Roommate",
+            status: supabaseUser.user_metadata?.status || "approved",
           };
           setUser(profile);
           setAuthCookie(profile);
@@ -80,7 +81,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: session.user.id,
           name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "Roommate",
           email: session.user.email || "",
-          role: "Roommate",
+          role: session.user.user_metadata?.role || "Roommate",
+          status: session.user.user_metadata?.status || "approved",
         };
         setUser(profile);
         setAuthCookie(profile);
@@ -102,8 +104,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     let matchedUser: UserProfile | null = null;
 
-    // Check custom registered users store
-    if (typeof window !== "undefined") {
+    // Special check for Room Admin credentials
+    if (normalizedEmail === "admin" || normalizedEmail === "admin@kamrakhata.internal") {
+      matchedUser = {
+        id: "rm-admin-01",
+        name: "Room Admin",
+        email: "admin@kamrakhata.internal",
+        role: "Room Admin",
+        status: "approved",
+      };
+    } else if (typeof window !== "undefined") {
       const customUsersRaw = localStorage.getItem("kamrakhata_custom_roommates");
       if (customUsersRaw) {
         try {
@@ -117,14 +127,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Dynamic general user initialization
     if (!matchedUser) {
-      const formattedName = email.includes("@") ? email.split("@")[0] : email;
-      matchedUser = {
-        id: `rm-${Date.now()}`,
-        name: formattedName.charAt(0).toUpperCase() + formattedName.slice(1),
-        email: email.includes("@") ? email : `${email.toLowerCase()}@kamrakhata.internal`,
-        role: "Roommate",
+      setIsLoading(false);
+      return {
+        success: false,
+        error: "Yeh account registered nahi hai. Meharbani karke pehle Register karein.",
+      };
+    }
+
+    // Check if account is pending approval
+    if (matchedUser.status === "pending") {
+      setIsLoading(false);
+      return {
+        success: false,
+        error: "Aap ka account Room Admin ki approval ke liye pending hai. Admin approve karega tab aap enter honge.",
+      };
+    }
+
+    if (matchedUser.status === "rejected") {
+      setIsLoading(false);
+      return {
+        success: false,
+        error: "Aap ka account request Admin ki taraf se reject ho gaya hai.",
       };
     }
 
@@ -136,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             password: password,
           });
         } catch {
-          // Fallback to local user session
+          // Fallback to local session
         }
       }
 
@@ -165,18 +189,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const cleanName = name.trim();
     const cleanEmail = email.trim().toLowerCase();
 
+    // Check if first user or explicitly Admin
+    const isAdminRegistration = cleanName.toLowerCase().includes("admin") || cleanEmail.includes("admin");
+
     const newUserProfile: UserProfile = {
       id: `rm-${Date.now()}`,
       name: cleanName,
       email: cleanEmail.includes("@") ? cleanEmail : `${cleanEmail}@kamrakhata.internal`,
-      role: "Roommate",
+      role: isAdminRegistration ? "Room Admin" : "Roommate",
+      status: isAdminRegistration ? "approved" : "pending",
       themePreference: "dark",
     };
 
     // Save to local custom users store
     if (typeof window !== "undefined") {
       try {
-        const existing = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
+        const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
         existing.push(newUserProfile);
         localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(existing));
       } catch (e) {
@@ -190,7 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: newUserProfile.email,
           password: password,
           options: {
-            data: { name: cleanName },
+            data: { name: cleanName, role: newUserProfile.role, status: newUserProfile.status },
           },
         });
       }
@@ -198,11 +226,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("Supabase signup optional note:", err);
     }
 
+    setIsLoading(false);
+
+    if (newUserProfile.status === "pending") {
+      return {
+        success: false,
+        error: "Aap ka account ban gaya hai! Approval ke liye Admin ko bheja gaya hai. Admin approve karega tab aap log in kar sakenge.",
+      };
+    }
+
     setUser(newUserProfile);
     setAuthCookie(newUserProfile);
-    setIsLoading(false);
     router.push("/");
     return { success: true };
+  };
+
+  const approveUser = async (userId: string) => {
+    if (typeof window !== "undefined") {
+      try {
+        const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
+        const updated = existing.map((u) => (u.id === userId ? { ...u, status: "approved" as const } : u));
+        localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(updated));
+      } catch (e) {
+        console.error("Failed to approve user", e);
+      }
+    }
+  };
+
+  const rejectUser = async (userId: string) => {
+    if (typeof window !== "undefined") {
+      try {
+        const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
+        const updated = existing.map((u) => (u.id === userId ? { ...u, status: "rejected" as const } : u));
+        localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(updated));
+      } catch (e) {
+        console.error("Failed to reject user", e);
+      }
+    }
   };
 
   const logout = async () => {
@@ -228,6 +288,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         login,
         register,
+        approveUser,
+        rejectUser,
         logout,
       }}
     >

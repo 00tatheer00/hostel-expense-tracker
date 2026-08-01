@@ -7,6 +7,11 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "dashboard",
   },
   {
+    title: "Admin Panel",
+    href: "/admin",
+    icon: "settings",
+  },
+  {
     title: "Tareeqa (Guide)",
     href: "/guide",
     icon: "help",

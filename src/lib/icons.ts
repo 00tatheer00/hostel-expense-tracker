@@ -27,6 +27,9 @@ import {
   LogOut,
   Settings,
   HelpCircle,
+  Check,
+  X,
+  RotateCcw,
   LucideIcon,
 } from "lucide-react";
 
@@ -62,4 +65,7 @@ export const Icons = {
   logout: LogOut,
   settings: Settings,
   help: HelpCircle,
+  check: Check,
+  x: X,
+  refresh: RotateCcw,
 };

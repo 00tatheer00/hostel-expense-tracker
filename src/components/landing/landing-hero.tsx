@@ -88,15 +88,18 @@ export function LandingHero() {
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
         </motion.div>
 
-        {/* Main Title */}
+        {/* Main Title with Logo */}
         <motion.div
           initial="hidden"
           animate="visible"
           variants={scaleIn}
-          className="space-y-1.5 text-center max-w-lg"
+          className="space-y-3 text-center max-w-lg flex flex-col items-center"
         >
+          <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-2xl border-2 border-indigo-500/40 p-0.5 bg-slate-900">
+            <img src="/logo.png" alt="RoomHesabKitaab Logo" className="w-full h-full object-cover rounded-xl" />
+          </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-heading text-foreground leading-tight">
-            KamraKhata —{" "}
+            RoomHesabKitaab —{" "}
             <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-500 bg-clip-text text-transparent">
               Daily Kharcha Tracker
             </span>

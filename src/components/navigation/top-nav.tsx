@@ -26,8 +26,8 @@ export function TopNav() {
         <div className="flex h-14 items-center justify-between">
           {/* Logo & Room Title */}
           <Link href="/" className="flex items-center space-x-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-subtle">
-              <Icons.building className="h-4 w-4" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden shadow-subtle border border-indigo-500/30">
+              <img src="/logo.png" alt="RoomHesabKitaab Logo" className="h-full w-full object-cover" />
             </div>
             <div className="flex flex-col">
               <span className="font-heading text-base font-extrabold tracking-tight text-slate-900 dark:text-foreground">

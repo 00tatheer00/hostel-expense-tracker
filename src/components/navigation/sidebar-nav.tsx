@@ -64,8 +64,8 @@ export function SidebarNav() {
         {/* Header Branding */}
         <div className="space-y-2 pb-4 border-b border-slate-200/80 dark:border-border/40">
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-lg transition-transform group-hover:scale-105">
-              <Icons.building className="h-5 w-5" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl overflow-hidden shadow-lg transition-transform group-hover:scale-105 border border-indigo-500/30">
+              <img src="/logo.png" alt="RoomHesabKitaab Logo" className="h-full w-full object-cover" />
             </div>
             <div className="flex flex-col">
               <span className="font-heading text-lg font-extrabold tracking-tight text-slate-900 dark:text-foreground">

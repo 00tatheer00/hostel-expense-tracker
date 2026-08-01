@@ -1,7 +1,7 @@
 export const siteConfig = {
-  name: "KamraKhata",
+  name: "RoomHesabKitaab",
   description: "Room 14, Al Syed Hostel ka simple daily kharcha aur roommate hisaab-kitaab tracker.",
-  url: "https://kamrakhata.app",
+  url: "https://roomhesabkitaab.app",
   roomNumber: "Room 14",
   hostelName: "Al Syed Hostel",
   totalRoommates: 6,

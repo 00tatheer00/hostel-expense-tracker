@@ -118,7 +118,7 @@
   }
 }
 
-/* Reusable Typography Utility Classes */
+/* Reusable Typography & Glassmorphism Utility Classes */
 @layer utilities {
   .heading-xl {
     @apply font-heading text-3xl sm:text-4xl font-bold tracking-tight text-foreground;
@@ -143,4 +143,54 @@
   .numeric {
     @apply font-mono tabular-nums tracking-tight;
   }
+
+  /* Premium Glassmorphism Card Style */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  }
+
+  .dark .glass-card {
+    background: rgba(22, 22, 26, 0.75);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+}
+
+/* Ambient Animated Mesh & Orb Keyframe Animations */
+@keyframes ambient-mesh {
+  0% {
+    transform: scale(1) translate(0px, 0px) rotate(0deg);
+  }
+  33% {
+    transform: scale(1.15) translate(30px, -40px) rotate(120deg);
+  }
+  66% {
+    transform: scale(0.9) translate(-20px, 30px) rotate(240deg);
+  }
+  100% {
+    transform: scale(1) translate(0px, 0px) rotate(360deg);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-25px) scale(1.08);
+  }
+}
+
+.animate-mesh {
+  animation: ambient-mesh 25s infinite ease-in-out alternate;
+}
+
+.animate-float {
+  animation: float-slow 12s infinite ease-in-out;
 }

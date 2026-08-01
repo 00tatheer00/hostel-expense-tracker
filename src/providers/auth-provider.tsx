@@ -130,10 +130,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     let matchedUser: UserProfile | null = null;
 
+    // 0. Explicit check for Room Admin credentials (e.g. admin, admin123, admin@kamrakhata.internal)
+    if (normalizedEmail === "admin" || normalizedEmail === "admin123" || normalizedEmail.includes("admin")) {
+      matchedUser = {
+        id: "rm-admin-01",
+        name: "Room Admin",
+        email: "admin@kamrakhata.internal",
+        role: "Room Admin",
+        status: "approved",
+      };
+    }
+
     // 1. Check default Room 14 members
-    matchedUser = DEFAULT_ROOMMATES.find(
-      (u) => u.email.toLowerCase() === normalizedEmail || u.name.toLowerCase() === normalizedEmail
-    ) || null;
+    if (!matchedUser) {
+      matchedUser = DEFAULT_ROOMMATES.find(
+        (u) => u.email.toLowerCase() === normalizedEmail || u.name.toLowerCase() === normalizedEmail
+      ) || null;
+    }
 
     // 2. Check custom registered roommates in localStorage
     if (!matchedUser && typeof window !== "undefined") {
@@ -154,11 +167,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!matchedUser && normalizedEmail) {
       const displayName = email.split("@")[0];
       const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+      const isAdminLogin = normalizedEmail.includes("admin");
       matchedUser = {
         id: `rm-${Date.now()}`,
         name: capitalizedName,
         email: email.includes("@") ? email : `${email}@kamrakhata.internal`,
-        role: "Roommate",
+        role: isAdminLogin ? "Room Admin" : "Roommate",
         status: "approved",
       };
 

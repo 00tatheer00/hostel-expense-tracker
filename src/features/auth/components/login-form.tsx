@@ -177,8 +177,37 @@ export function LoginForm() {
           </form>
         </CardContent>
 
-        <CardFooter className="flex flex-col space-y-2 border-t border-border/40 py-3 bg-surface/30 text-center">
-          <p className="text-xs text-muted-foreground">
+        <CardFooter className="flex flex-col space-y-3 border-t border-border/40 py-4 bg-surface/30 text-center">
+          {/* Quick Demo Credentials Helper */}
+          <div className="w-full space-y-1.5 pt-1">
+            <span className="text-[10px] font-mono font-semibold uppercase text-muted-foreground block">
+              ⚡ Quick Login Shortcuts
+            </span>
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => login("admin@kamrakhata.internal", "admin123")}
+                className="text-[11px] font-mono border-indigo-500/40 text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 gap-1 h-7"
+              >
+                <Icons.shieldAlert className="h-3 w-3" />
+                <span>Admin Login (admin / admin123)</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => login("masood@gmail.com", "masood123")}
+                className="text-[11px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1 h-7"
+              >
+                <Icons.users className="h-3 w-3" />
+                <span>Masood</span>
+              </Button>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground pt-1">
             Room 14 ke naye roommate hain?{" "}
             <a href="/register" className="text-primary font-semibold hover:underline">
               Yahan Register Karein

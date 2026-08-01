@@ -1,12 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-function getServiceClient() {
-  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const url = rawUrl.replace(/\/rest\/v1\/?$/, "").replace(/\/$/, "");
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-  return createClient(url, key);
-}
+import { getServiceClient } from "@/lib/supabase/service";
 
 // GET /api/expenses - fetch all expenses with splits and payer details
 export async function GET() {

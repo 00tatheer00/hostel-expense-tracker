@@ -49,8 +49,8 @@ export function LandingHero() {
       setServerError("Meharbani karke apna poora naam likhein");
       return;
     }
-    if (!regEmail.trim()) {
-      setServerError("Meharbani karke sahi email ya username likhein");
+    if (!regEmail.trim() || !regEmail.includes("@") || !regEmail.includes(".")) {
+      setServerError("Meharbani karke Sahi Email Address likhein (e.g. yourname@gmail.com) taake email receive ho sake.");
       return;
     }
 

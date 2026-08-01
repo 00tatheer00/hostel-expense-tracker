@@ -26,8 +26,8 @@ export function RegisterForm() {
       setServerError("Meharbani karke apna poora naam likhein");
       return;
     }
-    if (!email.trim()) {
-      setServerError("Meharbani karke sahi email ya username likhein");
+    if (!email.trim() || !email.includes("@") || !email.includes(".")) {
+      setServerError("Meharbani karke Sahi Email Address likhein (e.g. yourname@gmail.com) taake email receive ho sake.");
       return;
     }
 

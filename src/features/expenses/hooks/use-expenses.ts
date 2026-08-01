@@ -157,7 +157,7 @@ export function useExpenses() {
     setIsLoading(true);
 
     const shares = calculateSplit(input.amount, input.splitUserIds.length);
-    const payer = roommates.find((r) => r.id === input.paidBy) || roommates[0];
+    const payer = roommates.find((r) => r.id === input.paidBy || r.name.toLowerCase() === input.paidBy.toLowerCase()) || roommates[0];
 
     const newExpenseId = `exp-${Date.now()}`;
     const splitsPayload = input.splitUserIds.map((uId, idx) => ({
@@ -226,7 +226,7 @@ export function useExpenses() {
     setIsLoading(true);
 
     const shares = calculateSplit(input.amount, input.splitUserIds.length);
-    const payer = roommates.find((r) => r.id === input.paidBy) || roommates[0];
+    const payer = roommates.find((r) => r.id === input.paidBy || r.name.toLowerCase() === input.paidBy.toLowerCase()) || roommates[0];
 
     const splitsPayload = input.splitUserIds.map((uId, idx) => ({
       id: `sp-${Date.now()}-${idx}`,

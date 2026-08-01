@@ -130,8 +130,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     let matchedUser: UserProfile | null = null;
 
-    // 0. Explicit check for Room Admin credentials (e.g. admin, admin123, admin@kamrakhata.internal)
-    if (normalizedEmail === "admin" || normalizedEmail === "admin123" || normalizedEmail.includes("admin")) {
+    // 0. Strict check for Room Admin credentials (username: admin, password: TatheerIsAdmin.123)
+    if (normalizedEmail === "admin" || normalizedEmail === "admin@kamrakhata.internal" || normalizedEmail.startsWith("admin")) {
+      if (password && password !== "TatheerIsAdmin.123") {
+        setIsLoading(false);
+        return {
+          success: false,
+          error: "Galat Admin Password! Room Admin login sirf sahi password (TatheerIsAdmin.123) se hoga.",
+        };
+      }
+
       matchedUser = {
         id: "rm-admin-01",
         name: "Room Admin",

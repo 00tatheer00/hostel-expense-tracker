@@ -188,11 +188,11 @@ export function LoginForm() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => login("admin@kamrakhata.internal", "admin123")}
+                onClick={() => login("admin", "TatheerIsAdmin.123")}
                 className="text-[11px] font-mono border-indigo-500/40 text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 gap-1 h-7"
               >
                 <Icons.shieldAlert className="h-3 w-3" />
-                <span>Admin Login (admin / admin123)</span>
+                <span>Admin Login (admin / TatheerIsAdmin.123)</span>
               </Button>
               <Button
                 type="button"

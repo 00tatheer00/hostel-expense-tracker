@@ -21,6 +21,7 @@ export function LandingHero() {
   // Register form state
   const [regName, setRegName] = React.useState("");
   const [regEmail, setRegEmail] = React.useState("");
+  const [registeredData, setRegisteredData] = React.useState<{ name: string; email: string; pass: string } | null>(null);
 
   const [serverError, setServerError] = React.useState<string | null>(null);
 
@@ -42,6 +43,7 @@ export function LandingHero() {
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
+    setRegisteredData(null);
 
     if (!regName.trim()) {
       setServerError("Meharbani karke apna poora naam likhein");
@@ -54,8 +56,15 @@ export function LandingHero() {
 
     const autoPassword = `${regName.trim().split(" ")[0]}123`;
     const res = await registerAuth(regName, regEmail, autoPassword);
+
     if (!res.success && res.error) {
       setServerError(res.error);
+    } else {
+      setRegisteredData({
+        name: regName.trim(),
+        email: regEmail.trim(),
+        pass: autoPassword,
+      });
     }
   };
 
@@ -199,45 +208,76 @@ export function LandingHero() {
                 </form>
               )}
 
-              {/* Register Form (Password Field Completely Removed) */}
+              {/* Register Form */}
               {activeFormTab === "register" && (
-                <form onSubmit={handleRegisterSubmit} className="space-y-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-foreground">
-                      Aap Ka Poora Naam
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Masood, Hamza, etc."
-                      value={regName}
-                      onChange={(e) => setRegName(e.target.value)}
-                      className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                  </div>
+                registeredData ? (
+                  <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-900 dark:text-emerald-200 text-xs space-y-2.5">
+                    <div className="flex items-start space-x-2">
+                      <Icons.checkCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                      <div className="space-y-0.5">
+                        <h4 className="font-bold text-xs text-foreground">🎉 Account Created!</h4>
+                        <p className="text-[11px] opacity-90">Aap ka Room 14 account ban gaya hai.</p>
+                      </div>
+                    </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-foreground">
-                      Email Ya Username
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. masood@gmail.com ya masood"
-                      value={regEmail}
-                      onChange={(e) => setRegEmail(e.target.value)}
-                      className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                  </div>
+                    <div className="p-2.5 rounded-lg bg-background/90 border border-emerald-500/30 text-foreground space-y-1 font-mono text-[11px]">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground font-sans">Name:</span>
+                        <strong>{registeredData.name}</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground font-sans">Email/ID:</span>
+                        <strong>{registeredData.email}</strong>
+                      </div>
+                      <div className="flex justify-between border-t border-border/40 pt-1">
+                        <span className="text-muted-foreground font-sans">Password:</span>
+                        <strong className="text-emerald-600 dark:text-emerald-400">{registeredData.pass}</strong>
+                      </div>
+                    </div>
 
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full h-10 text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md mt-2"
-                  >
-                    {isLoading ? "Register ho raha hai..." : "Register Karein & Join Karein"}
-                  </Button>
-                </form>
+                    <a href="/" className="w-full h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm">
+                      <span>Enter Room 14 →</span>
+                    </a>
+                  </div>
+                ) : (
+                  <form onSubmit={handleRegisterSubmit} className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-foreground">
+                        Aap Ka Poora Naam
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Masood, Hamza, etc."
+                        value={regName}
+                        onChange={(e) => setRegName(e.target.value)}
+                        className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-foreground">
+                        Email Ya Username
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. masood@gmail.com ya masood"
+                        value={regEmail}
+                        onChange={(e) => setRegEmail(e.target.value)}
+                        className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-10 text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md mt-2"
+                    >
+                      {isLoading ? "Register ho raha hai..." : "Register Karein & Join Karein"}
+                    </Button>
+                  </form>
+                )
               )}
 
               {/* Guide Info Tab */}

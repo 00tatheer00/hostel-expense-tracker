@@ -21,19 +21,19 @@ export function TopNav() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md transition-colors md:hidden">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md transition-colors md:hidden shadow-xs">
       <Container size="lg">
         <div className="flex h-14 items-center justify-between">
           {/* Logo & Room Title */}
           <Link href="/" className="flex items-center space-x-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-subtle">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-subtle">
               <Icons.building className="h-4 w-4" />
             </div>
             <div className="flex flex-col">
-              <span className="font-heading text-base font-bold tracking-tight text-foreground">
+              <span className="font-heading text-base font-extrabold tracking-tight text-slate-900 dark:text-foreground">
                 {siteConfig.name}
               </span>
-              <span className="caption text-[10px] font-mono text-muted-foreground -mt-0.5">
+              <span className="caption text-[10px] font-mono text-slate-500 dark:text-muted-foreground -mt-0.5 font-medium">
                 {siteConfig.roomNumber} • Al Syed Hostel
               </span>
             </div>

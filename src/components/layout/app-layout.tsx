@@ -26,25 +26,17 @@ export function AppLayout({ children }: AppLayoutProps) {
     );
   }
 
-  // 2. Authenticated (Roommate Portal Mode): Background Image + Fixed Side Panel + Glassmorphism Layout
+  // 2. Authenticated (Roommate Portal Mode): Clean Light Theme + Ambient Soft Mesh + Fixed Side Panel + Glassmorphism
   return (
-    <div className="relative min-h-screen flex bg-slate-950 text-foreground selection:bg-muted overflow-x-hidden">
-      {/* 1. High-Resolution Rich Background Image Layer */}
-      <div 
-        className="fixed inset-0 pointer-events-none z-0 bg-cover bg-center bg-no-repeat bg-fixed opacity-40 mix-blend-luminosity"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=2000&q=80')`,
-        }}
-      />
-
-      {/* 2. Animated Ambient Glowing Gradient Orbs */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-60">
-        <div className="absolute -top-[20%] -left-[10%] w-[55vw] h-[55vw] max-w-[650px] max-h-[650px] rounded-full bg-gradient-to-br from-indigo-600/40 via-purple-600/30 to-pink-500/20 blur-[120px] animate-mesh" />
-        <div className="absolute top-[35%] -right-[15%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-gradient-to-br from-emerald-500/35 via-teal-500/25 to-cyan-500/20 blur-[130px] animate-mesh" style={{ animationDelay: "-8s" }} />
-        <div className="absolute -bottom-[20%] left-[20%] w-[60vw] h-[60vw] max-w-[700px] max-h-[700px] rounded-full bg-gradient-to-tr from-blue-600/30 via-indigo-600/30 to-violet-600/20 blur-[140px] animate-float" style={{ animationDelay: "-4s" }} />
+    <div className="relative min-h-screen flex bg-gradient-to-br from-slate-50 via-indigo-50/40 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-foreground selection:bg-muted overflow-x-hidden">
+      {/* Soft Ambient Glowing Gradient Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-50 dark:opacity-40">
+        <div className="absolute -top-[15%] -left-[10%] w-[55vw] h-[55vw] max-w-[650px] max-h-[650px] rounded-full bg-gradient-to-br from-indigo-400/20 via-purple-400/15 to-pink-400/10 blur-[100px] animate-mesh" />
+        <div className="absolute top-[35%] -right-[15%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-gradient-to-br from-emerald-400/20 via-teal-400/15 to-cyan-400/10 blur-[110px] animate-mesh" style={{ animationDelay: "-8s" }} />
+        <div className="absolute -bottom-[15%] left-[20%] w-[60vw] h-[60vw] max-w-[700px] max-h-[700px] rounded-full bg-gradient-to-tr from-blue-400/15 via-indigo-400/15 to-violet-400/10 blur-[120px] animate-float" style={{ animationDelay: "-4s" }} />
       </div>
 
-      {/* 3. Fixed Desktop Left Side Panel */}
+      {/* Fixed Desktop Left Side Panel */}
       <SidebarNav />
 
       {/* 4. Main Content Area with md:pl-64 Offset for Fixed Sidebar */}

@@ -124,122 +124,115 @@ export function PersonalDebtAnalyticsCard() {
 
   return (
     <div className="space-y-6">
-      {/* Vibrant Hero Section: Personal Hisaab & Debt Summary */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 p-6 sm:p-8 text-white shadow-2xl border border-indigo-500/30">
-        {/* Decorative Background Glowing Orbs */}
-        <div className="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl" />
-        <div className="absolute -left-12 -bottom-12 h-64 w-64 rounded-full bg-rose-500/20 blur-3xl" />
-
-        <div className="relative z-10 space-y-6">
-          {/* Header Title & Badges */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xl sm:text-2xl font-black font-heading tracking-wide">
-                  👋 {currentUser.name}&apos;s Debt Analytics
-                </span>
-                <Badge className="bg-indigo-500/30 text-indigo-200 border-indigo-400/40 text-[10px] font-mono">
-                  Live Analytics
-                </Badge>
-              </div>
-              <p className="text-xs text-indigo-200/80 mt-1">
-                Your total debt to roommates and amounts owed to you in Room 14.
-              </p>
+      {/* Premium Minimalist Hero Section: Clean & Harmonious Theme Colors */}
+      <div className="rounded-3xl bg-card border border-border/80 p-6 sm:p-7 shadow-sm space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/40">
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="text-xl sm:text-2xl font-extrabold font-heading text-foreground">
+                👋 {currentUser.name}&apos;s Debt Analytics
+              </span>
+              <Badge variant="outline" className="text-[10px] font-mono border-indigo-500/30 text-indigo-600 dark:text-indigo-400">
+                Live Analytics
+              </Badge>
             </div>
-
-            <Link href="/settlements/new">
-              <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs shadow-lg border-0 gap-1.5 self-start sm:self-center">
-                <Icons.checkCircle className="h-4 w-4" />
-                <span>Settle Up</span>
-              </Button>
-            </Link>
+            <p className="text-xs text-muted-foreground mt-1">
+              Your total debt to roommates and amounts owed to you in Room 14.
+            </p>
           </div>
 
-          {/* 3 Main Vibrant Metric Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Card 1: Total Debt (You Owe to Roommates) */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-rose-500/20 to-rose-950/40 p-4 border border-rose-500/40 backdrop-blur-md">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-rose-200 uppercase tracking-wider flex items-center gap-1">
-                  <span>🔴 Total You Owe</span>
-                  <InfoPopover
-                    title="Total You Owe (Aap Par Qarza)"
-                    explanation="Yeh woh total paise hain jo aap ne room ke baaki roommates ko dene hain. Jab unhone kharcha pay kiya aur usme aap ka share tha."
-                  />
-                </span>
-                <div className="p-2 rounded-xl bg-rose-500/20 text-rose-400">
-                  <Icons.arrowUpRight className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="mt-2 text-2xl sm:text-3xl font-black font-mono text-rose-400">
-                {formatCurrency(totalYouOwe)}
-              </div>
-              <p className="text-[10px] text-rose-300/80 mt-1">
-                {totalYouOwe > 0 ? "Payable to roommates" : "No debt pending! 🎉"}
-              </p>
-            </div>
+          <Link href="/settlements/new">
+            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm gap-1.5 self-start sm:self-center">
+              <Icons.checkCircle className="h-4 w-4" />
+              <span>Settle Up</span>
+            </Button>
+          </Link>
+        </div>
 
-            {/* Card 2: Receivables (Roommates Owe You) */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-500/20 to-emerald-950/40 p-4 border border-emerald-500/40 backdrop-blur-md">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-emerald-200 uppercase tracking-wider flex items-center gap-1">
-                  <span>🟢 Total Owed to You</span>
-                  <InfoPopover
-                    title="Total Owed To You (Aap Ko Lene Hain)"
-                    explanation="Yeh woh total paise hain jo baaki roommates ne aap ko dene hain. Jab aap ne milk/grocery bill apni pocket se pay kiya tha."
-                  />
-                </span>
-                <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
-                  <Icons.arrowDownLeft className="h-4 w-4" />
-                </div>
+        {/* 3 Main Sleek Metric Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Card 1: Total Debt (You Owe to Roommates) */}
+          <div className="rounded-2xl bg-rose-500/5 dark:bg-rose-950/20 p-4 border border-rose-500/20 dark:border-rose-900/40 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-rose-700 dark:text-rose-300 uppercase tracking-wider flex items-center gap-1">
+                <span>🔴 Total You Owe</span>
+                <InfoPopover
+                  title="Total You Owe (Aap Par Qarza)"
+                  explanation="Yeh woh total paise hain jo aap ne room ke baaki roommates ko dene hain. Jab unhone kharcha pay kiya aur usme aap ka share tha."
+                />
+              </span>
+              <div className="p-1.5 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                <Icons.arrowUpRight className="h-4 w-4" />
               </div>
-              <div className="mt-2 text-2xl sm:text-3xl font-black font-mono text-emerald-400">
-                {formatCurrency(totalTheyOweYou)}
-              </div>
-              <p className="text-[10px] text-emerald-300/80 mt-1">
-                {totalTheyOweYou > 0 ? "Receivable from roommates" : "No receivables currently"}
-              </p>
             </div>
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-rose-600 dark:text-rose-400">
+              {formatCurrency(totalYouOwe)}
+            </div>
+            <p className="text-[11px] text-rose-600/80 dark:text-rose-300/80 font-medium">
+              {totalYouOwe > 0 ? "Payable to roommates" : "No debt pending! 🎉"}
+            </p>
+          </div>
 
-            {/* Card 3: Net Overall Balance */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-indigo-500/20 to-indigo-950/40 p-4 border border-indigo-500/40 backdrop-blur-md">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-indigo-200 uppercase tracking-wider flex items-center gap-1">
-                  <span>⚡ Net Balance Status</span>
-                  <InfoPopover
-                    title="Net Balance Status (Final Over-all Hisaab)"
-                    explanation="Yeh aap ka poore room ke sath overall final balance hai. Green (+) ka matlab aap ne room se paise LENE hain, Red (-) ka matlab aap ne DENE hain."
-                  />
-                </span>
-                <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300">
-                  <Icons.wallet className="h-4 w-4" />
-                </div>
+          {/* Card 2: Receivables (Roommates Owe You) */}
+          <div className="rounded-2xl bg-emerald-500/5 dark:bg-emerald-950/20 p-4 border border-emerald-500/20 dark:border-emerald-900/40 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1">
+                <span>🟢 Total Owed to You</span>
+                <InfoPopover
+                  title="Total Owed To You (Aap Ko Lene Hain)"
+                  explanation="Yeh woh total paise hain jo baaki roommates ne aap ko dene hain. Jab aap ne milk/grocery bill apni pocket se pay kiya tha."
+                />
+              </span>
+              <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <Icons.arrowDownLeft className="h-4 w-4" />
               </div>
-              <div className="mt-2 text-2xl sm:text-3xl font-black font-mono">
-                {netTotalBalance > 0 ? (
-                  <span className="text-emerald-400">+{formatCurrency(netTotalBalance)}</span>
-                ) : netTotalBalance < 0 ? (
-                  <span className="text-rose-400">-{formatCurrency(Math.abs(netTotalBalance))}</span>
-                ) : (
-                  <span className="text-indigo-200">{formatCurrency(0)}</span>
-                )}
-              </div>
-              <p className="text-[10px] text-indigo-200/80 mt-1 font-semibold">
-                {netTotalBalance > 0
-                  ? "Overall: Net Positive / Receivable"
-                  : netTotalBalance < 0
-                  ? "Overall: Net Payable"
-                  : "Overall: Completely Settled"}
-              </p>
             </div>
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">
+              {formatCurrency(totalTheyOweYou)}
+            </div>
+            <p className="text-[11px] text-emerald-600/80 dark:text-emerald-300/80 font-medium">
+              {totalTheyOweYou > 0 ? "Receivable from roommates" : "No receivables currently"}
+            </p>
+          </div>
+
+          {/* Card 3: Net Overall Balance */}
+          <div className="rounded-2xl bg-indigo-500/5 dark:bg-indigo-950/20 p-4 border border-indigo-500/20 dark:border-indigo-900/40 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider flex items-center gap-1">
+                <span>⚡ Net Balance Status</span>
+                <InfoPopover
+                  title="Net Balance Status (Final Over-all Hisaab)"
+                  explanation="Yeh aap ka poore room ke sath overall final balance hai. Green (+) ka matlab aap ne room se paise LENE hain, Red (-) ka matlab aap ne DENE hain."
+                />
+              </span>
+              <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                <Icons.wallet className="h-4 w-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono">
+              {netTotalBalance > 0 ? (
+                <span className="text-emerald-600 dark:text-emerald-400">+{formatCurrency(netTotalBalance)}</span>
+              ) : netTotalBalance < 0 ? (
+                <span className="text-rose-600 dark:text-rose-400">-{formatCurrency(Math.abs(netTotalBalance))}</span>
+              ) : (
+                <span className="text-foreground">{formatCurrency(0)}</span>
+              )}
+            </div>
+            <p className="text-[11px] text-indigo-600/80 dark:text-indigo-300/80 font-medium">
+              {netTotalBalance > 0
+                ? "Overall: Net Positive / Receivable"
+                : netTotalBalance < 0
+                ? "Overall: Net Payable"
+                : "Overall: Completely Settled"}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Person-by-Person Pairwise Debt Breakdown */}
-      <Card className="border border-border/80 bg-card shadow-card">
+      <Card className="border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-3 border-b border-border/40">
-          <CardTitle className="text-base font-bold flex items-center justify-between">
+          <CardTitle className="text-base font-bold flex items-center justify-between text-foreground">
             <span className="flex items-center space-x-2">
               <span>🤝 Person-by-Person Debt Breakdown</span>
               <InfoPopover
@@ -271,15 +264,9 @@ export function PersonalDebtAnalyticsCard() {
                 return (
                   <div
                     key={rm.id}
-                    className={`p-4 rounded-2xl border transition-all ${
-                      isGetsBack
-                        ? "border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/50"
-                        : isOwes
-                        ? "border-rose-500/30 bg-rose-500/5 hover:border-rose-500/50"
-                        : "border-border/60 bg-surface/30 hover:border-border"
-                    }`}
+                    className="p-4 rounded-2xl border border-border/80 bg-card hover:border-border transition-all shadow-xs space-y-3"
                   >
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <Avatar name={rm.name} size="md" />
                         <div>
@@ -292,26 +279,26 @@ export function PersonalDebtAnalyticsCard() {
 
                       <Badge
                         variant={isGetsBack ? "success" : isOwes ? "danger" : "secondary"}
-                        className="text-[10px] font-mono px-2 py-0.5"
+                        className="text-[10px] font-mono px-2.5 py-0.5 font-bold"
                       >
                         {isGetsBack
-                          ? "Is Ne Lene Hain"
+                          ? "Is Se Lene Hain"
                           : isOwes
-                          ? "Is Ne Dene Hain"
+                          ? "Is Ko Dene Hain"
                           : "Settled"}
                       </Badge>
                     </div>
 
-                    <div className="space-y-2 pt-2 border-t border-border/40 text-xs">
-                      <div className="flex justify-between items-center text-muted-foreground font-mono">
-                        <span>Net Position:</span>
+                    <div className="space-y-2 pt-2.5 border-t border-border/40 text-xs">
+                      <div className="flex justify-between items-center text-muted-foreground">
+                        <span className="font-semibold">Net Position:</span>
                         <strong
                           className={
                             isGetsBack
-                              ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                              ? "text-emerald-600 dark:text-emerald-400 font-extrabold font-mono"
                               : isOwes
-                              ? "text-rose-600 dark:text-rose-400 font-bold"
-                              : "text-foreground"
+                              ? "text-rose-600 dark:text-rose-400 font-extrabold font-mono"
+                              : "text-foreground font-bold font-mono"
                           }
                         >
                           {isGetsBack
@@ -322,16 +309,16 @@ export function PersonalDebtAnalyticsCard() {
                         </strong>
                       </div>
 
-                      <div className="p-2 rounded-xl bg-background/80 border border-border/40 space-y-1 text-[11px]">
+                      <div className="p-2.5 rounded-xl bg-surface/50 border border-border/40 space-y-1.5 text-[11px]">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Is bande ka aap par qarza:</span>
-                          <span className="font-mono font-semibold text-rose-600 dark:text-rose-400">
+                          <span className="text-muted-foreground font-medium">Is bande ka aap par qarza:</span>
+                          <span className="font-mono font-bold text-rose-600 dark:text-rose-400">
                             {formatCurrency(item.youOweThem)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Aap ka is bande par qarza:</span>
-                          <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">
+                          <span className="text-muted-foreground font-medium">Aap ka is bande par qarza:</span>
+                          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
                             {formatCurrency(item.theyOweYou)}
                           </span>
                         </div>

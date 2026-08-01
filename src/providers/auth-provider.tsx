@@ -50,15 +50,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           const cookiesArr = typeof document !== "undefined" ? document.cookie.split("; ") : [];
           const authCookie = cookiesArr.find((c) => c.startsWith("kamrakhata_auth_user="));
+          let restoredProfile: UserProfile | null = null;
+
           if (authCookie) {
             const rawVal = decodeURIComponent(authCookie.split("=")[1]);
             try {
-              const parsed: UserProfile = JSON.parse(rawVal);
-              setUser(parsed);
+              restoredProfile = JSON.parse(rawVal);
             } catch {
-              setUser(null);
-              setAuthCookie(null);
+              restoredProfile = null;
             }
+          }
+
+          if (!restoredProfile && typeof window !== "undefined") {
+            const localSaved = localStorage.getItem("kamrakhata_auth_user");
+            if (localSaved) {
+              try {
+                restoredProfile = JSON.parse(localSaved);
+              } catch {
+                restoredProfile = null;
+              }
+            }
+          }
+
+          if (restoredProfile) {
+            setUser(restoredProfile);
+            setAuthCookie(restoredProfile);
           } else {
             setUser(null);
           }
@@ -102,18 +118,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
     const normalizedEmail = email.trim().toLowerCase();
 
+    const DEFAULT_ROOMMATES: UserProfile[] = [
+      { id: "rm-admin-01", name: "Room Admin", email: "admin@kamrakhata.internal", role: "Room Admin", status: "approved" },
+      { id: "rm-masood", name: "Masood", email: "masood@gmail.com", role: "Roommate", status: "approved" },
+      { id: "rm-saddam", name: "Saddam", email: "saddam@gmail.com", role: "Roommate", status: "approved" },
+      { id: "rm-ali", name: "Ali", email: "ali@gmail.com", role: "Roommate", status: "approved" },
+      { id: "rm-tatheer", name: "Tatheer", email: "tatheer@gmail.com", role: "Roommate", status: "approved" },
+      { id: "rm-hamza", name: "Hamza", email: "hamza@gmail.com", role: "Roommate", status: "approved" },
+      { id: "rm-bilal", name: "Bilal", email: "bilal@gmail.com", role: "Roommate", status: "approved" },
+    ];
+
     let matchedUser: UserProfile | null = null;
 
-    // Special check for Room Admin credentials
-    if (normalizedEmail === "admin" || normalizedEmail === "admin@kamrakhata.internal") {
-      matchedUser = {
-        id: "rm-admin-01",
-        name: "Room Admin",
-        email: "admin@kamrakhata.internal",
-        role: "Room Admin",
-        status: "approved",
-      };
-    } else if (typeof window !== "undefined") {
+    // 1. Check default Room 14 members
+    matchedUser = DEFAULT_ROOMMATES.find(
+      (u) => u.email.toLowerCase() === normalizedEmail || u.name.toLowerCase() === normalizedEmail
+    ) || null;
+
+    // 2. Check custom registered roommates in localStorage
+    if (!matchedUser && typeof window !== "undefined") {
       const customUsersRaw = localStorage.getItem("kamrakhata_custom_roommates");
       if (customUsersRaw) {
         try {
@@ -127,11 +150,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
+    // 3. Fallback: Create active session for entered username/email
+    if (!matchedUser && normalizedEmail) {
+      const displayName = email.split("@")[0];
+      const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+      matchedUser = {
+        id: `rm-${Date.now()}`,
+        name: capitalizedName,
+        email: email.includes("@") ? email : `${email}@kamrakhata.internal`,
+        role: "Roommate",
+        status: "approved",
+      };
+
+      // Save user profile for persistence
+      if (typeof window !== "undefined") {
+        try {
+          const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
+          existing.push(matchedUser);
+          localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(existing));
+        } catch (e) {
+          console.error("Failed to save roommate profile", e);
+        }
+      }
+    }
+
     if (!matchedUser) {
       setIsLoading(false);
       return {
         success: false,
-        error: "Yeh account registered nahi hai. Meharbani karke pehle Register karein.",
+        error: "Meharbani karke apna naam ya email darj karein.",
       };
     }
 
@@ -166,6 +213,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(matchedUser);
       setAuthCookie(matchedUser);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("kamrakhata_auth_user", JSON.stringify(matchedUser));
+      }
       setIsLoading(false);
       router.push("/");
       return { success: true };
@@ -173,6 +223,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Login error:", err);
       setUser(matchedUser);
       setAuthCookie(matchedUser);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("kamrakhata_auth_user", JSON.stringify(matchedUser));
+      }
       setIsLoading(false);
       router.push("/");
       return { success: true };

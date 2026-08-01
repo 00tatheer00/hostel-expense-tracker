@@ -269,6 +269,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
+      // Sync to Supabase profiles database table
+      await supabase.from("profiles").upsert({
+        id: newUserProfile.id,
+        name: newUserProfile.name,
+        email: newUserProfile.email,
+        role: newUserProfile.role,
+        status: newUserProfile.status,
+        created_at: new Date().toISOString(),
+      });
+
       if (password) {
         await supabase.auth.signUp({
           email: newUserProfile.email,
@@ -279,7 +289,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } catch (err) {
-      console.log("Supabase signup optional note:", err);
+      console.log("Supabase profile sync note:", err);
     }
 
     setIsLoading(false);
@@ -298,6 +308,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const approveUser = async (userId: string) => {
+    const supabase = createClient();
+    try {
+      await supabase.from("profiles").update({ status: "approved" }).eq("id", userId);
+    } catch (e) {
+      console.error("Failed to approve in Supabase", e);
+    }
+
     if (typeof window !== "undefined") {
       try {
         const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
@@ -312,6 +329,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const rejectUser = async (userId: string) => {
+    const supabase = createClient();
+    try {
+      await supabase.from("profiles").update({ status: "rejected" }).eq("id", userId);
+    } catch (e) {
+      console.error("Failed to reject in Supabase", e);
+    }
+
     if (typeof window !== "undefined") {
       try {
         const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");

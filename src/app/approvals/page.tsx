@@ -15,21 +15,66 @@ import { UserProfile } from "@/types/auth";
 
 import { EmailService } from "@/services/email.service";
 
+import { createClient } from "@/lib/supabase/client";
+
 export default function ApprovalsPage() {
   const { user, approveUser, rejectUser, isLoading } = useAuth();
   const [allUsers, setAllUsers] = React.useState<UserProfile[]>([]);
 
-  const refreshUsers = React.useCallback(() => {
+  const refreshUsers = React.useCallback(async () => {
+    const list: UserProfile[] = [];
+
+    // 1. Fetch from LocalStorage
     if (typeof window !== "undefined") {
       try {
         const stored: UserProfile[] = JSON.parse(
           localStorage.getItem("kamrakhata_custom_roommates") || "[]"
         );
-        setAllUsers(stored);
+        stored.forEach((u) => {
+          if (!list.some((existing) => existing.id === u.id || existing.email.toLowerCase() === u.email.toLowerCase())) {
+            list.push(u);
+          }
+        });
       } catch (e) {
-        console.error("Failed to fetch custom users", e);
+        console.error("Failed to fetch custom users from local storage", e);
       }
     }
+
+    // 2. Fetch from Supabase Database profiles table
+    try {
+      const supabase = createClient();
+      const { data: dbProfiles } = await supabase.from("profiles").select("*");
+      if (dbProfiles && dbProfiles.length > 0) {
+        dbProfiles.forEach((p: any) => {
+          const matchedIdx = list.findIndex((u) => u.id === p.id || u.email.toLowerCase() === p.email?.toLowerCase());
+          if (matchedIdx !== -1) {
+            list[matchedIdx] = {
+              id: p.id,
+              name: p.name || list[matchedIdx].name,
+              email: p.email || list[matchedIdx].email,
+              role: p.role || list[matchedIdx].role,
+              status: p.status || list[matchedIdx].status,
+            };
+          } else {
+            list.push({
+              id: p.id,
+              name: p.name || "Roommate",
+              email: p.email || "",
+              role: p.role || "Roommate",
+              status: p.status || "pending",
+            });
+          }
+        });
+
+        if (typeof window !== "undefined") {
+          localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(list));
+        }
+      }
+    } catch (e) {
+      console.log("Supabase profiles query note:", e);
+    }
+
+    setAllUsers(list);
   }, []);
 
   React.useEffect(() => {

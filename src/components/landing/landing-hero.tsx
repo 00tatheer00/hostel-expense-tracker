@@ -24,6 +24,7 @@ export function LandingHero() {
   const [regEmail, setRegEmail] = React.useState("");
   const [registeredData, setRegisteredData] = React.useState<{ name: string; email: string; pass: string; userProfile: UserProfile } | null>(null);
 
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [serverError, setServerError] = React.useState<string | null>(null);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -55,8 +56,10 @@ export function LandingHero() {
       return;
     }
 
+    setIsSubmitting(true);
     const autoPassword = `${regName.trim().split(" ")[0]}123`;
     const res = await registerAuth(regName, regEmail, autoPassword);
+    setIsSubmitting(false);
 
     if (!res.success && res.error) {
       setServerError(res.error);
@@ -296,10 +299,10 @@ export function LandingHero() {
 
                     <Button
                       type="submit"
-                      disabled={isLoading}
+                      disabled={isSubmitting}
                       className="w-full h-10 text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md mt-2"
                     >
-                      {isLoading ? "Register ho raha hai..." : "Register Karein & Join Karein"}
+                      {isSubmitting ? "Register ho raha hai..." : "Register Karein & Join Karein"}
                     </Button>
                   </form>
                 )

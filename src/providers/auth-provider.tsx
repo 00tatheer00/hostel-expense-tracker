@@ -238,7 +238,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string,
     password?: string
   ): Promise<{ success: boolean; error?: string; userProfile?: UserProfile }> => {
-    setIsLoading(true);
     const cleanName = name.trim();
     const cleanEmail = email.trim().toLowerCase();
 
@@ -279,11 +278,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (apiError) {
-      setIsLoading(false);
       return { success: false, error: apiError };
     }
 
-    setIsLoading(false);
     return { success: true, userProfile: newUserProfile };
   };
 

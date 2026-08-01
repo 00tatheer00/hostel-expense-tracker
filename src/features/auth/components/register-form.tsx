@@ -15,6 +15,7 @@ export function RegisterForm() {
   const { register: registerAuth, activateSession, isLoading } = useAuth();
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [registeredData, setRegisteredData] = React.useState<{ name: string; email: string; pass: string; userProfile: UserProfile } | null>(null);
 
@@ -32,9 +33,10 @@ export function RegisterForm() {
       return;
     }
 
+    setIsSubmitting(true);
     const autoPassword = `${name.trim().split(" ")[0]}123`;
-
     const res = await registerAuth(name, email, autoPassword);
+    setIsSubmitting(false);
 
     if (res.error) {
       setServerError(res.error);
@@ -188,10 +190,10 @@ export function RegisterForm() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={isSubmitting}
                 className="w-full h-11 text-sm font-semibold shadow-subtle mt-2 bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white"
               >
-                {isLoading ? (
+                {isSubmitting ? (
                   <div className="flex items-center space-x-2">
                     <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     <span>Account ban raha hai...</span>

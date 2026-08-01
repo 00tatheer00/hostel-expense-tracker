@@ -13,18 +13,13 @@ import { siteConfig } from "@/config/site";
 import { useAuth } from "@/hooks/use-auth";
 import { UserProfile } from "@/types/auth";
 
-import { EmailService } from "@/services/email.service";
-
-import { createClient } from "@/lib/supabase/client";
-
 export default function ApprovalsPage() {
-  const { user, approveUser, rejectUser, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const [allUsers, setAllUsers] = React.useState<UserProfile[]>([]);
 
   const refreshUsers = React.useCallback(async () => {
     let list: UserProfile[] = [];
 
-    // 1. PRIMARY: Fetch from server-side API (central database — cross-device)
     try {
       const res = await fetch("/api/profiles");
       const data = await res.json();
@@ -34,29 +29,11 @@ export default function ApprovalsPage() {
           name: p.name || "Roommate",
           email: p.email || "",
           role: p.role || "Roommate",
-          status: p.status || "pending",
+          status: p.status || "approved",
         }));
-
-        // Sync API data to localStorage
-        if (typeof window !== "undefined") {
-          localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(list));
-          window.dispatchEvent(new Event("kamrakhata_data_change"));
-        }
       }
     } catch (e) {
       console.error("Failed to fetch profiles from API", e);
-    }
-
-    // 2. FALLBACK: If API returned nothing, check localStorage
-    if (list.length === 0 && typeof window !== "undefined") {
-      try {
-        const stored: UserProfile[] = JSON.parse(
-          localStorage.getItem("kamrakhata_custom_roommates") || "[]"
-        );
-        list = stored;
-      } catch (e) {
-        console.error("Failed to fetch from localStorage", e);
-      }
     }
 
     setAllUsers(list);
@@ -74,18 +51,6 @@ export default function ApprovalsPage() {
       window.removeEventListener("kamrakhata_data_change", handleStorage);
     };
   }, [refreshUsers]);
-
-  const handleApprove = async (uId: string, uEmail: string, uName: string) => {
-    await approveUser(uId);
-    // Email is sent by the server-side API automatically
-    await refreshUsers();
-  };
-
-  const handleReject = async (uId: string, uEmail: string, uName: string) => {
-    await rejectUser(uId);
-    // Email is sent by the server-side API automatically
-    await refreshUsers();
-  };
 
   if (isLoading) {
     return (
@@ -109,7 +74,7 @@ export default function ApprovalsPage() {
             <div className="space-y-1">
               <h2 className="text-lg font-bold text-foreground">Access Restricted</h2>
               <p className="text-xs text-muted-foreground">
-                Yeh Approvals page Room Admin ke liye hai. Roommates ko yahan access nahi mil sakta.
+                Yeh Member Directory page Room Admin ke liye hai.
               </p>
             </div>
             <Link href="/" className="inline-block">
@@ -124,27 +89,17 @@ export default function ApprovalsPage() {
     );
   }
 
-  const pendingUsers = allUsers.filter((u) => u.status === "pending");
-  const approvedUsers = allUsers.filter((u) => u.status === "approved" || !u.status);
+  const roommatesList = allUsers.filter((u) => !u.name?.toLowerCase().includes("admin"));
 
   return (
     <PageWrapper>
       <PageHeader
-        title="Roommate Approvals"
-        subtitle={`${siteConfig.roomNumber}, ${siteConfig.hostelName} - Review and approve new roommate registrations.`}
+        title="Roommates Directory"
+        subtitle={`${siteConfig.roomNumber}, ${siteConfig.hostelName} - Live active registered roommates.`}
         badge={
-          <Badge variant={pendingUsers.length > 0 ? "warning" : "success"} className="font-mono text-xs gap-1">
-            {pendingUsers.length > 0 ? (
-              <>
-                <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-                <span>{pendingUsers.length} Action Required</span>
-              </>
-            ) : (
-              <>
-                <Icons.checkCircle className="h-3.5 w-3.5" />
-                <span>All Approved</span>
-              </>
-            )}
+          <Badge variant="success" className="font-mono text-xs gap-1">
+            <Icons.checkCircle className="h-3.5 w-3.5" />
+            <span>{roommatesList.length} Active Members</span>
           </Badge>
         }
         action={
@@ -161,102 +116,44 @@ export default function ApprovalsPage() {
       />
 
       <div className="space-y-6">
-        {/* Pending Requests Section */}
         <Card className="border border-border/80 bg-card shadow-card">
           <CardHeader className="pb-3 border-b border-border/40">
             <CardTitle className="text-base font-bold flex items-center justify-between">
-              <span>⏳ Pending Registration Requests</span>
-              <Badge variant={pendingUsers.length > 0 ? "warning" : "secondary"} className="text-xs font-mono">
-                {pendingUsers.length} Pending
-              </Badge>
+              <span>👥 Active Roommate Members ({roommatesList.length})</span>
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
-              New roommates whose account signups are waiting for your approval.
+              Roommates who are registered and active in Room 14 portal.
             </CardDescription>
           </CardHeader>
-
-          <CardContent className="pt-4">
-            {pendingUsers.length === 0 ? (
+          <CardContent className="pt-3">
+            {roommatesList.length === 0 ? (
               <div className="p-8 text-center border border-dashed border-border/60 rounded-2xl space-y-2 bg-surface/20">
-                <div className="h-10 w-10 mx-auto rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-                  <Icons.checkCircle className="h-6 w-6" />
+                <div className="h-10 w-10 mx-auto rounded-full bg-slate-500/10 text-slate-500 flex items-center justify-center">
+                  <Icons.users className="h-6 w-6" />
                 </div>
-                <h4 className="text-sm font-bold text-foreground">No Pending Registration Requests</h4>
+                <h4 className="text-sm font-bold text-foreground">No Registered Roommates Yet</h4>
                 <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                  All registered roommate accounts are approved. When a new roommate signs up, their request will instantly appear here.
+                  When new roommates sign up on the registration form, their active accounts will automatically appear here.
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {pendingUsers.map((pUser) => (
-                  <div
-                    key={pUser.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 gap-3 shadow-sm"
-                  >
+              <div className="divide-y divide-border/60">
+                {roommatesList.map((aUser) => (
+                  <div key={aUser.id} className="py-3 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <Avatar name={pUser.name} size="md" />
+                      <Avatar name={aUser.name} size="md" />
                       <div>
-                        <h4 className="text-sm font-bold text-foreground">{pUser.name}</h4>
-                        <p className="text-xs text-muted-foreground font-mono">{pUser.email}</p>
-                        <Badge variant="warning" className="text-[9px] font-mono mt-1">
-                          Pending Admin Approval
-                        </Badge>
+                        <span className="text-sm font-bold text-foreground">{aUser.name}</span>
+                        <p className="text-xs text-muted-foreground font-mono">{aUser.email}</p>
                       </div>
                     </div>
-
-                    <div className="flex items-center space-x-2 self-end sm:self-center">
-                      <Button
-                        size="sm"
-                        onClick={() => handleApprove(pUser.id, pUser.email, pUser.name)}
-                        className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs font-bold gap-1.5 shadow-md border-0"
-                      >
-                        <Icons.check className="h-4 w-4" />
-                        <span>Approve (Allow Entry & Email)</span>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleReject(pUser.id, pUser.email, pUser.name)}
-                        className="text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 text-xs font-semibold gap-1"
-                      >
-                        <Icons.x className="h-4 w-4" />
-                        <span>Reject</span>
-                      </Button>
-                    </div>
+                    <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
+                      Active Member
+                    </Badge>
                   </div>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Approved Members List */}
-        <Card className="border border-border/80 bg-card shadow-card">
-          <CardHeader className="pb-3 border-b border-border/40">
-            <CardTitle className="text-base font-bold flex items-center justify-between">
-              <span>✅ Active Approved Members ({approvedUsers.length})</span>
-            </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground">
-              Roommates who have been approved and can log into Room 14 portal.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-3">
-            <div className="divide-y divide-border/60">
-              {approvedUsers.map((aUser) => (
-                <div key={aUser.id} className="py-2.5 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Avatar name={aUser.name} size="sm" />
-                    <div>
-                      <span className="text-xs font-bold text-foreground">{aUser.name}</span>
-                      <p className="text-[10px] text-muted-foreground font-mono">{aUser.email}</p>
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="text-[9px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
-                    {aUser.role || "Approved Member"}
-                  </Badge>
-                </div>
-              ))}
-            </div>
           </CardContent>
         </Card>
       </div>

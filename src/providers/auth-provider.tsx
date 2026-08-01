@@ -200,23 +200,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
-    // STRICT CHECK: Block entry if account status is pending
-    if (matchedUser.status === "pending") {
-      setIsLoading(false);
-      return {
-        success: false,
-        error: "Aap ka account Room Admin ki approval ke liye pending hai. Room Admin jab tak approve nahi karega, aap log in nahi kar sakte.",
-      };
-    }
-
-    if (matchedUser.status === "rejected") {
-      setIsLoading(false);
-      return {
-        success: false,
-        error: "Aap ki registration request Room Admin ki taraf se reject ho gayi hai.",
-      };
-    }
-
     try {
       if (password) {
         try {
@@ -267,49 +250,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name: cleanName,
       email: cleanEmail.includes("@") ? cleanEmail : `${cleanEmail}@kamrakhata.internal`,
       role: isAdminRegistration ? "Room Admin" : "Roommate",
-      status: isAdminRegistration ? "approved" : "pending",
+      status: "approved",
       themePreference: "dark",
     };
 
     // 1. Save to central database via server-side API route (cross-device)
+    let apiError: string | null = null;
     try {
       const res = await fetch("/api/profiles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newUserProfile),
+        body: JSON.stringify({
+          id: newUserProfile.id,
+          name: cleanName,
+          email: cleanEmail,
+          password: password || `${cleanName.split(" ")[0]}123`,
+          role: newUserProfile.role,
+        }),
       });
       const result = await res.json();
       if (!result.success && result.error) {
+        apiError = result.error;
         console.error("API profile save error:", result.error);
       }
-    } catch (e) {
+    } catch (e: any) {
+      apiError = e.message || "Registration error";
       console.error("Failed to save profile to API:", e);
     }
 
-    // 2. Also save to localStorage for same-device instant access
+    if (apiError) {
+      setIsLoading(false);
+      return { success: false, error: apiError };
+    }
+
+    // 2. Log in user immediately & save session
+    setUser(newUserProfile);
+    setAuthCookie(newUserProfile);
     if (typeof window !== "undefined") {
-      try {
-        const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
-        existing.push(newUserProfile);
-        localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(existing));
-        window.dispatchEvent(new Event("kamrakhata_data_change"));
-        window.dispatchEvent(new Event("storage"));
-      } catch (e) {
-        console.error("Failed to store custom roommate locally", e);
-      }
+      localStorage.setItem("kamrakhata_auth_user", JSON.stringify(newUserProfile));
+      window.dispatchEvent(new Event("kamrakhata_data_change"));
+      window.dispatchEvent(new Event("storage"));
     }
 
     setIsLoading(false);
-
-    if (newUserProfile.status === "pending") {
-      return {
-        success: true,
-        error: "Aap ka account ban gaya hai! Approval ke liye Room Admin ko bhej diya gaya hai. Admin jab tak approve nahi karega, aap enter nahi ho sakte.",
-      };
-    }
-
-    setUser(newUserProfile);
-    setAuthCookie(newUserProfile);
     router.push("/");
     return { success: true };
   };

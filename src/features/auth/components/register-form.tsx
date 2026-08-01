@@ -9,7 +9,6 @@ import { Icons } from "@/lib/icons";
 import { scaleIn } from "@/lib/motion";
 import { siteConfig } from "@/config/site";
 import { InfoPopover } from "@/components/common/info-popover";
-import { EmailService } from "@/services/email.service";
 
 export function RegisterForm() {
   const { register: registerAuth, isLoading } = useAuth();
@@ -18,13 +17,12 @@ export function RegisterForm() {
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [serverError, setServerError] = React.useState<string | null>(null);
-
-  const [pendingNotice, setPendingNotice] = React.useState<string | null>(null);
+  const [successNotice, setSuccessNotice] = React.useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
-    setPendingNotice(null);
+    setSuccessNotice(null);
 
     if (!name.trim()) {
       setServerError("Meharbani karke apna poora naam likhein");
@@ -35,20 +33,14 @@ export function RegisterForm() {
       return;
     }
 
-    const res = await registerAuth(name, email, password);
-    
-    // Dispatch registration notification email
-    await EmailService.sendRegistrationEmail({
-      name: name.trim(),
-      email: email.trim(),
-      role: "Roommate",
-      status: "pending",
-    });
+    const assignedPass = password.trim() ? password.trim() : `${name.trim().split(" ")[0]}123`;
+
+    const res = await registerAuth(name, email, assignedPass);
 
     if (res.error) {
-      setPendingNotice(res.error);
+      setServerError(res.error);
     } else {
-      setPendingNotice("Aap ka account register ho gaya hai! Approval request Room Admin ko bhej di gayi hai.");
+      setSuccessNotice(`Aap ka account register ho gaya hai! Password: "${assignedPass}" aap ki email par bhej diya gaya hai.`);
     }
   };
 
@@ -66,7 +58,7 @@ export function RegisterForm() {
           </div>
 
           <CardTitle className="font-heading text-2xl font-bold tracking-tight text-foreground">
-            Naye Roommate Ki Registration
+            Roommate Registration
           </CardTitle>
           <CardDescription className="text-xs sm:text-sm text-muted-foreground">
             {siteConfig.roomNumber}, {siteConfig.hostelName} mein apna account banayein
@@ -75,21 +67,20 @@ export function RegisterForm() {
 
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {pendingNotice ? (
-              <div className="p-4 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-900 dark:text-amber-200 text-xs space-y-3">
+            {successNotice ? (
+              <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-900 dark:text-emerald-200 text-xs space-y-3">
                 <div className="flex items-start space-x-2.5">
-                  <Icons.clock className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                  <Icons.checkCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <h4 className="font-bold text-sm text-foreground">⏳ Registration Submitted - Pending Admin Approval!</h4>
-                    <p className="text-xs opacity-90">{pendingNotice}</p>
+                    <h4 className="font-bold text-sm text-foreground">🎉 Registration Successful!</h4>
+                    <p className="text-xs opacity-90">{successNotice}</p>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-amber-500/30 flex items-center justify-between">
-                  <span className="text-[11px] opacity-80">Room Admin approve karega tab aap log in honge.</span>
-                  <a href="/login" className="font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
-                    <span>Log In Screen</span>
-                    <Icons.chevronRight className="h-3.5 w-3.5" />
+                <div className="pt-2 border-t border-emerald-500/30 flex items-center justify-between">
+                  <span className="text-[11px] opacity-80">Room 14 portal ab active hai.</span>
+                  <a href="/" className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1">
+                    <span>Enter Dashboard →</span>
                   </a>
                 </div>
               </div>
@@ -106,7 +97,7 @@ export function RegisterForm() {
                 <span>Aap Ka Poora Naam</span>
                 <InfoPopover
                   title="Roommate Name"
-                  explanation="Yeh naam room ke sabhi kharchon aur balance sheets par dikhayi dega."
+                  explanation="Yeh naam room ke kharchon aur balance sheet par dikhayi dega."
                 />
               </label>
               <input
@@ -125,8 +116,8 @@ export function RegisterForm() {
               <label htmlFor="email" className="text-xs font-medium text-foreground flex items-center justify-between">
                 <span>Email Ya Username</span>
                 <InfoPopover
-                  title="Login ID & Notifications"
-                  explanation="Aap is email par account credentials aur Weekly Khata Reports receive karenge."
+                  title="Login Email & Credentials"
+                  explanation="Is email par login credentials aur Weekly Khata Reports receive karenge."
                 />
               </label>
               <input
@@ -140,21 +131,20 @@ export function RegisterForm() {
               />
             </div>
 
-            {/* Password Field */}
+            {/* Password Field (Optional / Custom) */}
             <div className="space-y-1.5">
               <label htmlFor="password" className="text-xs font-medium text-foreground flex items-center justify-between">
-                <span>Password</span>
+                <span>Password (Optional)</span>
                 <InfoPopover
-                  title="Security Password"
-                  explanation="Apne account ke liye password select karein."
+                  title="Password"
+                  explanation="Khaali chorenge toh system automatic password generate karke email kar dega."
                 />
               </label>
               <div className="relative">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  required
-                  placeholder="Apna password select karein"
+                  placeholder="Password select karein (Optional)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full h-10 pl-3 pr-10 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -192,16 +182,16 @@ export function RegisterForm() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-11 text-sm font-semibold shadow-subtle mt-2"
+              className="w-full h-11 text-sm font-semibold shadow-subtle mt-2 bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white"
             >
               {isLoading ? (
                 <div className="flex items-center space-x-2">
-                  <span className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span>Account ban raha hai...</span>
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <span>Register Karein & Room 14 Join Karein</span>
+                  <span>Register Karein & Direct Enter Karein</span>
                   <Icons.chevronRight className="h-4 w-4" />
                 </div>
               )}

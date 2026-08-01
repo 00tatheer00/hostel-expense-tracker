@@ -28,31 +28,31 @@ export function DashboardShell() {
     isLoading,
   } = useDashboard();
 
-  const [pendingUsers, setPendingUsers] = React.useState<any[]>([]);
+  const [roommateMembers, setRoommateMembers] = React.useState<any[]>([]);
 
-  const checkPendingUsers = React.useCallback(async () => {
+  const checkRoommateMembers = React.useCallback(async () => {
     try {
       const res = await fetch("/api/profiles");
       const data = await res.json();
       if (data.profiles && Array.isArray(data.profiles)) {
-        const pending = data.profiles.filter((u: any) => u.status === "pending");
-        setPendingUsers(pending);
+        const roommates = data.profiles.filter((u: any) => !u.name?.toLowerCase().includes("admin") && !u.email?.toLowerCase().includes("admin"));
+        setRoommateMembers(roommates);
       }
     } catch (e) {
-      console.error("Failed to fetch profiles for pending notification", e);
+      console.error("Failed to fetch profiles for roommate notification", e);
     }
   }, []);
 
   React.useEffect(() => {
-    checkPendingUsers();
-    window.addEventListener("storage", checkPendingUsers);
-    window.addEventListener("kamrakhata_data_change", checkPendingUsers);
+    checkRoommateMembers();
+    window.addEventListener("storage", checkRoommateMembers);
+    window.addEventListener("kamrakhata_data_change", checkRoommateMembers);
 
     return () => {
-      window.removeEventListener("storage", checkPendingUsers);
-      window.removeEventListener("kamrakhata_data_change", checkPendingUsers);
+      window.removeEventListener("storage", checkRoommateMembers);
+      window.removeEventListener("kamrakhata_data_change", checkRoommateMembers);
     };
-  }, [checkPendingUsers]);
+  }, [checkRoommateMembers]);
 
   if (isLoading) {
     return <LoadingDashboard />;
@@ -60,30 +60,30 @@ export function DashboardShell() {
 
   return (
     <PageWrapper>
-      {/* Live Admin Pending Registration Notification Banner */}
-      {user?.role === "Room Admin" && pendingUsers.length > 0 && (
-        <div className="p-4 rounded-2xl border border-amber-500/50 bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-amber-500/20 text-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg animate-pulse">
+      {/* Live Admin Member Registered Notification Banner */}
+      {user?.role === "Room Admin" && roommateMembers.length > 0 && (
+        <div className="p-4 rounded-2xl border border-emerald-500/50 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 text-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-amber-500 text-slate-900 font-bold shrink-0">
-              <Icons.clock className="h-5 w-5" />
+            <div className="p-2 rounded-xl bg-emerald-500 text-white font-bold shrink-0">
+              <Icons.userPlus className="h-5 w-5" />
             </div>
             <div>
               <h4 className="text-xs sm:text-sm font-bold flex items-center gap-2">
-                <span>🔔 Action Required: {pendingUsers.length} Roommate Signup Request{pendingUsers.length === 1 ? "" : "s"} Pending!</span>
-                <Badge variant="warning" className="text-[10px] font-mono">
-                  Needs Approval
+                <span>🎉 {roommateMembers.length} Registered Roommate{roommateMembers.length === 1 ? "" : "s"} in Room 14</span>
+                <Badge variant="success" className="text-[10px] font-mono">
+                  Live Members
                 </Badge>
               </h4>
               <p className="caption text-xs text-muted-foreground mt-0.5">
-                {pendingUsers.map((u) => u.name).join(", ")} registered and is waiting for your Room Admin approval to join.
+                Active Roommates: <strong className="text-foreground">{roommateMembers.map((u) => u.name).join(", ")}</strong>
               </p>
             </div>
           </div>
 
           <Link href="/approvals" className="shrink-0">
-            <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shadow-md border-0 gap-1.5 w-full sm:w-auto">
-              <Icons.checkCircle className="h-4 w-4" />
-              <span>Review Approvals Now</span>
+            <Button size="sm" variant="outline" className="text-xs font-bold border-emerald-500/40 text-emerald-600 dark:text-emerald-400 gap-1.5 w-full sm:w-auto">
+              <Icons.users className="h-4 w-4" />
+              <span>View All Members</span>
             </Button>
           </Link>
         </div>

@@ -19,31 +19,31 @@ export function SidebarNav() {
   const pathname = usePathname();
   const { user, logout, isLoading } = useAuth();
   const { roomBalances } = useExpenses();
-  const [pendingCount, setPendingCount] = React.useState<number>(0);
+  const [memberCount, setMemberCount] = React.useState<number>(0);
 
-  const checkPendingUsers = React.useCallback(async () => {
+  const checkRoommateMembers = React.useCallback(async () => {
     try {
       const res = await fetch("/api/profiles");
       const data = await res.json();
       if (data.profiles && Array.isArray(data.profiles)) {
-        const pending = data.profiles.filter((u: any) => u.status === "pending").length;
-        setPendingCount(pending);
+        const count = data.profiles.filter((u: any) => !u.name?.toLowerCase().includes("admin")).length;
+        setMemberCount(count);
       }
     } catch (e) {
-      console.error("Failed to fetch profiles for sidebar pending badge", e);
+      console.error("Failed to fetch profiles for sidebar member badge", e);
     }
   }, []);
 
   React.useEffect(() => {
-    checkPendingUsers();
-    window.addEventListener("storage", checkPendingUsers);
-    window.addEventListener("kamrakhata_data_change", checkPendingUsers);
+    checkRoommateMembers();
+    window.addEventListener("storage", checkRoommateMembers);
+    window.addEventListener("kamrakhata_data_change", checkRoommateMembers);
 
     return () => {
-      window.removeEventListener("storage", checkPendingUsers);
-      window.removeEventListener("kamrakhata_data_change", checkPendingUsers);
+      window.removeEventListener("storage", checkRoommateMembers);
+      window.removeEventListener("kamrakhata_data_change", checkRoommateMembers);
     };
-  }, [checkPendingUsers]);
+  }, [checkRoommateMembers]);
 
   if (!user) {
     return null;
@@ -124,9 +124,9 @@ export function SidebarNav() {
                   <span>{item.title}</span>
                 </div>
 
-                {isApprovalsItem && pendingCount > 0 && (
-                  <span className="h-5 px-1.5 rounded-full bg-amber-500 text-slate-950 text-[10px] font-mono font-bold flex items-center justify-center animate-pulse shadow-sm">
-                    {pendingCount}
+                {isApprovalsItem && memberCount > 0 && (
+                  <span className="h-5 px-2 rounded-full bg-emerald-500 text-white text-[10px] font-mono font-bold flex items-center justify-center shadow-sm">
+                    {memberCount}
                   </span>
                 )}
               </Link>

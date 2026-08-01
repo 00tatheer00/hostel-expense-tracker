@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
+import { InfoPopover } from "@/components/common/info-popover";
 
 export interface FavoriteTemplate {
   id: string;
@@ -15,12 +16,14 @@ export interface FavoriteTemplate {
 }
 
 export const FAVORITE_TEMPLATES: FavoriteTemplate[] = [
-  { id: "fav-1", name: "Milk", category: "Food", defaultAmount: 150, iconName: "food" },
-  { id: "fav-2", name: "Water Can", category: "Food", defaultAmount: 60, iconName: "food" },
-  { id: "fav-3", name: "Internet Bill", category: "Internet", defaultAmount: 1200, iconName: "internet" },
-  { id: "fav-4", name: "Electricity Bill", category: "Electricity", defaultAmount: 2500, iconName: "electricity" },
-  { id: "fav-5", name: "Gas Cylinder", category: "Rent", defaultAmount: 3000, iconName: "building" },
-  { id: "fav-6", name: "Hostel Rent", category: "Rent", defaultAmount: 18000, iconName: "building" },
+  { id: "fav-1", name: "Doodh (Milk)", category: "Food", defaultAmount: 150, iconName: "food" },
+  { id: "fav-2", name: "Pani Bottle (Water)", category: "Food", defaultAmount: 60, iconName: "food" },
+  { id: "fav-3", name: "Roti / Naan", category: "Food", defaultAmount: 200, iconName: "food" },
+  { id: "fav-4", name: "Sabzi / Salan", category: "Food", defaultAmount: 400, iconName: "food" },
+  { id: "fav-5", name: "Internet Bill", category: "Internet", defaultAmount: 1200, iconName: "internet" },
+  { id: "fav-6", name: "Bijli Bill", category: "Electricity", defaultAmount: 2500, iconName: "electricity" },
+  { id: "fav-7", name: "Gas Cylinder", category: "Rent", defaultAmount: 3000, iconName: "building" },
+  { id: "fav-8", name: "Hostel Room Rent", category: "Rent", defaultAmount: 18000, iconName: "building" },
 ];
 
 export function QuickAddBar() {
@@ -29,10 +32,14 @@ export function QuickAddBar() {
       <div className="flex items-center justify-between">
         <span className="caption text-xs font-mono font-semibold uppercase text-muted-foreground flex items-center space-x-1.5">
           <Icons.sparkles className="h-3.5 w-3.5 text-amber-500" />
-          <span>Favorite Expense Templates</span>
+          <span>Fawri Daily Kharcha Shortcuts</span>
+          <InfoPopover
+            title="1-Tap Shortcuts"
+            explanation="Daily roze hone wale kharchon (Doodh, Roti, Pani, Gas, Bill) ko fast add karne ke liye kisi bhi pill par tap karein."
+          />
         </span>
-        <Badge variant="outline" className="text-[10px] font-mono">
-          One-Tap Prefill
+        <Badge variant="outline" className="text-[10px] font-mono font-semibold">
+          1-Tap Entry
         </Badge>
       </div>
 

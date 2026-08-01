@@ -8,6 +8,7 @@ import { UserBalanceSummary } from "@/types/database";
 import { formatCurrency } from "@/utils/formatters";
 import { Icons } from "@/lib/icons";
 import { cn } from "@/lib/utils";
+import { InfoPopover } from "@/components/common/info-popover";
 
 export interface BalanceCardProps {
   summary: UserBalanceSummary;
@@ -19,20 +20,23 @@ export function BalanceCard({ summary }: BalanceCardProps) {
   const isNegative = netBalance < -0.01;
 
   let badgeVariant: "success" | "danger" | "muted" = "muted";
-  let badgeLabel = "Settled";
+  let badgeLabel = "Hisaab Barabar";
   let badgeIcon = Icons.checkCircle;
   let textClass = "text-muted-foreground";
+  let infoExplanation = "Is roommate ka khaata bilkul clear aur barabar hai.";
 
   if (isPositive) {
     badgeVariant = "success";
-    badgeLabel = "Should Receive";
+    badgeLabel = "Paise LENE HAIN";
     badgeIcon = Icons.arrowDownLeft;
     textClass = "text-emerald-700 dark:text-emerald-400";
+    infoExplanation = `${user.name} ne room ke liye ziada kharcha kiya hai. Usay baqi roommates se paise milne hain.`;
   } else if (isNegative) {
     badgeVariant = "danger";
-    badgeLabel = "Needs to Pay";
+    badgeLabel = "Paise DENE HAIN";
     badgeIcon = Icons.arrowUpRight;
     textClass = "text-rose-700 dark:text-rose-400";
+    infoExplanation = `${user.name} ko room ke kharchon mein se baqi roommates ko paise waapas adaa karne hain.`;
   }
 
   const BadgeIcon = badgeIcon;
@@ -46,13 +50,16 @@ export function BalanceCard({ summary }: BalanceCardProps) {
       <div className="flex items-center space-x-3.5 min-w-0">
         <Avatar name={user.name} size="md" />
         <div className="space-y-0.5 truncate">
-          <h4 className="text-sm font-semibold text-foreground truncate">
-            {user.name}
-          </h4>
+          <div className="flex items-center">
+            <h4 className="text-sm font-semibold text-foreground truncate">
+              {user.name}
+            </h4>
+            <InfoPopover title={`${user.name} Ka Status`} explanation={infoExplanation} />
+          </div>
           <div className="flex items-center space-x-2">
             <Badge
               variant={badgeVariant}
-              className="gap-1 font-mono text-[10px] py-0 px-2 font-medium"
+              className="gap-1 font-mono text-[10px] py-0 px-2 font-semibold"
             >
               <BadgeIcon className="h-3 w-3" />
               <span>{badgeLabel}</span>
@@ -66,7 +73,7 @@ export function BalanceCard({ summary }: BalanceCardProps) {
           {isPositive ? `+ ${formatCurrency(netBalance)}` : isNegative ? `- ${formatCurrency(Math.abs(netBalance))}` : formatCurrency(0)}
         </span>
         <span className="caption text-[11px] text-muted-foreground font-mono">
-          Net Balance
+          Net Hisaab
         </span>
       </div>
     </motion.div>

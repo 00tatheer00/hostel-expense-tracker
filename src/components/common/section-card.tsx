@@ -2,8 +2,8 @@ import * as React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-export interface SectionCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  title: string;
+export interface SectionCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
+  title: React.ReactNode;
   description?: string;
   action?: React.ReactNode;
   children: React.ReactNode;

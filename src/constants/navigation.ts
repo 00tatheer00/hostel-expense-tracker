@@ -2,17 +2,22 @@ import { NavItem } from "@/types";
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    title: "Dashboard",
+    title: "Khata Home",
     href: "/",
     icon: "dashboard",
   },
   {
-    title: "Expenses",
+    title: "Tareeqa (Guide)",
+    href: "/guide",
+    icon: "help",
+  },
+  {
+    title: "Daily Kharcha",
     href: "/expenses",
     icon: "expenses",
   },
   {
-    title: "Settlements",
+    title: "Khaata Safaya",
     href: "/settlements",
     icon: "wallet",
   },
@@ -25,10 +30,5 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Profile",
     href: "/profile",
     icon: "profile",
-  },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: "settings",
   },
 ];

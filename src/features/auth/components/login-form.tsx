@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
 import { scaleIn } from "@/lib/motion";
 import { siteConfig } from "@/config/site";
+import { InfoPopover } from "@/components/common/info-popover";
 
 const PRESET_ROOMMATES = [
   { name: "Waheed", email: "waheed@kamrakhata.internal", role: "Admin" },
@@ -69,10 +70,10 @@ export function LoginForm() {
           </div>
 
           <CardTitle className="font-heading text-2xl font-bold tracking-tight text-foreground">
-            {siteConfig.name}
+            {siteConfig.name} Log In
           </CardTitle>
           <CardDescription className="text-xs sm:text-sm text-muted-foreground">
-            Sign in to {siteConfig.roomNumber}, {siteConfig.hostelName} Tracker
+            {siteConfig.roomNumber}, {siteConfig.hostelName} Roommate Sign In
           </CardDescription>
         </CardHeader>
 
@@ -80,8 +81,12 @@ export function LoginForm() {
           {/* Quick Roommate Login Selectors */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-                Room 14 Member Quick Login
+              <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground flex items-center">
+                <span>Room 14 Test Login</span>
+                <InfoPopover
+                  title="Fast Preset Login"
+                  explanation="Neeche diye gaye kisi bhi roommate ke naam par tap karein aur instant login karein."
+                />
               </span>
               <Badge variant="outline" className="text-[10px] font-mono py-0">
                 Al Syed Hostel
@@ -105,7 +110,7 @@ export function LoginForm() {
           <div className="relative flex items-center py-1">
             <div className="flex-grow border-t border-border/60"></div>
             <span className="flex-shrink mx-2 text-[10px] font-mono text-muted-foreground uppercase">
-              or enter credentials
+              ya credentials likhein
             </span>
             <div className="flex-grow border-t border-border/60"></div>
           </div>
@@ -125,14 +130,18 @@ export function LoginForm() {
                 htmlFor="email"
                 className="text-xs font-medium text-foreground flex items-center justify-between"
               >
-                <span>Email or Roommate Name</span>
+                <span>Email Ya Roommate Naam</span>
+                <InfoPopover
+                  title="Email / Name Login"
+                  explanation="Aap apna registered email ya sirf apna naam (e.g. Masood, Waheed) likh kar log in kar sakte hain."
+                />
               </label>
               <div className="relative">
                 <input
                   id="email"
                   type="text"
                   autoComplete="username"
-                  placeholder="Enter email or roommate name"
+                  placeholder="Naam ya email likhein (e.g. Waheed)"
                   className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   {...register("email")}
                 />
@@ -151,13 +160,17 @@ export function LoginForm() {
                 className="text-xs font-medium text-foreground flex items-center justify-between"
               >
                 <span>Password</span>
+                <InfoPopover
+                  title="Password Information"
+                  explanation="Preset roommates ka default password 'password123' hai."
+                />
               </label>
               <div className="relative">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
-                  placeholder="Enter password"
+                  placeholder="Apna password darj karein"
                   className="w-full h-10 pl-3 pr-10 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   {...register("password")}
                 />
@@ -193,7 +206,7 @@ export function LoginForm() {
                 htmlFor="rememberMe"
                 className="text-xs text-muted-foreground cursor-pointer select-none"
               >
-                Remember me on this browser
+                Mujhe is browser par yaad rakhein
               </label>
             </div>
 
@@ -206,11 +219,11 @@ export function LoginForm() {
               {isLoading ? (
                 <div className="flex items-center space-x-2">
                   <span className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                  <span>Logging in...</span>
+                  <span>Log in ho raha hai...</span>
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <span>Sign In to Room 14</span>
+                  <span>Room 14 Mein Sign In Karein</span>
                   <Icons.chevronRight className="h-4 w-4" />
                 </div>
               )}
@@ -220,9 +233,9 @@ export function LoginForm() {
 
         <CardFooter className="flex flex-col space-y-2 border-t border-border/40 py-3 bg-surface/30 text-center">
           <p className="text-xs text-muted-foreground">
-            New Roommate of Room 14?{" "}
+            Room 14 ke naye roommate hain?{" "}
             <a href="/register" className="text-primary font-semibold hover:underline">
-              Register Here
+              Yahan Register Karein
             </a>
           </p>
           <p className="text-[10px] text-muted-foreground">

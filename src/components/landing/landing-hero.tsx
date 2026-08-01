@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
 import { fadeIn, scaleIn } from "@/lib/motion";
 import { useAuth } from "@/hooks/use-auth";
+import { InfoPopover } from "@/components/common/info-popover";
 
 export function LandingHero() {
   const { login } = useAuth();
@@ -18,7 +19,7 @@ export function LandingHero() {
   };
 
   return (
-    <div className="w-full py-12 md:py-20 flex flex-col items-center justify-center text-center space-y-10 max-w-5xl mx-auto px-4">
+    <div className="w-full py-12 md:py-16 flex flex-col items-center justify-center text-center space-y-8 max-w-5xl mx-auto px-4">
       {/* Top Hostel Badge */}
       <motion.div
         initial="hidden"
@@ -39,14 +40,18 @@ export function LandingHero() {
         className="space-y-4 max-w-3xl"
       >
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight font-heading text-foreground leading-tight">
-          Hostel Daily Kharcha & <br className="hidden sm:inline" />
+          KamraKhata — <br className="hidden sm:inline" />
           <span className="bg-gradient-to-r from-primary via-indigo-500 to-emerald-400 bg-clip-text text-transparent">
-            Expense Tracker
+            Daily Kharcha Tracker
           </span>
         </h1>
         <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-          Super simple daily expense tracker built specifically for <strong className="text-foreground">Room 14, Al Syed Hostel</strong>.
-          Log daily kharcha (milk, roti, vegetables, grocery), divide expenses equally, and track your personal <em className="text-primary font-medium font-sans">Hisaab / Balances</em> effortlessly.
+          Khaass <strong className="text-foreground">Room 14, Al Syed Hostel</strong> ke liye banaya gaya aasan daily kharcha tracker.
+          Doodh, roti, sabzi, gas cylinder aur grocery ka kharcha daalein, auto-equal split payein aur apna <em className="text-primary font-medium font-sans">Net Hisaab</em> ek click mein dekhein.
+          <InfoPopover
+            title="Room 14 App"
+            explanation="Yeh app Room 14 ke roommates ke daily kharchay aur aapas ke hisaab-kitaab ko 100% transparent rakhne ke liye hai."
+          />
         </p>
       </motion.div>
 
@@ -55,19 +60,26 @@ export function LandingHero() {
         initial="hidden"
         animate="visible"
         variants={fadeIn}
-        className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md"
+        className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-md"
       >
         <Link href="/login" className="w-full sm:w-auto">
-          <Button size="lg" className="w-full sm:w-auto px-8 h-12 text-base font-semibold shadow-card gap-2">
+          <Button size="lg" className="w-full sm:w-auto px-8 h-12 text-sm sm:text-base font-semibold shadow-card gap-2">
             <Icons.building className="h-5 w-5" />
-            <span>Login to Room 14</span>
+            <span>Room 14 Mein Log In Karein</span>
           </Button>
         </Link>
 
         <Link href="/register" className="w-full sm:w-auto">
-          <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 h-12 text-base font-semibold gap-2 border-primary/40 hover:border-primary">
+          <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 h-12 text-sm sm:text-base font-semibold gap-2 border-primary/40 hover:border-primary">
             <Icons.userPlus className="h-5 w-5 text-primary" />
-            <span>Register Roommate</span>
+            <span>New Roommate Register Karein</span>
+          </Button>
+        </Link>
+
+        <Link href="/guide" className="w-full sm:w-auto">
+          <Button size="lg" variant="secondary" className="w-full sm:w-auto px-6 h-12 text-xs sm:text-sm font-semibold gap-1.5">
+            <Icons.help className="h-4 w-4 text-amber-500" />
+            <span>App Use Karne Ka Tareeqa</span>
           </Button>
         </Link>
       </motion.div>
@@ -80,11 +92,15 @@ export function LandingHero() {
         className="w-full max-w-xl p-5 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-md shadow-card space-y-3"
       >
         <div className="flex items-center justify-between">
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
-            ⚡ Quick Room 14 Member Demo Login
+          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground flex items-center">
+            <span>⚡ Room 14 Test Member Quick Login</span>
+            <InfoPopover
+              title="Quick Test Login"
+              explanation="Test karne ke liye kisi bhi roommate ke naam par click karein. Aap bina password type kiye foran dashboard mein enter ho jayenge."
+            />
           </span>
           <Badge variant="secondary" className="text-[10px]">
-            Instant Access
+            Direct Entry
           </Badge>
         </div>
 
@@ -109,40 +125,58 @@ export function LandingHero() {
         </div>
       </motion.div>
 
-      {/* Features Grid */}
+      {/* Features Grid with (i) tooltips */}
       <motion.div
         initial="hidden"
         animate="visible"
         variants={fadeIn}
-        className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full pt-6 text-left"
+        className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full pt-4 text-left"
       >
-        <div className="p-6 rounded-2xl border border-border/60 bg-card/40 space-y-2">
+        <div className="p-5 rounded-2xl border border-border/60 bg-card/40 space-y-2 relative">
           <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
             <Icons.receipt className="h-5 w-5" />
           </div>
-          <h3 className="font-heading text-lg font-bold text-foreground">Daily Kharcha Log</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-heading text-base font-bold text-foreground">Rozana Ka Kharcha</h3>
+            <InfoPopover
+              title="Daily Kharcha Log"
+              explanation="Doodh, roti, sabzi, gas cylinder ya kisi bhi grocery bill ka entry karein. Date aur pay karne wale roommate ka naam mention hota hai."
+            />
+          </div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Record daily room expenses like milk, roti, vegetables, gas cylinder & grocery in seconds.
+            Doodh, roti, sabzi, gas cylinder aur grocery bills seconds mein record karein.
           </p>
         </div>
 
-        <div className="p-6 rounded-2xl border border-border/60 bg-card/40 space-y-2">
+        <div className="p-5 rounded-2xl border border-border/60 bg-card/40 space-y-2 relative">
           <div className="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-bold">
             <Icons.users className="h-5 w-5" />
           </div>
-          <h3 className="font-heading text-lg font-bold text-foreground">Equal Split</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-heading text-base font-bold text-foreground">Barabar Taqseem</h3>
+            <InfoPopover
+              title="Equal Split"
+              explanation="Har kharcha Room 14 ke active roommates par auto-equal divide ho jata hai. Kisi ko alag se hisaab calculate nahi karna padta."
+            />
+          </div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Every daily expense is automatically divided equally among active Room 14 members.
+            Har daily kharcha automatically Room 14 ke roommates mein barabar split ho jata hai.
           </p>
         </div>
 
-        <div className="p-6 rounded-2xl border border-border/60 bg-card/40 space-y-2">
+        <div className="p-5 rounded-2xl border border-border/60 bg-card/40 space-y-2 relative">
           <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
             <Icons.wallet className="h-5 w-5" />
           </div>
-          <h3 className="font-heading text-lg font-bold text-foreground">Personal Roommate Portal</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-heading text-base font-bold text-foreground">Apna Personal Portal</h3>
+            <InfoPopover
+              title="Personal Roommate Portal"
+              explanation="Aap ka apna dashboard jahan se aap live dekh sakte hain ke kitne paise aap ko roommates ko DENE HAIN ya un se LENE HAIN."
+            />
+          </div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Every roommate gets their dedicated portal to check exact net balance (kitne paise dene ya lene hain).
+            Har roommate ka apna personal dashboard jahan net balance (LENE HAIN ya DENE HAIN) live dikhaye.
           </p>
         </div>
       </motion.div>

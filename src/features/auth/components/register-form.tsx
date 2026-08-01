@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/lib/icons";
 import { scaleIn } from "@/lib/motion";
 import { siteConfig } from "@/config/site";
+import { InfoPopover } from "@/components/common/info-popover";
 
 export function RegisterForm() {
   const { register: registerAuth, isLoading } = useAuth();
@@ -21,11 +22,11 @@ export function RegisterForm() {
     setServerError(null);
 
     if (!name.trim()) {
-      setServerError("Please enter your full name");
+      setServerError("Meharbani karke apna poora naam likhein");
       return;
     }
     if (!email.trim()) {
-      setServerError("Please enter a valid email or username");
+      setServerError("Meharbani karke sahi email ya username likhein");
       return;
     }
 
@@ -49,10 +50,10 @@ export function RegisterForm() {
           </div>
 
           <CardTitle className="font-heading text-2xl font-bold tracking-tight text-foreground">
-            Roommate Registration
+            Naye Roommate Ki Registration
           </CardTitle>
           <CardDescription className="text-xs sm:text-sm text-muted-foreground">
-            Register as a Roommate for {siteConfig.roomNumber}, {siteConfig.hostelName}
+            {siteConfig.roomNumber}, {siteConfig.hostelName} mein apna account banayein
           </CardDescription>
         </CardHeader>
 
@@ -67,14 +68,18 @@ export function RegisterForm() {
 
             {/* Name Field */}
             <div className="space-y-1.5">
-              <label htmlFor="name" className="text-xs font-medium text-foreground">
-                Your Name
+              <label htmlFor="name" className="text-xs font-medium text-foreground flex items-center justify-between">
+                <span>Aap Ka Poora Naam</span>
+                <InfoPopover
+                  title="Roommate Name"
+                  explanation="Yeh naam room ke sabhi kharchon aur balance sheets par dikhayi dega."
+                />
               </label>
               <input
                 id="name"
                 type="text"
                 required
-                placeholder="e.g. Masood, Hamza, etc."
+                placeholder="e.g. Masood, Hamza, Bilal"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -83,14 +88,18 @@ export function RegisterForm() {
 
             {/* Email Field */}
             <div className="space-y-1.5">
-              <label htmlFor="email" className="text-xs font-medium text-foreground">
-                Email / Username
+              <label htmlFor="email" className="text-xs font-medium text-foreground flex items-center justify-between">
+                <span>Email Ya Username</span>
+                <InfoPopover
+                  title="Login ID"
+                  explanation="Aap is email ya username ko next time log in karne ke liye use karenge."
+                />
               </label>
               <input
                 id="email"
                 type="text"
                 required
-                placeholder="e.g. masood@gmail.com or masood"
+                placeholder="e.g. masood@gmail.com ya masood"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -99,14 +108,18 @@ export function RegisterForm() {
 
             {/* Password Field */}
             <div className="space-y-1.5">
-              <label htmlFor="password" className="text-xs font-medium text-foreground">
-                Password
+              <label htmlFor="password" className="text-xs font-medium text-foreground flex items-center justify-between">
+                <span>Password</span>
+                <InfoPopover
+                  title="Security Password"
+                  explanation="Apne account ke liye aasan password select karein."
+                />
               </label>
               <input
                 id="password"
                 type="password"
                 required
-                placeholder="Choose a password"
+                placeholder="Apna password select karein"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -116,14 +129,14 @@ export function RegisterForm() {
             {/* Room selection */}
             <div className="space-y-1.5">
               <label htmlFor="room" className="text-xs font-medium text-foreground">
-                Hostel & Room Number
+                Hostel Aur Kamra Number
               </label>
               <input
                 id="room"
                 type="text"
                 disabled
                 value={`${siteConfig.roomNumber} - ${siteConfig.hostelName}`}
-                className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-muted text-muted-foreground cursor-not-allowed"
+                className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-muted text-muted-foreground cursor-not-allowed font-medium"
               />
             </div>
 
@@ -136,11 +149,11 @@ export function RegisterForm() {
               {isLoading ? (
                 <div className="flex items-center space-x-2">
                   <span className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                  <span>Creating Account...</span>
+                  <span>Account ban raha hai...</span>
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <span>Register & Join Room 14</span>
+                  <span>Register Karein & Room 14 Join Karein</span>
                   <Icons.chevronRight className="h-4 w-4" />
                 </div>
               )}
@@ -150,9 +163,9 @@ export function RegisterForm() {
 
         <CardFooter className="flex flex-col space-y-2 border-t border-border/40 py-3 bg-surface/30 text-center">
           <p className="text-xs text-muted-foreground">
-            Already registered?{" "}
+            Pehle se registered hain?{" "}
             <a href="/login" className="text-primary font-semibold hover:underline">
-              Log In Here
+              Yahan Log In Karein
             </a>
           </p>
         </CardFooter>

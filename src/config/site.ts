@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "KamraKhata",
-  description: "Simple Daily Expense & Kharcha Tracker for Room 14, Al Syed Hostel.",
+  description: "Room 14, Al Syed Hostel ka simple daily kharcha aur roommate hisaab-kitaab tracker.",
   url: "https://kamrakhata.app",
   roomNumber: "Room 14",
   hostelName: "Al Syed Hostel",

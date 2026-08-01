@@ -7,7 +7,7 @@ import { BalanceCard } from "./balance-card";
 import { UserBalanceSummary } from "@/types/database";
 import { staggerContainer, listItemAnimation } from "@/lib/motion";
 import { Badge } from "@/components/ui/badge";
-import { Icons } from "@/lib/icons";
+import { InfoPopover } from "@/components/common/info-popover";
 
 export interface BalanceListProps {
   balances: UserBalanceSummary[];
@@ -19,23 +19,31 @@ export function BalanceList({ balances }: BalanceListProps) {
 
   return (
     <SectionCard
-      title="Current Balances"
-      description="Live roommate net settlement status • Auto-sorted"
+      title={
+        <span className="flex items-center">
+          <span>Roommates Ka Live Hisaab</span>
+          <InfoPopover
+            title="Live Balances"
+            explanation="Yeh list har roommate ka final hisaab dikhati hai (paise lene hain ya dene hain)."
+          />
+        </span>
+      }
+      description="Room 14 roommates balance status • Auto-sorted"
       action={
         <div className="flex items-center space-x-1.5">
           {creditorCount > 0 && (
-            <Badge variant="success" className="text-[10px] font-mono">
-              {creditorCount} Creditor{creditorCount === 1 ? "" : "s"}
+            <Badge variant="success" className="text-[10px] font-mono font-semibold">
+              {creditorCount} Lene Waley
             </Badge>
           )}
           {debtorCount > 0 && (
-            <Badge variant="danger" className="text-[10px] font-mono">
-              {debtorCount} Debtor{debtorCount === 1 ? "" : "s"}
+            <Badge variant="danger" className="text-[10px] font-mono font-semibold">
+              {debtorCount} Dene Waley
             </Badge>
           )}
           {creditorCount === 0 && debtorCount === 0 && (
-            <Badge variant="outline" className="text-[10px] font-mono">
-              All Settled
+            <Badge variant="outline" className="text-[10px] font-mono font-semibold">
+              Sab Safaya (Settled)
             </Badge>
           )}
         </div>

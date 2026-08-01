@@ -19,6 +19,30 @@ export function SidebarNav() {
   const pathname = usePathname();
   const { user, logout, isLoading } = useAuth();
   const { roomBalances } = useExpenses();
+  const [pendingCount, setPendingCount] = React.useState<number>(0);
+
+  const checkPendingUsers = React.useCallback(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
+        const pending = stored.filter((u: any) => u.status === "pending").length;
+        setPendingCount(pending);
+      } catch (e) {
+        console.error("Failed to parse custom roommates", e);
+      }
+    }
+  }, []);
+
+  React.useEffect(() => {
+    checkPendingUsers();
+    window.addEventListener("storage", checkPendingUsers);
+    window.addEventListener("kamrakhata_data_change", checkPendingUsers);
+
+    return () => {
+      window.removeEventListener("storage", checkPendingUsers);
+      window.removeEventListener("kamrakhata_data_change", checkPendingUsers);
+    };
+  }, [checkPendingUsers]);
 
   if (!user) {
     return null;
@@ -75,25 +99,40 @@ export function SidebarNav() {
           <div className="px-2 pb-1 text-[10px] font-mono font-semibold uppercase text-muted-foreground tracking-wider">
             Navigation
           </div>
-          {NAV_ITEMS.filter((item) => item.href !== "/admin" || user?.role === "Room Admin").map((item) => {
+          {NAV_ITEMS.filter((item) => {
+            if (item.href === "/admin" || item.href === "/approvals") {
+              return user?.role === "Room Admin";
+            }
+            return true;
+          }).map((item) => {
             const Icon = Icons[item.icon] || Icons.dashboard;
             const isActive =
               pathname === item.href ||
               (item.href !== "/" && pathname.startsWith(item.href));
+
+            const isApprovalsItem = item.href === "/approvals";
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center space-x-3 rounded-xl px-3 py-2.5 text-xs font-bold transition-all duration-150",
+                  "flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold transition-all duration-150",
                   isActive
                     ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md"
                     : "text-muted-foreground hover:text-foreground hover:bg-surface/80"
                 )}
               >
-                <Icon className="h-4 w-4 text-inherit shrink-0" />
-                <span>{item.title}</span>
+                <div className="flex items-center space-x-3">
+                  <Icon className="h-4 w-4 text-inherit shrink-0" />
+                  <span>{item.title}</span>
+                </div>
+
+                {isApprovalsItem && pendingCount > 0 && (
+                  <span className="h-5 px-1.5 rounded-full bg-amber-500 text-slate-900 text-[10px] font-mono font-bold flex items-center justify-center animate-pulse shadow-sm">
+                    {pendingCount}
+                  </span>
+                )}
               </Link>
             );
           })}

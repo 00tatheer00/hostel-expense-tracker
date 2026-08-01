@@ -19,9 +19,12 @@ export function BottomNav() {
   }
 
   // Mobile navigation items (filtered for admin vs member)
-  const mobileNavItems = NAV_ITEMS.filter(
-    (item) => item.href !== "/admin" || user?.role === "Room Admin"
-  ).slice(0, 5);
+  const mobileNavItems = NAV_ITEMS.filter((item) => {
+    if (item.href === "/admin" || item.href === "/approvals") {
+      return user?.role === "Room Admin";
+    }
+    return true;
+  }).slice(0, 5);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border/80 bg-white/95 dark:bg-card/95 backdrop-blur-lg pb-safe">

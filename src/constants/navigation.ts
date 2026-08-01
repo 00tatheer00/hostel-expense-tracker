@@ -7,6 +7,11 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "dashboard",
   },
   {
+    title: "Approvals",
+    href: "/approvals",
+    icon: "clock",
+  },
+  {
     title: "Expenses",
     href: "/expenses",
     icon: "expenses",

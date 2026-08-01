@@ -17,7 +17,10 @@ import { InfoPopover } from "@/components/common/info-popover";
 
 import { PersonalDebtAnalyticsCard } from "./personal-debt-analytics-card";
 
+import { useAuth } from "@/hooks/use-auth";
+
 export function DashboardShell() {
+  const { user } = useAuth();
   const {
     recentExpenses,
     sortedBalances,
@@ -25,12 +28,66 @@ export function DashboardShell() {
     isLoading,
   } = useDashboard();
 
+  const [pendingUsers, setPendingUsers] = React.useState<any[]>([]);
+
+  const checkPendingUsers = React.useCallback(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
+        const pending = stored.filter((u: any) => u.status === "pending");
+        setPendingUsers(pending);
+      } catch (e) {
+        console.error("Failed to parse custom roommates", e);
+      }
+    }
+  }, []);
+
+  React.useEffect(() => {
+    checkPendingUsers();
+    window.addEventListener("storage", checkPendingUsers);
+    window.addEventListener("kamrakhata_data_change", checkPendingUsers);
+
+    return () => {
+      window.removeEventListener("storage", checkPendingUsers);
+      window.removeEventListener("kamrakhata_data_change", checkPendingUsers);
+    };
+  }, [checkPendingUsers]);
+
   if (isLoading) {
     return <LoadingDashboard />;
   }
 
   return (
     <PageWrapper>
+      {/* Live Admin Pending Registration Notification Banner */}
+      {user?.role === "Room Admin" && pendingUsers.length > 0 && (
+        <div className="p-4 rounded-2xl border border-amber-500/50 bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-amber-500/20 text-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg animate-pulse">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-xl bg-amber-500 text-slate-900 font-bold shrink-0">
+              <Icons.clock className="h-5 w-5" />
+            </div>
+            <div>
+              <h4 className="text-xs sm:text-sm font-bold flex items-center gap-2">
+                <span>🔔 Action Required: {pendingUsers.length} Roommate Signup Request{pendingUsers.length === 1 ? "" : "s"} Pending!</span>
+                <Badge variant="warning" className="text-[10px] font-mono">
+                  Needs Approval
+                </Badge>
+              </h4>
+              <p className="caption text-xs text-muted-foreground mt-0.5">
+                {pendingUsers.map((u) => u.name).join(", ")} registered and is waiting for your Room Admin approval to join.
+              </p>
+            </div>
+          </div>
+
+          <Link href="/approvals" className="shrink-0">
+            <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shadow-md border-0 gap-1.5 w-full sm:w-auto">
+              <Icons.checkCircle className="h-4 w-4" />
+              <span>Review Approvals Now</span>
+            </Button>
+          </Link>
+        </div>
+      )}
+
       {/* Easy Clean Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/40">
         <div>

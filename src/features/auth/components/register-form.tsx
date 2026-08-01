@@ -14,8 +14,6 @@ export function RegisterForm() {
   const { register: registerAuth, isLoading } = useAuth();
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [showPassword, setShowPassword] = React.useState(false);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [successNotice, setSuccessNotice] = React.useState<string | null>(null);
 
@@ -33,14 +31,14 @@ export function RegisterForm() {
       return;
     }
 
-    const assignedPass = password.trim() ? password.trim() : `${name.trim().split(" ")[0]}123`;
+    const autoPassword = `${name.trim().split(" ")[0]}123`;
 
-    const res = await registerAuth(name, email, assignedPass);
+    const res = await registerAuth(name, email, autoPassword);
 
     if (res.error) {
       setServerError(res.error);
     } else {
-      setSuccessNotice(`Aap ka account register ho gaya hai! Password: "${assignedPass}" aap ki email par bhej diya gaya hai.`);
+      setSuccessNotice(`Account register ho gaya hai! Aap ka login password "${autoPassword}" aap ki email par bhej diya gaya hai.`);
     }
   };
 
@@ -129,39 +127,6 @@ export function RegisterForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
-            </div>
-
-            {/* Password Field (Optional / Custom) */}
-            <div className="space-y-1.5">
-              <label htmlFor="password" className="text-xs font-medium text-foreground flex items-center justify-between">
-                <span>Password (Optional)</span>
-                <InfoPopover
-                  title="Password"
-                  explanation="Khaali chorenge toh system automatic password generate karke email kar dega."
-                />
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password select karein (Optional)"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-10 pl-3 pr-10 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground p-0.5 rounded-md focus:outline-none"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? (
-                    <Icons.eyeOff className="h-4 w-4 text-emerald-500" />
-                  ) : (
-                    <Icons.eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </button>
-              </div>
             </div>
 
             {/* Room selection */}

@@ -31,6 +31,8 @@ import {
   X,
   RotateCcw,
   ArrowLeft,
+  Eye,
+  EyeOff,
   LucideIcon,
 } from "lucide-react";
 
@@ -71,4 +73,6 @@ export const Icons = {
   check: Check,
   x: X,
   refresh: RotateCcw,
+  eye: Eye,
+  eyeOff: EyeOff,
 };

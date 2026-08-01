@@ -123,13 +123,13 @@ export function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground p-0.5 rounded-md focus:outline-none"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
-                    <Icons.moon className="h-4 w-4" />
+                    <Icons.eyeOff className="h-4 w-4 text-emerald-500" />
                   ) : (
-                    <Icons.sun className="h-4 w-4" />
+                    <Icons.eye className="h-4 w-4 text-muted-foreground" />
                   )}
                 </button>
               </div>

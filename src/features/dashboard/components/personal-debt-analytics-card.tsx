@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Icons } from "@/lib/icons";
 import { formatCurrency } from "@/utils/formatters";
+import { InfoPopover } from "@/components/common/info-popover";
 
 export interface PairwiseDebtItem {
   roommate: {
@@ -118,7 +119,8 @@ export function PersonalDebtAnalyticsCard() {
   const totalTheyOweYou = pairwiseData.reduce((sum, item) => sum + item.theyOweYou, 0);
   const netTotalBalance = totalTheyOweYou - totalYouOwe;
 
-  if (!currentUser) return null;
+  // Hide debt analytics completely when logged in as Room Admin
+  if (!currentUser || user?.role === "Room Admin") return null;
 
   return (
     <div className="space-y-6">
@@ -158,8 +160,12 @@ export function PersonalDebtAnalyticsCard() {
             {/* Card 1: Total Debt (You Owe to Roommates) */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-rose-500/20 to-rose-950/40 p-4 border border-rose-500/40 backdrop-blur-md">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-rose-200 uppercase tracking-wider">
-                  🔴 Total You Owe
+                <span className="text-xs font-semibold text-rose-200 uppercase tracking-wider flex items-center gap-1">
+                  <span>🔴 Total You Owe</span>
+                  <InfoPopover
+                    title="Total You Owe (Aap Par Qarza)"
+                    explanation="Yeh woh total paise hain jo aap ne room ke baaki roommates ko dene hain. Jab unhone kharcha pay kiya aur usme aap ka share tha."
+                  />
                 </span>
                 <div className="p-2 rounded-xl bg-rose-500/20 text-rose-400">
                   <Icons.arrowUpRight className="h-4 w-4" />
@@ -176,8 +182,12 @@ export function PersonalDebtAnalyticsCard() {
             {/* Card 2: Receivables (Roommates Owe You) */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-500/20 to-emerald-950/40 p-4 border border-emerald-500/40 backdrop-blur-md">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-emerald-200 uppercase tracking-wider">
-                  🟢 Total Owed to You
+                <span className="text-xs font-semibold text-emerald-200 uppercase tracking-wider flex items-center gap-1">
+                  <span>🟢 Total Owed to You</span>
+                  <InfoPopover
+                    title="Total Owed To You (Aap Ko Lene Hain)"
+                    explanation="Yeh woh total paise hain jo baaki roommates ne aap ko dene hain. Jab aap ne milk/grocery bill apni pocket se pay kiya tha."
+                  />
                 </span>
                 <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
                   <Icons.arrowDownLeft className="h-4 w-4" />
@@ -194,8 +204,12 @@ export function PersonalDebtAnalyticsCard() {
             {/* Card 3: Net Overall Balance */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-indigo-500/20 to-indigo-950/40 p-4 border border-indigo-500/40 backdrop-blur-md">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-indigo-200 uppercase tracking-wider">
-                  ⚡ Net Balance Status
+                <span className="text-xs font-semibold text-indigo-200 uppercase tracking-wider flex items-center gap-1">
+                  <span>⚡ Net Balance Status</span>
+                  <InfoPopover
+                    title="Net Balance Status (Final Over-all Hisaab)"
+                    explanation="Yeh aap ka poore room ke sath overall final balance hai. Green (+) ka matlab aap ne room se paise LENE hain, Red (-) ka matlab aap ne DENE hain."
+                  />
                 </span>
                 <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300">
                   <Icons.wallet className="h-4 w-4" />
@@ -222,111 +236,105 @@ export function PersonalDebtAnalyticsCard() {
         </div>
       </div>
 
-      {/* 1-on-1 Person-by-Person Debt Breakdown Grid */}
+      {/* Person-by-Person Pairwise Debt Breakdown */}
       <Card className="border border-border/80 bg-card shadow-card">
         <CardHeader className="pb-3 border-b border-border/40">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <CardTitle className="text-base font-bold flex items-center gap-2">
-                <span>🤝 Person-by-Person Debt Breakdown</span>
-                <Badge variant="outline" className="text-xs font-mono">
-                  {pairwiseData.length} Roommates
-                </Badge>
-              </CardTitle>
-              <CardDescription className="text-xs text-muted-foreground mt-0.5">
-                Exact 1-on-1 debt balance with each roommate.
-              </CardDescription>
-            </div>
-          </div>
+          <CardTitle className="text-base font-bold flex items-center justify-between">
+            <span className="flex items-center space-x-2">
+              <span>🤝 Person-by-Person Debt Breakdown</span>
+              <InfoPopover
+                title="1-on-1 Roommate Hisaab"
+                explanation="Har roommate ke sath aap ka alag alag safi hisaab."
+              />
+            </span>
+            <Badge variant="outline" className="text-xs font-mono">
+              {pairwiseData.length} Roommates
+            </Badge>
+          </CardTitle>
+          <CardDescription className="text-xs text-muted-foreground">
+            Exact 1-on-1 debt balance with each roommate.
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="pt-4">
           {pairwiseData.length === 0 ? (
-            <p className="text-xs text-muted-foreground text-center py-6">
-              Abhi koi doosra roommate registered nahi hai.
+            <p className="text-xs text-muted-foreground text-center py-4">
+              Room 14 mein abhi aur registered roommates nahi hain.
             </p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {pairwiseData.map((item) => {
-                const isLene = item.status === "gets_back";
-                const isDene = item.status === "owes";
-                const isSettled = item.status === "settled";
+                const rm = item.roommate;
+                const isGetsBack = item.status === "gets_back";
+                const isOwes = item.status === "owes";
 
                 return (
                   <div
-                    key={item.roommate.id}
-                    className={`p-4 rounded-2xl border transition-all duration-200 ${
-                      isLene
-                        ? "border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10"
-                        : isDene
-                        ? "border-rose-500/40 bg-rose-500/5 hover:bg-rose-500/10"
-                        : "border-border/60 bg-surface/30"
+                    key={rm.id}
+                    className={`p-4 rounded-2xl border transition-all ${
+                      isGetsBack
+                        ? "border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/50"
+                        : isOwes
+                        ? "border-rose-500/30 bg-rose-500/5 hover:border-rose-500/50"
+                        : "border-border/60 bg-surface/30 hover:border-border"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-3">
-                        <Avatar name={item.roommate.name} size="md" />
+                        <Avatar name={rm.name} size="md" />
                         <div>
-                          <h4 className="text-sm font-bold text-foreground">
-                            {item.roommate.name}
-                          </h4>
-                          <p className="text-[10px] text-muted-foreground font-mono">
-                            {item.roommate.email}
+                          <h4 className="text-sm font-bold text-foreground">{rm.name}</h4>
+                          <p className="text-[11px] text-muted-foreground font-mono truncate max-w-[150px]">
+                            {rm.email}
                           </p>
                         </div>
                       </div>
 
                       <Badge
-                        variant={isLene ? "success" : isDene ? "danger" : "secondary"}
+                        variant={isGetsBack ? "success" : isOwes ? "danger" : "secondary"}
                         className="text-[10px] font-mono px-2 py-0.5"
                       >
-                        {isLene
-                          ? "Lene Hain"
-                          : isDene
-                          ? "Dene Hain"
+                        {isGetsBack
+                          ? "Is Ne Lene Hain"
+                          : isOwes
+                          ? "Is Ne Dene Hain"
                           : "Settled"}
                       </Badge>
                     </div>
 
-                    {/* Breakdown Detail Rows */}
-                    <div className="mt-4 pt-3 border-t border-border/40 space-y-2 text-xs">
-                      {/* Status Message */}
-                      <div className="p-2.5 rounded-xl bg-background/60 border border-border/40 flex items-center justify-between">
-                        <span className="text-muted-foreground font-medium">Net Position:</span>
-                        <span className="font-mono font-bold">
-                          {isLene ? (
-                            <span className="text-emerald-600 dark:text-emerald-400">
-                              Is se +{formatCurrency(item.theyOweYou)} LENE HAIN
-                            </span>
-                          ) : isDene ? (
-                            <span className="text-rose-600 dark:text-rose-400">
-                              Is ko -{formatCurrency(item.youOweThem)} DENE HAIN
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">
-                              Hisaab Barabar (0 PKR)
-                            </span>
-                          )}
-                        </span>
+                    <div className="space-y-2 pt-2 border-t border-border/40 text-xs">
+                      <div className="flex justify-between items-center text-muted-foreground font-mono">
+                        <span>Net Position:</span>
+                        <strong
+                          className={
+                            isGetsBack
+                              ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                              : isOwes
+                              ? "text-rose-600 dark:text-rose-400 font-bold"
+                              : "text-foreground"
+                          }
+                        >
+                          {isGetsBack
+                            ? `Is Se Lene Hain (${formatCurrency(item.theyOweYou)})`
+                            : isOwes
+                            ? `Is Ko Dene Hain (${formatCurrency(item.youOweThem)})`
+                            : `Hisaab Barabar (${formatCurrency(0)})`}
+                        </strong>
                       </div>
 
-                      {/* Detail Details */}
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-muted-foreground">
-                          Is bande ka aap par qarza:
-                        </span>
-                        <span className="font-mono font-semibold text-rose-600 dark:text-rose-400">
-                          {item.youOweThem > 0 ? formatCurrency(item.youOweThem) : "Rs. 0"}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-muted-foreground">
-                          Aap ka is bande par qarza:
-                        </span>
-                        <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">
-                          {item.theyOweYou > 0 ? formatCurrency(item.theyOweYou) : "Rs. 0"}
-                        </span>
+                      <div className="p-2 rounded-xl bg-background/80 border border-border/40 space-y-1 text-[11px]">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Is bande ka aap par qarza:</span>
+                          <span className="font-mono font-semibold text-rose-600 dark:text-rose-400">
+                            {formatCurrency(item.youOweThem)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Aap ka is bande par qarza:</span>
+                          <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">
+                            {formatCurrency(item.theyOweYou)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>

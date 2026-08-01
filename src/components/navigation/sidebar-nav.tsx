@@ -137,30 +137,32 @@ export function SidebarNav() {
 
       {/* Footer Area: Personal Balance & Logout */}
       <div className="space-y-3 pt-4 border-t border-slate-200/80 dark:border-border/40">
-        {/* Personal Hisaab Summary Widget */}
-        <div className="p-3 rounded-xl border border-slate-200/80 dark:border-border/60 bg-slate-50/80 dark:bg-surface/30 space-y-1">
-          <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600 dark:text-muted-foreground">
-            <span className="flex items-center">
-              <span>Your Net Balance</span>
-              <InfoPopover
-                title="Your Net Balance"
-                explanation="Green = You get money back. Red = You owe money."
-              />
-            </span>
+        {/* Personal Hisaab Summary Widget (Hidden for Room Admin) */}
+        {user?.role !== "Room Admin" && (
+          <div className="p-3 rounded-xl border border-slate-200/80 dark:border-border/60 bg-slate-50/80 dark:bg-surface/30 space-y-1">
+            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600 dark:text-muted-foreground">
+              <span className="flex items-center">
+                <span>Your Net Balance</span>
+                <InfoPopover
+                  title="Your Net Balance (Kul Safi Hisaab)"
+                  explanation="Aap ka room ke roommates ke sath over-all final balance: Green (+) matlab aap ko lene hain, Red (-) matlab dene hain."
+                />
+              </span>
+            </div>
+            <div className="text-base font-bold font-mono">
+              {isPositive ? (
+                <span className="text-emerald-600 dark:text-emerald-400">+ {formatCurrency(netBalance)}</span>
+              ) : isNegative ? (
+                <span className="text-rose-600 dark:text-rose-400">- {formatCurrency(Math.abs(netBalance))}</span>
+              ) : (
+                <span className="text-slate-500 dark:text-muted-foreground">{formatCurrency(0)}</span>
+              )}
+            </div>
+            <div className="text-[10px] font-medium text-slate-500 dark:text-muted-foreground">
+              {isPositive ? "Receivable from roommates" : isNegative ? "Payable to roommates" : "All settled up"}
+            </div>
           </div>
-          <div className="text-base font-bold font-mono">
-            {isPositive ? (
-              <span className="text-emerald-600 dark:text-emerald-400">+ {formatCurrency(netBalance)}</span>
-            ) : isNegative ? (
-              <span className="text-rose-600 dark:text-rose-400">- {formatCurrency(Math.abs(netBalance))}</span>
-            ) : (
-              <span className="text-slate-500 dark:text-muted-foreground">{formatCurrency(0)}</span>
-            )}
-          </div>
-          <div className="text-[10px] font-medium text-slate-500 dark:text-muted-foreground">
-            {isPositive ? "Receivable from roommates" : isNegative ? "Payable to roommates" : "All settled up"}
-          </div>
-        </div>
+        )}
 
         {/* Log Out Button */}
         <Button

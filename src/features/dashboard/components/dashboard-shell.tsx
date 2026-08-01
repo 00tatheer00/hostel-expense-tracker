@@ -34,15 +34,15 @@ export function DashboardShell() {
         <div>
           <div className="flex items-center space-x-2">
             <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Room 304 Khata
+              Room 14 Daily Kharcha
             </h1>
             <Badge variant="success" className="font-mono text-xs gap-1">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Live Balances</span>
+              <span>Al Syed Hostel</span>
             </Badge>
           </div>
           <p className="caption text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Hostel room expenses & 6-way roommate settlement tracker.
+            Simple daily expense & equal roommate split tracker.
           </p>
         </div>
 

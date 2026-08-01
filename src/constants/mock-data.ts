@@ -79,10 +79,10 @@ export const MOCK_STATS: StatCardData[] = [
   {
     id: "stat-4",
     title: "Active Roommates",
-    value: "6 / 6",
-    subtitle: "Room 304 - All members ready",
+    value: "6 Roommates",
+    subtitle: "Room 14, Al Syed Hostel",
     icon: "building",
-    badgeText: "Full Room",
+    badgeText: "Room 14",
   },
 ];
 

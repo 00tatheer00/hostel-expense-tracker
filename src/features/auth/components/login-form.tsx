@@ -72,7 +72,7 @@ export function LoginForm() {
             {siteConfig.name}
           </CardTitle>
           <CardDescription className="text-xs sm:text-sm text-muted-foreground">
-            Private login for {siteConfig.roomNumber} ({siteConfig.totalRoommates} fixed roommates)
+            Sign in to {siteConfig.roomNumber}, {siteConfig.hostelName} Tracker
           </CardDescription>
         </CardHeader>
 
@@ -81,10 +81,10 @@ export function LoginForm() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-                Select Roommate (Quick Test)
+                Room 14 Member Quick Login
               </span>
               <Badge variant="outline" className="text-[10px] font-mono py-0">
-                6 Pre-created
+                Al Syed Hostel
               </Badge>
             </div>
             <div className="grid grid-cols-3 gap-2">
@@ -125,8 +125,7 @@ export function LoginForm() {
                 htmlFor="email"
                 className="text-xs font-medium text-foreground flex items-center justify-between"
               >
-                <span>Email or Username</span>
-                <span className="caption text-[10px]">e.g. waheed@kamrakhata.internal</span>
+                <span>Email or Roommate Name</span>
               </label>
               <div className="relative">
                 <input
@@ -211,7 +210,7 @@ export function LoginForm() {
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <span>Sign In to Room 304</span>
+                  <span>Sign In to Room 14</span>
                   <Icons.chevronRight className="h-4 w-4" />
                 </div>
               )}
@@ -219,9 +218,15 @@ export function LoginForm() {
           </form>
         </CardContent>
 
-        <CardFooter className="justify-center border-t border-border/40 py-3 bg-surface/30">
-          <p className="text-[11px] text-muted-foreground text-center">
-            Private Roommate Portal • No Public Signups Allowed
+        <CardFooter className="flex flex-col space-y-2 border-t border-border/40 py-3 bg-surface/30 text-center">
+          <p className="text-xs text-muted-foreground">
+            New Roommate of Room 14?{" "}
+            <a href="/register" className="text-primary font-semibold hover:underline">
+              Register Here
+            </a>
+          </p>
+          <p className="text-[10px] text-muted-foreground">
+            Al Syed Hostel • Room 14 Private Expense Portal
           </p>
         </CardFooter>
       </Card>

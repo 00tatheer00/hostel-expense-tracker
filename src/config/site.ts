@@ -1,9 +1,9 @@
 export const siteConfig = {
   name: "KamraKhata",
-  description: "Modern Hostel Room Expense Tracker built for 6 roommates.",
+  description: "Simple Daily Expense & Kharcha Tracker for Room 14, Al Syed Hostel.",
   url: "https://kamrakhata.app",
-  roomNumber: "Room 304",
-  hostelName: "Boys Hostel Block B",
+  roomNumber: "Room 14",
+  hostelName: "Al Syed Hostel",
   totalRoommates: 6,
   links: {
     github: "https://github.com",

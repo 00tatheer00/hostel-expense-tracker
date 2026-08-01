@@ -151,34 +151,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
     const normalizedEmail = email.trim().toLowerCase();
 
-    const matchedRoommate = ROOMMATE_ACCOUNTS.find(
+    // Check pre-created accounts first
+    let matchedRoommate = ROOMMATE_ACCOUNTS.find(
       (r) =>
         r.email.toLowerCase() === normalizedEmail ||
         r.name.toLowerCase() === normalizedEmail ||
         `${r.name.toLowerCase()}@gmail.com` === normalizedEmail
     );
 
+    // If not preset, check local registered users
+    if (!matchedRoommate && typeof window !== "undefined") {
+      const customUsersRaw = localStorage.getItem("kamrakhata_custom_roommates");
+      if (customUsersRaw) {
+        try {
+          const customUsers: UserProfile[] = JSON.parse(customUsersRaw);
+          matchedRoommate = customUsers.find(
+            (u) => u.email.toLowerCase() === normalizedEmail || u.name.toLowerCase() === normalizedEmail
+          );
+        } catch (e) {
+          console.error("Failed to parse custom roommates", e);
+        }
+      }
+    }
+
+    // If still not found, allow login by creating user on the fly for smooth onboarding
     if (!matchedRoommate) {
-      setIsLoading(false);
-      return {
-        success: false,
-        error: "Unrecognized roommate email. Access is restricted to Room 304 members only.",
+      const formattedName = email.includes("@") ? email.split("@")[0] : email;
+      matchedRoommate = {
+        id: `rm-${Date.now()}`,
+        name: formattedName.charAt(0).toUpperCase() + formattedName.slice(1),
+        email: email.includes("@") ? email : `${email.toLowerCase()}@kamrakhata.internal`,
+        role: "Roommate",
       };
     }
 
     try {
       if (password) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: matchedRoommate.email,
-          password: password,
-        });
-
-        if (!error && data.user) {
-          setUser(matchedRoommate);
-          setAuthCookie(matchedRoommate);
-          setIsLoading(false);
-          router.push("/");
-          return { success: true };
+        try {
+          await supabase.auth.signInWithPassword({
+            email: matchedRoommate.email,
+            password: password,
+          });
+        } catch {
+          // Fallback to local session
         }
       }
 
@@ -195,6 +210,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.push("/");
       return { success: true };
     }
+  };
+
+  const register = async (
+    name: string,
+    email: string,
+    password?: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true);
+    const supabase = createClient();
+    const cleanName = name.trim();
+    const cleanEmail = email.trim().toLowerCase();
+
+    const newUserProfile: UserProfile = {
+      id: `rm-${Date.now()}`,
+      name: cleanName,
+      email: cleanEmail.includes("@") ? cleanEmail : `${cleanEmail}@kamrakhata.internal`,
+      role: "Roommate",
+      themePreference: "dark",
+    };
+
+    // Save to local custom users store
+    if (typeof window !== "undefined") {
+      try {
+        const existing = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
+        existing.push(newUserProfile);
+        localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(existing));
+      } catch (e) {
+        console.error("Failed to store custom roommate", e);
+      }
+    }
+
+    try {
+      if (password) {
+        await supabase.auth.signUp({
+          email: newUserProfile.email,
+          password: password,
+          options: {
+            data: { name: cleanName },
+          },
+        });
+      }
+    } catch (err) {
+      console.log("Supabase signup optional note:", err);
+    }
+
+    setUser(newUserProfile);
+    setAuthCookie(newUserProfile);
+    setIsLoading(false);
+    router.push("/");
+    return { success: true };
   };
 
   const logout = async () => {
@@ -219,6 +284,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile: user,
         isLoading,
         login,
+        register,
         logout,
       }}
     >

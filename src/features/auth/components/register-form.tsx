@@ -1,0 +1,162 @@
+"use client";
+
+import * as React from "react";
+import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/use-auth";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Icons } from "@/lib/icons";
+import { scaleIn } from "@/lib/motion";
+import { siteConfig } from "@/config/site";
+
+export function RegisterForm() {
+  const { register: registerAuth, isLoading } = useAuth();
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [serverError, setServerError] = React.useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setServerError(null);
+
+    if (!name.trim()) {
+      setServerError("Please enter your full name");
+      return;
+    }
+    if (!email.trim()) {
+      setServerError("Please enter a valid email or username");
+      return;
+    }
+
+    const res = await registerAuth(name, email, password);
+    if (!res.success && res.error) {
+      setServerError(res.error);
+    }
+  };
+
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={scaleIn}
+      className="w-full max-w-md mx-auto"
+    >
+      <Card className="border border-border/80 bg-card shadow-card">
+        <CardHeader className="text-center space-y-2 pb-4">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-subtle mb-2">
+            <Icons.userPlus className="h-6 w-6" />
+          </div>
+
+          <CardTitle className="font-heading text-2xl font-bold tracking-tight text-foreground">
+            Roommate Registration
+          </CardTitle>
+          <CardDescription className="text-xs sm:text-sm text-muted-foreground">
+            Register as a Roommate for {siteConfig.roomNumber}, {siteConfig.hostelName}
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {serverError && (
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-xs flex items-start space-x-2">
+                <Icons.alertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                <span>{serverError}</span>
+              </div>
+            )}
+
+            {/* Name Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="name" className="text-xs font-medium text-foreground">
+                Your Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                required
+                placeholder="e.g. Masood, Hamza, etc."
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="text-xs font-medium text-foreground">
+                Email / Username
+              </label>
+              <input
+                id="email"
+                type="text"
+                required
+                placeholder="e.g. masood@gmail.com or masood"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            {/* Password Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="text-xs font-medium text-foreground">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                placeholder="Choose a password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            {/* Room selection */}
+            <div className="space-y-1.5">
+              <label htmlFor="room" className="text-xs font-medium text-foreground">
+                Hostel & Room Number
+              </label>
+              <input
+                id="room"
+                type="text"
+                disabled
+                value={`${siteConfig.roomNumber} - ${siteConfig.hostelName}`}
+                className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-muted text-muted-foreground cursor-not-allowed"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-11 text-sm font-semibold shadow-subtle mt-2"
+            >
+              {isLoading ? (
+                <div className="flex items-center space-x-2">
+                  <span className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  <span>Creating Account...</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <span>Register & Join Room 14</span>
+                  <Icons.chevronRight className="h-4 w-4" />
+                </div>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+
+        <CardFooter className="flex flex-col space-y-2 border-t border-border/40 py-3 bg-surface/30 text-center">
+          <p className="text-xs text-muted-foreground">
+            Already registered?{" "}
+            <a href="/login" className="text-primary font-semibold hover:underline">
+              Log In Here
+            </a>
+          </p>
+        </CardFooter>
+      </Card>
+    </motion.div>
+  );
+}

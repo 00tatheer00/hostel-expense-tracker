@@ -17,8 +17,8 @@ export function TopNav() {
   const pathname = usePathname();
   const { user, logout, isLoading } = useAuth();
 
-  // Do not render top navigation on login page
-  if (pathname === "/login") {
+  // Do not render top navigation on login or register page
+  if (pathname === "/login" || pathname === "/register") {
     return null;
   }
 

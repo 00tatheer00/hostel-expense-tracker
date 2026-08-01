@@ -59,12 +59,13 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isLoginPage = request.nextUrl.pathname === "/login";
-
-  // Check custom mock session cookie for local development fallback
   const mockSessionCookie = request.cookies.get("kamrakhata_auth_user")?.value;
   const isAuthenticated = !!user || !!mockSessionCookie;
 
-  if (!isAuthenticated && !isLoginPage) {
+  const publicPaths = ["/", "/login", "/register", "/guide"];
+  const isPublicPage = publicPaths.includes(request.nextUrl.pathname);
+
+  if (!isAuthenticated && !isPublicPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

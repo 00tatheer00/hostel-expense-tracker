@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { siteConfig } from "@/config/site";
 import { Button } from "@/components/ui/button";
@@ -12,15 +11,55 @@ import { useAuth } from "@/hooks/use-auth";
 import { InfoPopover } from "@/components/common/info-popover";
 
 export function LandingHero() {
-  const { login } = useAuth();
+  const { login, register: registerAuth, isLoading } = useAuth();
+
+  // Active form view: null | "login" | "register" | "guide"
+  const [activeFormTab, setActiveFormTab] = React.useState<"login" | "register" | "guide">("login");
+
+  // Form states
+  const [loginEmail, setLoginEmail] = React.useState("waheed@kamrakhata.internal");
+  const [loginPassword, setLoginPassword] = React.useState("password123");
+
+  const [regName, setRegName] = React.useState("");
+  const [regEmail, setRegEmail] = React.useState("");
+  const [regPassword, setRegPassword] = React.useState("");
+  const [serverError, setServerError] = React.useState<string | null>(null);
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setServerError(null);
+    const res = await login(loginEmail, loginPassword);
+    if (!res.success && res.error) {
+      setServerError(res.error);
+    }
+  };
+
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setServerError(null);
+
+    if (!regName.trim()) {
+      setServerError("Meharbani karke apna poora naam likhein");
+      return;
+    }
+    if (!regEmail.trim()) {
+      setServerError("Meharbani karke sahi email ya username likhein");
+      return;
+    }
+
+    const res = await registerAuth(regName, regEmail, regPassword);
+    if (!res.success && res.error) {
+      setServerError(res.error);
+    }
+  };
 
   const handleQuickLogin = (email: string) => {
     login(email, "password123");
   };
 
   return (
-    <div className="w-full py-12 md:py-16 flex flex-col items-center justify-center text-center space-y-8 max-w-5xl mx-auto px-4">
-      {/* Top Hostel Badge */}
+    <div className="w-full py-10 md:py-14 flex flex-col items-center justify-center text-center space-y-8 max-w-4xl mx-auto px-4">
+      {/* Top Hostel Branding Badge */}
       <motion.div
         initial="hidden"
         animate="visible"
@@ -37,51 +76,22 @@ export function LandingHero() {
         initial="hidden"
         animate="visible"
         variants={scaleIn}
-        className="space-y-4 max-w-3xl"
+        className="space-y-3 max-w-2xl"
       >
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight font-heading text-foreground leading-tight">
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight font-heading text-foreground leading-tight">
           KamraKhata — <br className="hidden sm:inline" />
           <span className="bg-gradient-to-r from-primary via-indigo-500 to-emerald-400 bg-clip-text text-transparent">
             Daily Kharcha Tracker
           </span>
         </h1>
-        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
           Khaass <strong className="text-foreground">Room 14, Al Syed Hostel</strong> ke liye banaya gaya aasan daily kharcha tracker.
-          Doodh, roti, sabzi, gas cylinder aur grocery ka kharcha daalein, auto-equal split payein aur apna <em className="text-primary font-medium font-sans">Net Hisaab</em> ek click mein dekhein.
+          Portal kholeinaur roommates ke aapas ka daily hisaab-kitaab live dekhein.
           <InfoPopover
             title="Room 14 App"
-            explanation="Yeh app Room 14 ke roommates ke daily kharchay aur aapas ke hisaab-kitaab ko 100% transparent rakhne ke liye hai."
+            explanation="Yeh app Room 14 ke roommates ke daily kharchay (doodh, roti, sabzi, grocery) ko 100% clear rakhne ke liye hai."
           />
         </p>
-      </motion.div>
-
-      {/* Call to Action Buttons */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={fadeIn}
-        className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-md"
-      >
-        <Link href="/login" className="w-full sm:w-auto">
-          <Button size="lg" className="w-full sm:w-auto px-8 h-12 text-sm sm:text-base font-semibold shadow-card gap-2">
-            <Icons.building className="h-5 w-5" />
-            <span>Room 14 Mein Log In Karein</span>
-          </Button>
-        </Link>
-
-        <Link href="/register" className="w-full sm:w-auto">
-          <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 h-12 text-sm sm:text-base font-semibold gap-2 border-primary/40 hover:border-primary">
-            <Icons.userPlus className="h-5 w-5 text-primary" />
-            <span>New Roommate Register Karein</span>
-          </Button>
-        </Link>
-
-        <Link href="/guide" className="w-full sm:w-auto">
-          <Button size="lg" variant="secondary" className="w-full sm:w-auto px-6 h-12 text-xs sm:text-sm font-semibold gap-1.5">
-            <Icons.help className="h-4 w-4 text-amber-500" />
-            <span>App Use Karne Ka Tareeqa</span>
-          </Button>
-        </Link>
       </motion.div>
 
       {/* Quick Test Login Bar for Roommates */}
@@ -89,22 +99,22 @@ export function LandingHero() {
         initial="hidden"
         animate="visible"
         variants={fadeIn}
-        className="w-full max-w-xl p-5 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-md shadow-card space-y-3"
+        className="w-full max-w-lg p-4 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-md shadow-card space-y-2.5"
       >
         <div className="flex items-center justify-between">
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground flex items-center">
-            <span>⚡ Room 14 Test Member Quick Login</span>
+          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground flex items-center">
+            <span>⚡ Room 14 Member Quick Login</span>
             <InfoPopover
               title="Quick Test Login"
               explanation="Test karne ke liye kisi bhi roommate ke naam par click karein. Aap bina password type kiye foran dashboard mein enter ho jayenge."
             />
           </span>
-          <Badge variant="secondary" className="text-[10px]">
+          <Badge variant="secondary" className="text-[9px]">
             Direct Entry
           </Badge>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {[
             { name: "Waheed", email: "waheed@kamrakhata.internal" },
             { name: "Usman", email: "usman@kamrakhata.internal" },
@@ -116,68 +126,178 @@ export function LandingHero() {
             <button
               key={m.name}
               onClick={() => handleQuickLogin(m.email)}
-              className="flex items-center justify-between p-2.5 rounded-xl border border-border/60 bg-surface/50 hover:bg-primary/10 hover:border-primary/50 transition-all text-xs font-medium text-foreground group"
+              className="flex items-center justify-between p-2 rounded-xl border border-border/60 bg-surface/50 hover:bg-primary/10 hover:border-primary/50 transition-all text-xs font-medium text-foreground group"
             >
               <span>{m.name}</span>
-              <Icons.chevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-transform group-hover:translate-x-0.5" />
+              <Icons.chevronRight className="h-3 w-3 text-muted-foreground group-hover:text-primary transition-transform group-hover:translate-x-0.5" />
             </button>
           ))}
         </div>
       </motion.div>
 
-      {/* Features Grid with (i) tooltips */}
+      {/* Form Tabs Switcher (Login / Register / Tareeqa) */}
       <motion.div
         initial="hidden"
         animate="visible"
         variants={fadeIn}
-        className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full pt-4 text-left"
+        className="w-full max-w-md space-y-4"
       >
-        <div className="p-5 rounded-2xl border border-border/60 bg-card/40 space-y-2 relative">
-          <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
-            <Icons.receipt className="h-5 w-5" />
-          </div>
-          <div className="flex items-center justify-between">
-            <h3 className="font-heading text-base font-bold text-foreground">Rozana Ka Kharcha</h3>
-            <InfoPopover
-              title="Daily Kharcha Log"
-              explanation="Doodh, roti, sabzi, gas cylinder ya kisi bhi grocery bill ka entry karein. Date aur pay karne wale roommate ka naam mention hota hai."
-            />
-          </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Doodh, roti, sabzi, gas cylinder aur grocery bills seconds mein record karein.
-          </p>
+        <div className="inline-flex rounded-xl bg-surface/80 p-1 border border-border/60 w-full justify-between">
+          <button
+            type="button"
+            onClick={() => { setActiveFormTab("login"); setServerError(null); }}
+            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+              activeFormTab === "login"
+                ? "bg-primary text-primary-foreground shadow-subtle"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            🔑 Log In
+          </button>
+          <button
+            type="button"
+            onClick={() => { setActiveFormTab("register"); setServerError(null); }}
+            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+              activeFormTab === "register"
+                ? "bg-primary text-primary-foreground shadow-subtle"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            📝 Register
+          </button>
+          <button
+            type="button"
+            onClick={() => { setActiveFormTab("guide"); setServerError(null); }}
+            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+              activeFormTab === "guide"
+                ? "bg-amber-600 text-white shadow-subtle"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            ℹ️ Tareeqa
+          </button>
         </div>
 
-        <div className="p-5 rounded-2xl border border-border/60 bg-card/40 space-y-2 relative">
-          <div className="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-bold">
-            <Icons.users className="h-5 w-5" />
-          </div>
-          <div className="flex items-center justify-between">
-            <h3 className="font-heading text-base font-bold text-foreground">Barabar Taqseem</h3>
-            <InfoPopover
-              title="Equal Split"
-              explanation="Har kharcha Room 14 ke active roommates par auto-equal divide ho jata hai. Kisi ko alag se hisaab calculate nahi karna padta."
-            />
-          </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Har daily kharcha automatically Room 14 ke roommates mein barabar split ho jata hai.
-          </p>
-        </div>
+        {/* Embedded Forms Container */}
+        <div className="p-5 rounded-2xl border border-border/80 bg-card shadow-card text-left space-y-4">
+          {serverError && (
+            <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-xs flex items-start space-x-2">
+              <Icons.alertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <span>{serverError}</span>
+            </div>
+          )}
 
-        <div className="p-5 rounded-2xl border border-border/60 bg-card/40 space-y-2 relative">
-          <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
-            <Icons.wallet className="h-5 w-5" />
-          </div>
-          <div className="flex items-center justify-between">
-            <h3 className="font-heading text-base font-bold text-foreground">Apna Personal Portal</h3>
-            <InfoPopover
-              title="Personal Roommate Portal"
-              explanation="Aap ka apna dashboard jahan se aap live dekh sakte hain ke kitne paise aap ko roommates ko DENE HAIN ya un se LENE HAIN."
-            />
-          </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Har roommate ka apna personal dashboard jahan net balance (LENE HAIN ya DENE HAIN) live dikhaye.
-          </p>
+          {activeFormTab === "login" && (
+            <form onSubmit={handleLoginSubmit} className="space-y-3.5">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-foreground flex items-center justify-between">
+                  <span>Email Ya Roommate Naam</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Waheed ya waheed@kamrakhata.internal"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-foreground">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Apna password darj karein"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-10 text-sm font-semibold shadow-subtle mt-2"
+              >
+                {isLoading ? "Log in ho raha hai..." : "Room 14 Mein Sign In Karein"}
+              </Button>
+            </form>
+          )}
+
+          {activeFormTab === "register" && (
+            <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-foreground">
+                  Aap Ka Poora Naam
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Masood, Hamza, etc."
+                  value={regName}
+                  onChange={(e) => setRegName(e.target.value)}
+                  className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-foreground">
+                  Email Ya Username
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. masood@gmail.com ya masood"
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                  className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-foreground">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Select password"
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
+                  className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-10 text-sm font-semibold shadow-subtle mt-2"
+              >
+                {isLoading ? "Account ban raha hai..." : "Register Karein & Join Karein"}
+              </Button>
+            </form>
+          )}
+
+          {activeFormTab === "guide" && (
+            <div className="space-y-3 text-xs leading-relaxed text-foreground">
+              <h4 className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                <Icons.help className="h-4 w-4 text-amber-500" />
+                <span>App Use Karne Ka Quick Tareeqa</span>
+              </h4>
+              <p>
+                • <strong>Step 1:</strong> Upar diye gaye quick test login buttons par click karke log in karein ya naya account register karein.
+              </p>
+              <p>
+                • <strong>Step 2:</strong> Dashboard par daily kharcha (milk, roti, gas, grocery) add karein.
+              </p>
+              <p>
+                • <strong>Step 3:</strong> Net Hisaab dekhein: 🟢 Green balance ka matlab <strong>Paise LENE HAIN</strong>, 🔴 Red balance ka matlab <strong>Paise DENE HAIN</strong>.
+              </p>
+            </div>
+          )}
         </div>
       </motion.div>
     </div>

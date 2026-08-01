@@ -13,12 +13,12 @@ export function BottomNav() {
   const pathname = usePathname();
   const { user } = useAuth();
 
-  // Hide mobile bottom nav on login page or when unauthenticated
-  if (pathname === "/login" || !user) {
+  // Hide mobile bottom nav on login/register pages or when unauthenticated
+  if (pathname === "/login" || pathname === "/register" || !user) {
     return null;
   }
 
-  // Use top 5 primary items for optimal touch target spacing on all mobile viewports (320px+)
+  // Mobile navigation items
   const mobileNavItems = NAV_ITEMS.slice(0, 5);
 
   return (
@@ -44,7 +44,7 @@ export function BottomNav() {
               {isActive && (
                 <motion.div
                   layoutId="activeBottomNav"
-                  className="absolute -top-0.5 h-1 w-6 rounded-full bg-emerald-600"
+                  className="absolute -top-0.5 h-1 w-6 rounded-full bg-primary"
                   transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 />
               )}

@@ -12,8 +12,13 @@ import { siteConfig } from "@/config/site";
 import { InfoPopover } from "@/components/common/info-popover";
 import { WeeklyReportCard } from "@/features/admin/components/weekly-report-card";
 
+import { AdminMoneyAdjustmentCard } from "@/features/admin/components/admin-money-adjustment-card";
+import { useExpenses } from "@/features/expenses/hooks/use-expenses";
+import { formatCurrency } from "@/utils/formatters";
+
 export function AdminApprovalPanel() {
   const { user, approveUser, rejectUser } = useAuth();
+  const { roommates, roomBalances, expenses } = useExpenses();
   const [allUsers, setAllUsers] = React.useState<UserProfile[]>([]);
 
   const refreshUsers = React.useCallback(() => {
@@ -54,14 +59,14 @@ export function AdminApprovalPanel() {
               Room Admin Access
             </Badge>
             <h2 className="font-heading text-lg font-bold text-foreground">
-              {siteConfig.roomNumber} Roommate Approval Portal
+              {siteConfig.roomNumber} Room Admin Control Portal
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            Room 14 mein register hone wale naye roommates ki requests review aur approve karein.
+            Pending approvals review karein, live spending details dekhein, aur roommates ke darmian paise adjust karein.
             <InfoPopover
-              title="Admin Approval System"
-              explanation="Jo roommate register karega, uska account yahan pending aayega. Aap jab Tak APPROVE nahi karenge, woh app mein enter nahi ho sakta."
+              title="Admin Approval & Control System"
+              explanation="Yahan se aap registration requests approve kar sakte hain aur Saddam, Ali waghaira ke hisaab mein real-time paise add/subtract kar sakte hain."
             />
           </p>
         </div>
@@ -76,10 +81,7 @@ export function AdminApprovalPanel() {
         </Button>
       </div>
 
-      {/* Weekly Report & WhatsApp Broadcast Section */}
-      <WeeklyReportCard />
-
-      {/* Pending Approvals Section */}
+      {/* 1. Pending Approvals Section */}
       <Card className="border border-border/80 bg-card shadow-card">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div>
@@ -148,7 +150,74 @@ export function AdminApprovalPanel() {
         </CardContent>
       </Card>
 
-      {/* Approved Roommates List */}
+      {/* 2. Admin Money Adjustment & Repayments (Saddam <-> Ali real-time transfer) */}
+      <AdminMoneyAdjustmentCard />
+
+      {/* 3. Roommate Spending Breakdown Details ("Kis ne kitny paise lagayae") */}
+      <Card className="border border-border/80 bg-card shadow-card">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-bold flex items-center justify-between">
+            <span>💰 Roommates Spending Breakdown Details</span>
+            <Badge variant="outline" className="text-xs font-mono">
+              {roommates.length} Members
+            </Badge>
+          </CardTitle>
+          <CardDescription className="text-xs text-muted-foreground">
+            Kis roommate ne kitny paise lagayae (paid out) aur uska live net balance hisaab.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <div className="divide-y divide-border/60">
+            {roomBalances.length === 0 ? (
+              <p className="text-xs text-muted-foreground py-3">Abhi koi spending record nahi hai.</p>
+            ) : (
+              roomBalances.map((b) => {
+                const totalPaid = b.totalPaid || 0;
+                const net = b.netBalance || 0;
+                const isPositive = net > 0.01;
+                const isNegative = net < -0.01;
+
+                const userExpensesCount = expenses.filter((e) => e.paid_by === b.user.id).length;
+
+                return (
+                  <div key={b.user.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center space-x-3">
+                      <Avatar name={b.user.name} size="md" />
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-bold text-foreground">{b.user.name}</span>
+                          <Badge variant="secondary" className="text-[9px] font-mono px-1.5">
+                            {userExpensesCount} Kharchay
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Total Spend (Diye): <span className="font-mono font-semibold text-foreground">{formatCurrency(totalPaid)}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-right self-end sm:self-center">
+                      <div className="text-xs font-bold font-mono">
+                        Net:{" "}
+                        {isPositive ? (
+                          <span className="text-emerald-600 dark:text-emerald-400">+{formatCurrency(net)} (LENE HAIN)</span>
+                        ) : isNegative ? (
+                          <span className="text-rose-600 dark:text-rose-400">-{formatCurrency(Math.abs(net))} (DENE HAIN)</span>
+                        ) : (
+                          <span className="text-muted-foreground">{formatCurrency(0)} (BARABAR)</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 4. Approved Roommates List */}
       <Card className="border border-border/80 bg-card shadow-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-bold flex items-center justify-between">
@@ -185,6 +254,9 @@ export function AdminApprovalPanel() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Weekly Report Broadcast */}
+      <WeeklyReportCard />
     </div>
   );
 }

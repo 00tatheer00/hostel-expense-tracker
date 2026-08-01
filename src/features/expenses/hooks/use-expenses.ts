@@ -7,14 +7,69 @@ import { BalanceService } from "@/services/balance.service";
 import { calculateSplit } from "@/utils/calc-utils";
 import { useAuth } from "@/hooks/use-auth";
 
-// In-memory store for clean slate expense tracking
-let globalExpensesStore: ExpenseWithSplits[] = [];
+import { SettlementRow } from "@/types/database";
+
+// Local storage helper for expenses & settlements
+const getStoredExpenses = (): ExpenseWithSplits[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem("kamrakhata_expenses");
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    console.error("Failed to load expenses from localStorage", e);
+    return [];
+  }
+};
+
+const setStoredExpenses = (list: ExpenseWithSplits[]) => {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem("kamrakhata_expenses", JSON.stringify(list));
+      window.dispatchEvent(new Event("kamrakhata_data_change"));
+    } catch (e) {
+      console.error("Failed to save expenses to localStorage", e);
+    }
+  }
+};
+
+const getStoredSettlements = (): SettlementRow[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem("kamrakhata_settlements");
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    console.error("Failed to load settlements from localStorage", e);
+    return [];
+  }
+};
 
 export function useExpenses() {
   const { user } = useAuth();
-  const [expenses, setExpenses] = React.useState<ExpenseWithSplits[]>(globalExpensesStore);
+  const [expenses, setExpenses] = React.useState<ExpenseWithSplits[]>([]);
+  const [settlements, setSettlements] = React.useState<SettlementRow[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const balanceService = React.useMemo(() => new BalanceService(), []);
+
+  const refreshData = React.useCallback(() => {
+    setExpenses(getStoredExpenses());
+    setSettlements(getStoredSettlements());
+  }, []);
+
+  React.useEffect(() => {
+    refreshData();
+
+    const handleDataChange = () => {
+      refreshData();
+    };
+
+    window.addEventListener("kamrakhata_data_change", handleDataChange);
+    window.addEventListener("storage", handleDataChange);
+
+    return () => {
+      window.removeEventListener("kamrakhata_data_change", handleDataChange);
+      window.removeEventListener("storage", handleDataChange);
+    };
+  }, [refreshData]);
 
   // Dynamically compute list of registered roommates
   const roommates: UserRow[] = React.useMemo(() => {
@@ -53,7 +108,7 @@ export function useExpenses() {
 
   // Update store helper
   const updateStore = (newList: ExpenseWithSplits[]) => {
-    globalExpensesStore = newList;
+    setStoredExpenses(newList);
     setExpenses([...newList]);
   };
 
@@ -85,7 +140,8 @@ export function useExpenses() {
       splits: newSplits,
     };
 
-    const updated = [newExpense, ...expenses];
+    const current = getStoredExpenses();
+    const updated = [newExpense, ...current];
     updateStore(updated);
     setIsLoading(false);
     return newExpense;
@@ -110,7 +166,8 @@ export function useExpenses() {
       user: roommates.find((r) => r.id === uId),
     }));
 
-    const updatedList = expenses.map((e) => {
+    const current = getStoredExpenses();
+    const updatedList = current.map((e) => {
       if (e.id === id) {
         return {
           ...e,
@@ -133,7 +190,8 @@ export function useExpenses() {
   const deleteExpense = async (id: string): Promise<boolean> => {
     setIsLoading(true);
     await new Promise((res) => setTimeout(res, 300));
-    const filtered = expenses.filter((e) => e.id !== id);
+    const current = getStoredExpenses();
+    const filtered = current.filter((e) => e.id !== id);
     updateStore(filtered);
     setIsLoading(false);
     return true;
@@ -143,7 +201,7 @@ export function useExpenses() {
     return expenses.find((e) => e.id === id);
   };
 
-  // Recalculate roommate net balances dynamically
+  // Recalculate roommate net balances dynamically incorporating expenses & settlements
   const roomBalances: UserBalanceSummary[] = React.useMemo(() => {
     const rawExpenses = expenses.map((e) => ({
       id: e.id,
@@ -164,11 +222,12 @@ export function useExpenses() {
       }))
     );
 
-    return balanceService.calculateRoomBalances(roommates, rawExpenses, rawSplits, []);
-  }, [expenses, roommates, balanceService]);
+    return balanceService.calculateRoomBalances(roommates, rawExpenses, rawSplits, settlements);
+  }, [expenses, roommates, settlements, balanceService]);
 
   return {
     expenses,
+    settlements,
     roommates,
     roomBalances,
     isLoading,

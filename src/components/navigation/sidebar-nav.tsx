@@ -75,7 +75,7 @@ export function SidebarNav() {
           <div className="px-2 pb-1 text-[10px] font-mono font-semibold uppercase text-muted-foreground tracking-wider">
             Menu Navigation
           </div>
-          {NAV_ITEMS.map((item) => {
+          {NAV_ITEMS.filter((item) => item.href !== "/admin" || user?.role === "Room Admin").map((item) => {
             const Icon = Icons[item.icon] || Icons.dashboard;
             const isActive =
               pathname === item.href ||
@@ -92,7 +92,7 @@ export function SidebarNav() {
                     : "text-muted-foreground hover:text-foreground hover:bg-surface/80"
                 )}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="h-4 w-4 text-inherit shrink-0" />
                 <span>{item.title}</span>
               </Link>
             );

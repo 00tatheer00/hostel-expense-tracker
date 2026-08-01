@@ -28,7 +28,7 @@ export function WeeklyReportCard() {
   };
 
   const handleSendEmailReport = async () => {
-    setEmailStatus("Sending weekly HTML email report...");
+    setEmailStatus("Sending weekly HTML email report via Resend...");
 
     const categoryTotals: Record<string, number> = {};
     expenses.forEach((e) => {
@@ -47,7 +47,7 @@ export function WeeklyReportCard() {
       netBalance: b.netBalance,
     }));
 
-    const htmlContent = EmailService.generateWeeklyReportHTML({
+    const result = await EmailService.sendWeeklyReportViaResend({
       adminEmail: "admin@kamrakhata.internal",
       roommates: roommatesData,
       totalExpenses: totalWeeklyExpenses,
@@ -55,21 +55,23 @@ export function WeeklyReportCard() {
       periodLabel,
     });
 
-    // Fallback trigger or display preview
-    console.log("[WeeklyReport] Generated HTML:", htmlContent);
+    if (result.success) {
+      setEmailStatus(`✅ Resend Success: ${result.message}`);
+    } else {
+      // If RESEND_API_KEY is not set or failed, provide clear message and mailto fallback option
+      setEmailStatus(`⚠️ ${result.error}`);
 
-    // Open mailto link for admin
-    if (typeof window !== "undefined") {
-      const mailtoUrl = `mailto:?subject=${encodeURIComponent(
-        `Weekly Khata Report - ${siteConfig.roomNumber}`
-      )}&body=${encodeURIComponent(
-        `Assalam-o-Alaikum Roommates,\n\nHere is the Weekly Khata Report for ${siteConfig.roomNumber}:\n\nTotal Weekly Expenses: Rs. ${totalWeeklyExpenses}\n\nView live report: https://kamrakhata.vercel.app`
-      )}`;
-      window.open(mailtoUrl, "_blank");
+      if (typeof window !== "undefined") {
+        const mailtoUrl = `mailto:?subject=${encodeURIComponent(
+          `Weekly Khata Report - ${siteConfig.roomNumber}`
+        )}&body=${encodeURIComponent(
+          `Assalam-o-Alaikum Roommates,\n\nHere is the Weekly Khata Report for ${siteConfig.roomNumber}:\n\nTotal Weekly Expenses: Rs. ${totalWeeklyExpenses}\n\nView live report: https://kamrakhata.vercel.app`
+        )}`;
+        window.open(mailtoUrl, "_blank");
+      }
     }
 
-    setEmailStatus("Weekly email report dispatched successfully!");
-    setTimeout(() => setEmailStatus(null), 4000);
+    setTimeout(() => setEmailStatus(null), 6000);
   };
 
   return (

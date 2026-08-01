@@ -64,6 +64,37 @@ Room 14 Management Team
   }
 
   /**
+   * Send Weekly Report via Resend API Endpoint
+   */
+  static async sendWeeklyReportViaResend(input: WeeklyReportEmailInput): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      const response = await fetch("/api/send-weekly-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        return {
+          success: false,
+          error: data.error || "Failed to dispatch email via Resend.",
+        };
+      }
+
+      return {
+        success: true,
+        message: data.message || "Weekly report email sent successfully!",
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message || "Network error while sending email.",
+      };
+    }
+  }
+
+  /**
    * Generate Styled HTML Weekly Khata Email Template
    */
   static generateWeeklyReportHTML(input: WeeklyReportEmailInput): string {

@@ -30,6 +30,7 @@ import {
   Check,
   X,
   RotateCcw,
+  ArrowLeft,
   LucideIcon,
 } from "lucide-react";
 
@@ -48,6 +49,7 @@ export const Icons = {
   plus: Plus,
   arrowUpRight: ArrowUpRight,
   arrowDownLeft: ArrowDownLeft,
+  arrowLeft: ArrowLeft,
   users: Users,
   wallet: Wallet,
   calendar: Calendar,
@@ -57,6 +59,7 @@ export const Icons = {
   alertCircle: AlertCircle,
   clock: Clock,
   shield: Shield,
+  shieldAlert: AlertCircle,
   chevronRight: ChevronRight,
   trendingUp: TrendingUp,
   creditCard: CreditCard,

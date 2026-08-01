@@ -27,10 +27,16 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: siteConfig.name,
+    default: `${siteConfig.name} - Room 14 Expense Tracker`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icon-192.png",
+    shortcut: "/icon-192.png",
+    apple: "/apple-touch-icon.png",
+  },
   keywords: [
     "KamraKhata",
     "Hostel Room Expense Tracker",
@@ -42,7 +48,7 @@ export const metadata: Metadata = {
   creator: "KamraKhata",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "KamraKhata",
   },
   formatDetection: {

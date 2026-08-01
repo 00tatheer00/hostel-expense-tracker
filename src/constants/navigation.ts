@@ -22,14 +22,14 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "wallet",
   },
   {
-    title: "Analytics",
-    href: "/analytics",
+    title: "Spending Audit",
+    href: "/admin?tab=breakdown",
     icon: "analytics",
   },
   {
-    title: "Admin Panel",
-    href: "/admin",
-    icon: "settings",
+    title: "Email Reports",
+    href: "/admin?tab=reports",
+    icon: "sparkles",
   },
   {
     title: "User Guide",

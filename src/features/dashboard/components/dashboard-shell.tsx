@@ -136,12 +136,7 @@ export function DashboardShell() {
         {/* 1. Personalized Debt Analytics & Person-by-Person Breakdown */}
         <PersonalDebtAnalyticsCard />
 
-        {/* 2. Quick Add Template Pills */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-card border border-border/80 shadow-subtle space-y-3">
-          <QuickAddBar />
-        </div>
-
-        {/* 3. Current Balances - Auto-sorted Roommates */}
+        {/* 2. Current Balances - Auto-sorted Roommates */}
         <BalanceList balances={sortedBalances} />
 
         {/* 4. Monthly Budget Tracker */}

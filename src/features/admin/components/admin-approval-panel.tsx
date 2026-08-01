@@ -18,13 +18,24 @@ import { useSettlements } from "@/features/settlements/hooks/use-settlements";
 import { formatCurrency } from "@/utils/formatters";
 import { fadeIn, scaleIn } from "@/lib/motion";
 
+import { useSearchParams } from "next/navigation";
+
 export function AdminApprovalPanel() {
   const { user, approveUser, rejectUser } = useAuth();
   const { roommates, roomBalances, expenses } = useExpenses();
   const { settlements } = useSettlements();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+
   const [allUsers, setAllUsers] = React.useState<UserProfile[]>([]);
   const [activeTab, setActiveTab] = React.useState<"approvals" | "transfer" | "breakdown" | "reports">("approvals");
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (tabParam === "breakdown" || tabParam === "reports" || tabParam === "transfer" || tabParam === "approvals") {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
 
   const refreshUsers = React.useCallback(async () => {
     try {

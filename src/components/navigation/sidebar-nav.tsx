@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { NAV_ITEMS } from "@/constants/navigation";
 import { siteConfig } from "@/config/site";
 import { useAuth } from "@/hooks/use-auth";
@@ -17,6 +17,7 @@ import { InfoPopover } from "@/components/common/info-popover";
 
 export function SidebarNav() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user, logout, isLoading } = useAuth();
   const { roomBalances } = useExpenses();
   const [memberCount, setMemberCount] = React.useState<number>(0);
@@ -102,9 +103,10 @@ export function SidebarNav() {
           </div>
           {NAV_ITEMS.map((item) => {
             const Icon = Icons[item.icon] || Icons.dashboard;
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(item.href));
+            const fullPath = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "");
+            const isActive = item.href.includes("?")
+              ? fullPath === item.href
+              : (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href) && !item.href.includes("?")));
 
             const isApprovalsItem = item.href === "/approvals";
 

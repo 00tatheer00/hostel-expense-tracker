@@ -10,6 +10,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Icons } from "@/lib/icons";
 import { siteConfig } from "@/config/site";
 import { InfoPopover } from "@/components/common/info-popover";
+import { WeeklyReportCard } from "@/features/admin/components/weekly-report-card";
 
 export function AdminApprovalPanel() {
   const { user, approveUser, rejectUser } = useAuth();
@@ -74,6 +75,9 @@ export function AdminApprovalPanel() {
           <span>Refresh List</span>
         </Button>
       </div>
+
+      {/* Weekly Report & WhatsApp Broadcast Section */}
+      <WeeklyReportCard />
 
       {/* Pending Approvals Section */}
       <Card className="border border-border/80 bg-card shadow-card">

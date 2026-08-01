@@ -9,6 +9,7 @@ import { Icons } from "@/lib/icons";
 import { scaleIn } from "@/lib/motion";
 import { siteConfig } from "@/config/site";
 import { InfoPopover } from "@/components/common/info-popover";
+import { EmailService } from "@/services/email.service";
 
 export function RegisterForm() {
   const { register: registerAuth, isLoading } = useAuth();
@@ -33,6 +34,14 @@ export function RegisterForm() {
     const res = await registerAuth(name, email, password);
     if (!res.success && res.error) {
       setServerError(res.error);
+    } else {
+      // Trigger email dispatch notification
+      await EmailService.sendRegistrationEmail({
+        name: name.trim(),
+        email: email.trim(),
+        role: "Roommate",
+        status: "pending",
+      });
     }
   };
 
@@ -91,8 +100,8 @@ export function RegisterForm() {
               <label htmlFor="email" className="text-xs font-medium text-foreground flex items-center justify-between">
                 <span>Email Ya Username</span>
                 <InfoPopover
-                  title="Login ID"
-                  explanation="Aap is email ya username ko next time log in karne ke liye use karenge."
+                  title="Login ID & Notifications"
+                  explanation="Aap is email par account credentials aur Weekly Khata Reports receive karenge."
                 />
               </label>
               <input
@@ -112,7 +121,7 @@ export function RegisterForm() {
                 <span>Password</span>
                 <InfoPopover
                   title="Security Password"
-                  explanation="Apne account ke liye aasan password select karein."
+                  explanation="Apne account ke liye password select karein."
                 />
               </label>
               <input

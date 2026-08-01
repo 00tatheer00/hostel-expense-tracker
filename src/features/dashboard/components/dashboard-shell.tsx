@@ -52,23 +52,23 @@ export function DashboardShell() {
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Link href="/guide">
-            <Button variant="secondary" size="lg" className="gap-1.5 font-semibold text-xs border border-border/60">
-              <Icons.help className="h-4 w-4 text-amber-500" />
-              <span>Tareeqa (Guide)</span>
+            <Button variant="secondary" size="sm" className="gap-1.5 font-semibold text-xs border border-border/60">
+              <Icons.help className="h-3.5 w-3.5 text-amber-500" />
+              <span>Tareeqa</span>
             </Button>
           </Link>
           <Link href="/expenses/new">
-            <Button size="lg" className="gap-2 shadow-subtle font-semibold bg-emerald-600 hover:bg-emerald-700 text-white">
-              <Icons.plus className="h-5 w-5" />
+            <Button size="sm" className="gap-1.5 shadow-subtle font-semibold bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
+              <Icons.plus className="h-4 w-4" />
               <span>Naya Kharcha Jodein</span>
             </Button>
           </Link>
           <Link href="/settlements/new">
-            <Button variant="outline" size="lg" className="gap-1.5 font-semibold text-xs border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
-              <Icons.checkCircle className="h-4 w-4 text-emerald-600" />
-              <span>Khaata Safaya (Settle)</span>
+            <Button variant="outline" size="sm" className="gap-1.5 font-semibold text-xs border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
+              <Icons.checkCircle className="h-3.5 w-3.5 text-emerald-600" />
+              <span>Khaata Safaya</span>
             </Button>
           </Link>
         </div>

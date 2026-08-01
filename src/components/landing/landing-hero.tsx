@@ -18,10 +18,13 @@ export function LandingHero() {
   // Form states
   const [loginEmail, setLoginEmail] = React.useState("");
   const [loginPassword, setLoginPassword] = React.useState("");
+  const [showLoginPassword, setShowLoginPassword] = React.useState(false);
 
   const [regName, setRegName] = React.useState("");
   const [regEmail, setRegEmail] = React.useState("");
   const [regPassword, setRegPassword] = React.useState("");
+  const [showRegPassword, setShowRegPassword] = React.useState(false);
+
   const [serverError, setServerError] = React.useState<string | null>(null);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -59,207 +62,236 @@ export function LandingHero() {
   };
 
   return (
-    <div className="w-full py-10 md:py-14 flex flex-col items-center justify-center text-center space-y-8 max-w-4xl mx-auto px-4">
-      {/* Top Hostel Branding Badge */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={fadeIn}
-        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs sm:text-sm font-medium shadow-subtle"
-      >
-        <Icons.building className="h-4 w-4 shrink-0" />
-        <span>{siteConfig.roomNumber} • {siteConfig.hostelName}</span>
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-      </motion.div>
+    <div className="w-full min-h-[100dvh] flex flex-col items-center justify-center px-4 py-4 md:py-8 max-w-xl md:max-w-4xl mx-auto overflow-hidden">
+      <div className="w-full flex flex-col items-center justify-center space-y-4 my-auto">
+        {/* Top Hostel Branding Badge */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
+          className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-xs font-semibold shadow-sm"
+        >
+          <Icons.building className="h-3.5 w-3.5 shrink-0 text-indigo-500" />
+          <span>{siteConfig.roomNumber} • {siteConfig.hostelName}</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        </motion.div>
 
-      {/* Main Title */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={scaleIn}
-        className="space-y-3 max-w-2xl"
-      >
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight font-heading text-foreground leading-tight">
-          KamraKhata — <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-primary via-indigo-500 to-emerald-400 bg-clip-text text-transparent">
-            Daily Kharcha Tracker
-          </span>
-        </h1>
-        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-          Khaass <strong className="text-foreground">Room 14, Al Syed Hostel</strong> ke liye banaya gaya aasan daily kharcha tracker.
-          Apna account banayein ya log in karein aur roommates ke aapas ka daily hisaab-kitaab live dekhein.
-          <InfoPopover
-            title="Room 14 App"
-            explanation="Yeh app Room 14 ke roommates ke daily kharchay (doodh, roti, sabzi, grocery) ko 100% clear rakhne ke liye hai."
-          />
-        </p>
-      </motion.div>
+        {/* Main Title */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={scaleIn}
+          className="space-y-1.5 text-center max-w-lg"
+        >
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-heading text-foreground leading-tight">
+            KamraKhata —{" "}
+            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-500 bg-clip-text text-transparent">
+              Daily Kharcha Tracker
+            </span>
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground leading-snug">
+            <strong className="text-foreground font-semibold">{siteConfig.roomNumber}</strong> ke roommates ka daily milk, roti & grocery hisaab-kitaab.
+          </p>
+        </motion.div>
 
-      {/* Form Tabs Switcher (Login / Register / Tareeqa) */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={fadeIn}
-        className="w-full max-w-md space-y-4"
-      >
-        <div className="inline-flex rounded-xl bg-surface/80 p-1 border border-border/60 w-full justify-between">
-          <button
-            type="button"
-            onClick={() => { setActiveFormTab("login"); setServerError(null); }}
-            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
-              activeFormTab === "login"
-                ? "bg-primary text-primary-foreground shadow-subtle"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            🔑 Log In
-          </button>
-          <button
-            type="button"
-            onClick={() => { setActiveFormTab("register"); setServerError(null); }}
-            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
-              activeFormTab === "register"
-                ? "bg-primary text-primary-foreground shadow-subtle"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            📝 Register
-          </button>
-          <button
-            type="button"
-            onClick={() => { setActiveFormTab("guide"); setServerError(null); }}
-            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
-              activeFormTab === "guide"
-                ? "bg-amber-600 text-white shadow-subtle"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            ℹ️ Tareeqa
-          </button>
-        </div>
+        {/* Form Tabs Switcher (Login / Register / Tareeqa) */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
+          className="w-full max-w-md space-y-3"
+        >
+          <div className="inline-flex rounded-xl bg-surface/90 p-1 border border-border/80 w-full justify-between shadow-sm">
+            <button
+              type="button"
+              onClick={() => { setActiveFormTab("login"); setServerError(null); }}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeFormTab === "login"
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              🔑 Log In
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveFormTab("register"); setServerError(null); }}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeFormTab === "register"
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              📝 Register
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveFormTab("guide"); setServerError(null); }}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeFormTab === "guide"
+                  ? "bg-emerald-600 text-white shadow-md"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              ℹ️ Tareeqa
+            </button>
+          </div>
 
-        {/* Embedded Forms Container */}
-        <div className="p-5 rounded-2xl border border-border/80 bg-card shadow-card text-left space-y-4">
-          {serverError && (
-            <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-xs flex items-start space-x-2">
-              <Icons.alertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-              <span>{serverError}</span>
-            </div>
-          )}
-
-          {activeFormTab === "login" && (
-            <form onSubmit={handleLoginSubmit} className="space-y-3.5">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-foreground flex items-center justify-between">
-                  <span>Email Ya Roommate Naam</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Masood ya masood@gmail.com"
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
+          {/* Embedded Forms Container */}
+          <div className="p-4 sm:p-5 rounded-2xl border border-border/80 bg-card/90 shadow-xl backdrop-blur-md text-left space-y-3">
+            {serverError && (
+              <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs flex items-start space-x-2">
+                <Icons.alertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                <span>{serverError}</span>
               </div>
+            )}
 
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-foreground">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  placeholder="Apna password darj karein"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
+            {activeFormTab === "login" && (
+              <form onSubmit={handleLoginSubmit} className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground flex items-center justify-between">
+                    <span>Email Ya Roommate Naam</span>
+                    <InfoPopover
+                      title="Login ID"
+                      explanation="Apna registered email ya naam (e.g. Masood, Hamza) darj karein."
+                    />
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Masood ya masood@gmail.com"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showLoginPassword ? "text" : "password"}
+                      required
+                      placeholder="Apna password darj karein"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      className="w-full h-9 pl-3 pr-9 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPassword(!showLoginPassword)}
+                      className="absolute right-2.5 top-2 text-muted-foreground hover:text-foreground p-0.5 rounded focus:outline-none"
+                      aria-label="Toggle password visibility"
+                    >
+                      {showLoginPassword ? (
+                        <Icons.eyeOff className="h-4 w-4 text-emerald-500" />
+                      ) : (
+                        <Icons.eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-10 text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md mt-1"
+                >
+                  {isLoading ? "Log in ho raha hai..." : "Room 14 Mein Sign In Karein"}
+                </Button>
+              </form>
+            )}
+
+            {activeFormTab === "register" && (
+              <form onSubmit={handleRegisterSubmit} className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">
+                    Aap Ka Poora Naam
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Masood, Hamza, etc."
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                    className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">
+                    Email Ya Username
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. masood@gmail.com ya masood"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                    className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showRegPassword ? "text" : "password"}
+                      required
+                      placeholder="Select password"
+                      value={regPassword}
+                      onChange={(e) => setRegPassword(e.target.value)}
+                      className="w-full h-9 pl-3 pr-9 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegPassword(!showRegPassword)}
+                      className="absolute right-2.5 top-2 text-muted-foreground hover:text-foreground p-0.5 rounded focus:outline-none"
+                      aria-label="Toggle password visibility"
+                    >
+                      {showRegPassword ? (
+                        <Icons.eyeOff className="h-4 w-4 text-emerald-500" />
+                      ) : (
+                        <Icons.eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-10 text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md mt-1"
+                >
+                  {isLoading ? "Account ban raha hai..." : "Register Karein & Join Karein"}
+                </Button>
+              </form>
+            )}
+
+            {activeFormTab === "guide" && (
+              <div className="space-y-2 text-xs leading-relaxed text-foreground">
+                <h4 className="font-bold text-xs text-foreground flex items-center gap-1.5">
+                  <Icons.help className="h-4 w-4 text-emerald-500" />
+                  <span>App Use Karne Ka Quick Tareeqa</span>
+                </h4>
+                <p className="text-[11px] text-muted-foreground">
+                  • <strong>Step 1:</strong> Apna account <strong>Register</strong> tab par banayein ya <strong>Log In</strong> tab se sign in karein.
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  • <strong>Step 2:</strong> Dashboard par daily kharcha (doodh, roti, gas, grocery) add karein.
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  • <strong>Step 3:</strong> Net Hisaab dekhein: 🟢 Green = <strong>Paise LENE HAIN</strong>, 🔴 Red = <strong>Paise DENE HAIN</strong>.
+                </p>
               </div>
-
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-10 text-sm font-semibold shadow-subtle mt-2"
-              >
-                {isLoading ? "Log in ho raha hai..." : "Room 14 Mein Sign In Karein"}
-              </Button>
-            </form>
-          )}
-
-          {activeFormTab === "register" && (
-            <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-foreground">
-                  Aap Ka Poora Naam
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Masood, Hamza, etc."
-                  value={regName}
-                  onChange={(e) => setRegName(e.target.value)}
-                  className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-foreground">
-                  Email Ya Username
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. masood@gmail.com ya masood"
-                  value={regEmail}
-                  onChange={(e) => setRegEmail(e.target.value)}
-                  className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-foreground">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  placeholder="Select password"
-                  value={regPassword}
-                  onChange={(e) => setRegPassword(e.target.value)}
-                  className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
-
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-10 text-sm font-semibold shadow-subtle mt-2"
-              >
-                {isLoading ? "Account ban raha hai..." : "Register Karein & Join Karein"}
-              </Button>
-            </form>
-          )}
-
-          {activeFormTab === "guide" && (
-            <div className="space-y-3 text-xs leading-relaxed text-foreground">
-              <h4 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-                <Icons.help className="h-4 w-4 text-amber-500" />
-                <span>App Use Karne Ka Quick Tareeqa</span>
-              </h4>
-              <p>
-                • <strong>Step 1:</strong> Apna account <strong>Register</strong> tab par banayein ya <strong>Log In</strong> tab se sign in karein.
-              </p>
-              <p>
-                • <strong>Step 2:</strong> Dashboard par daily kharcha (milk, roti, gas, grocery) add karein.
-              </p>
-              <p>
-                • <strong>Step 3:</strong> Net Hisaab dekhein: 🟢 Green balance ka matlab <strong>Paise LENE HAIN</strong>, 🔴 Red balance ka matlab <strong>Paise DENE HAIN</strong>.
-              </p>
-            </div>
-          )}
-        </div>
-      </motion.div>
+            )}
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }

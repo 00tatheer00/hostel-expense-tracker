@@ -43,7 +43,7 @@ export function QuickAddBar() {
         </Badge>
       </div>
 
-      <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex items-center space-x-2 overflow-x-auto pb-2 touch-pan-x no-scrollbar scroll-smooth">
         {FAVORITE_TEMPLATES.map((tmpl) => (
           <motion.div key={tmpl.id} whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
             <Link

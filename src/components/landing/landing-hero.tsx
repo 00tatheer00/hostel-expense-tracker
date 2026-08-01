@@ -211,39 +211,51 @@ export function LandingHero() {
               {/* Register Form */}
               {activeFormTab === "register" && (
                 registeredData ? (
-                  <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-900 dark:text-emerald-200 text-xs space-y-2.5">
-                    <div className="flex items-start space-x-2">
-                      <Icons.checkCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                      <div className="space-y-0.5">
-                        <h4 className="font-bold text-xs text-foreground">🎉 Account Created & Email Sent!</h4>
-                        <p className="text-[11px] opacity-90">
-                          📧 <strong>Apni Email Inbox Check Karein!</strong> Login credentials <strong>{registeredData.email}</strong> par mail kar diye gaye hain.
+                  <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-teal-500/10 to-emerald-500/20 border-2 border-emerald-500 text-foreground space-y-4 shadow-xl">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-xl bg-emerald-500 text-white font-bold shrink-0 shadow-md">
+                        <Icons.checkCircle className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <h3 className="font-extrabold text-sm sm:text-base text-emerald-900 dark:text-emerald-300">
+                          🎉 Registration Successful!
+                        </h3>
+                        <p className="text-xs text-muted-foreground font-medium">
+                          Aap ka account Room 14 portal par active ho gaya hai.
                         </p>
                       </div>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-background/90 border border-emerald-500/30 text-foreground space-y-1 font-mono text-[11px]">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground font-sans">Name:</span>
-                        <strong>{registeredData.name}</strong>
+                    <div className="p-3.5 rounded-xl bg-background border border-emerald-500/40 space-y-2 font-mono text-xs shadow-inner">
+                      <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide font-sans flex items-center gap-1.5">
+                        <span>📧 EMAIL DISPATCHED TO YOUR INBOX:</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground font-sans">Email/ID:</span>
-                        <strong>{registeredData.email}</strong>
-                      </div>
-                      <div className="flex justify-between border-t border-border/40 pt-1">
-                        <span className="text-muted-foreground font-sans">Password:</span>
-                        <strong className="text-emerald-600 dark:text-emerald-400">{registeredData.pass}</strong>
+                      <p className="text-xs text-foreground font-sans leading-relaxed">
+                        Aap ke login credentials email <strong>{registeredData.email}</strong> par send kar diye gaye hain. Email inbox check karein.
+                      </p>
+
+                      <div className="border-t border-border/60 pt-2 space-y-1 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground font-sans">Roommate Name:</span>
+                          <strong className="font-bold">{registeredData.name}</strong>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground font-sans">Email / Username:</span>
+                          <strong className="font-bold text-indigo-600 dark:text-indigo-400">{registeredData.email}</strong>
+                        </div>
+                        <div className="flex justify-between border-t border-border/40 pt-1">
+                          <span className="text-muted-foreground font-sans">Password:</span>
+                          <strong className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">{registeredData.pass}</strong>
+                        </div>
                       </div>
                     </div>
 
-                    <button 
-                      type="button"
-                      onClick={() => setActiveFormTab("login")} 
-                      className="w-full h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm"
+                    <a
+                      href="/"
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-[1.01]"
                     >
-                      <span>Log In Screen Par Jayein →</span>
-                    </button>
+                      <span>🚀 Enter Room 14 Dashboard Now →</span>
+                    </a>
                   </div>
                 ) : (
                   <form onSubmit={handleRegisterSubmit} className="space-y-3">

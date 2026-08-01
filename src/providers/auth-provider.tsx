@@ -283,7 +283,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: false, error: apiError };
     }
 
-    // 2. Log in user immediately & save session
+    // 2. Log in user & save session
     setUser(newUserProfile);
     setAuthCookie(newUserProfile);
     if (typeof window !== "undefined") {
@@ -293,7 +293,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     setIsLoading(false);
-    router.push("/");
     return { success: true };
   };
 

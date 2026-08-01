@@ -71,14 +71,15 @@ export function useExpenses() {
     };
   }, [refreshData]);
 
-  // Dynamically compute list of registered roommates
+  // Dynamically compute list of registered roommates (excluding Room Admin)
   const roommates: UserRow[] = React.useMemo(() => {
     const list: UserRow[] = [];
     if (typeof window !== "undefined") {
       try {
         const stored = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
         stored.forEach((u: any) => {
-          if (!list.some((existing) => existing.name.toLowerCase() === u.name.toLowerCase())) {
+          const isAdmin = u.role === "Room Admin" || u.name?.toLowerCase().includes("admin");
+          if (!isAdmin && !list.some((existing) => existing.name.toLowerCase() === u.name.toLowerCase())) {
             list.push({
               id: u.id || `rm-${u.name}`,
               name: u.name,
@@ -93,15 +94,18 @@ export function useExpenses() {
         console.error("Failed to load registered roommates", e);
       }
     }
-    if (user && !list.some((u) => u.name.toLowerCase() === user.name.toLowerCase())) {
-      list.push({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        avatar_color: "#10B981",
-        theme: "dark",
-        created_at: new Date().toISOString(),
-      });
+    if (user) {
+      const isUserAdmin = user.role === "Room Admin" || user.name?.toLowerCase().includes("admin");
+      if (!isUserAdmin && !list.some((u) => u.name.toLowerCase() === user.name.toLowerCase())) {
+        list.push({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          avatar_color: "#10B981",
+          theme: "dark",
+          created_at: new Date().toISOString(),
+        });
+      }
     }
     return list;
   }, [user]);

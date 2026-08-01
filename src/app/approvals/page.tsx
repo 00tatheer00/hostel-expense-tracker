@@ -13,6 +13,8 @@ import { siteConfig } from "@/config/site";
 import { useAuth } from "@/hooks/use-auth";
 import { UserProfile } from "@/types/auth";
 
+import { EmailService } from "@/services/email.service";
+
 export default function ApprovalsPage() {
   const { user, approveUser, rejectUser, isLoading } = useAuth();
   const [allUsers, setAllUsers] = React.useState<UserProfile[]>([]);
@@ -43,13 +45,15 @@ export default function ApprovalsPage() {
     };
   }, [refreshUsers]);
 
-  const handleApprove = async (userId: string) => {
-    await approveUser(userId);
+  const handleApprove = async (uId: string, uEmail: string, uName: string) => {
+    await approveUser(uId);
+    await EmailService.sendApprovalStatusEmail(uEmail, uName, "approve");
     refreshUsers();
   };
 
-  const handleReject = async (userId: string) => {
-    await rejectUser(userId);
+  const handleReject = async (uId: string, uEmail: string, uName: string) => {
+    await rejectUser(uId);
+    await EmailService.sendApprovalStatusEmail(uEmail, uName, "reject");
     refreshUsers();
   };
 
@@ -173,16 +177,16 @@ export default function ApprovalsPage() {
                     <div className="flex items-center space-x-2 self-end sm:self-center">
                       <Button
                         size="sm"
-                        onClick={() => handleApprove(pUser.id)}
+                        onClick={() => handleApprove(pUser.id, pUser.email, pUser.name)}
                         className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs font-bold gap-1.5 shadow-md border-0"
                       >
                         <Icons.check className="h-4 w-4" />
-                        <span>Approve (Allow Entry)</span>
+                        <span>Approve (Allow Entry & Email)</span>
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleReject(pUser.id)}
+                        onClick={() => handleReject(pUser.id, pUser.email, pUser.name)}
                         className="text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 text-xs font-semibold gap-1"
                       >
                         <Icons.x className="h-4 w-4" />

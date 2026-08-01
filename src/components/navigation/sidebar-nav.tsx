@@ -99,12 +99,7 @@ export function SidebarNav() {
           <div className="px-2 pb-1 text-[10px] font-mono font-semibold uppercase text-muted-foreground tracking-wider">
             Navigation
           </div>
-          {NAV_ITEMS.filter((item) => {
-            if (item.href === "/admin" || item.href === "/approvals") {
-              return user?.role === "Room Admin";
-            }
-            return true;
-          }).map((item) => {
+          {NAV_ITEMS.map((item) => {
             const Icon = Icons[item.icon] || Icons.dashboard;
             const isActive =
               pathname === item.href ||

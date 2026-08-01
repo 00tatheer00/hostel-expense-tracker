@@ -51,7 +51,6 @@ Room 14 Management Team
 ==================================================
     `.trim();
 
-    // Trigger Client Mailto Fallback or Webhook Dispatch
     if (typeof window !== "undefined") {
       const mailtoUrl = `mailto:${input.email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
       console.log("[EmailService] Generated mailto fallback URL:", mailtoUrl);
@@ -60,6 +59,53 @@ Room 14 Management Team
     return {
       success: true,
       message: `Registration details sent to ${input.email}`,
+    };
+  }
+
+  /**
+   * Send Approval or Rejection Email Notification
+   */
+  static async sendApprovalStatusEmail(
+    userEmail: string,
+    userName: string,
+    action: "approve" | "reject"
+  ): Promise<{ success: boolean; message: string }> {
+    console.log(`[EmailService] Sending Approval Status (${action}) Email to ${userEmail}...`);
+
+    const isApproved = action === "approve";
+    const emailSubject = isApproved
+      ? `🎉 Account Approved - ${siteConfig.name} (${siteConfig.roomNumber})`
+      : `⚠️ Account Request Update - ${siteConfig.name} (${siteConfig.roomNumber})`;
+
+    const emailBody = `
+==================================================
+🏠 ${siteConfig.name} - ${siteConfig.roomNumber}, ${siteConfig.hostelName}
+==================================================
+
+Assalam-o-Alaikum ${userName},
+
+${
+  isApproved
+    ? " Mubarak ho! Aap ka account Room Admin ne APPROVE kar diya hai.\n\nAap ab KamraKhata web app ya mobile app par apne email & password se log in kar sakte hain."
+    : " Aap ki KamraKhata account request approve nahi ho saki."
+}
+
+📌 Portal Link: https://kamrakhata.vercel.app
+
+Shukriya!
+Room 14 Management Team
+==================================================
+    `.trim();
+
+    if (typeof window !== "undefined") {
+      const mailtoUrl = `mailto:${userEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      console.log("[EmailService] Generated status mailto URL:", mailtoUrl);
+      window.open(mailtoUrl, "_blank");
+    }
+
+    return {
+      success: true,
+      message: `Approval status (${action}) notification sent to ${userEmail}`,
     };
   }
 

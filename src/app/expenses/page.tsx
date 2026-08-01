@@ -45,7 +45,7 @@ export default function ExpensesPage() {
 
     // 2. Category Filter
     if (activeCategoryFilter !== "All") {
-      result = result.filter((e) => e.category === activeCategoryFilter);
+      result = result.filter((e) => e.category.toLowerCase() === activeCategoryFilter.toLowerCase());
     }
 
     // 3. My Expenses Filter
@@ -82,24 +82,24 @@ export default function ExpensesPage() {
   return (
     <PageWrapper>
       <PageHeader
-        title="Room Expenses"
-        subtitle="Full history of shared room purchases, groceries, and bills."
+        title="Recent Room Purchases"
+        subtitle={`${siteConfig.roomNumber}, ${siteConfig.hostelName} - Live milk, roti, grocery & utility bill purchases history.`}
         badge={
           <Badge variant="outline" className="font-mono text-xs">
-            {filteredExpenses.length} / {expenses.length} Entry{expenses.length === 1 ? "" : "ies"}
+            {filteredExpenses.length} / {expenses.length} Purchases
           </Badge>
         }
         action={
           <Link href="/expenses/new">
-            <Button className="gap-2 shadow-subtle font-semibold">
+            <Button className="gap-2 shadow-subtle font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
               <Icons.plus className="h-4 w-4" />
-              <span>Add Expense</span>
+              <span>Add Naya Kharcha</span>
             </Button>
           </Link>
         }
       />
 
-      <SectionCard title="Expense History & Instant Search" description={`Filter and search ${siteConfig.roomNumber} transactions`}>
+      <SectionCard title="🛒 Purchases Ledger & Instant Search" description={`Filter and search ${siteConfig.roomNumber} room transactions`}>
         <div className="space-y-4">
           {/* Search Bar & Sort Menu */}
           <div className="flex flex-col sm:flex-row gap-3">
@@ -107,13 +107,13 @@ export default function ExpensesPage() {
             <SortMenu value={sortBy} onChange={setSortBy} />
           </div>
 
-          {/* Quick Filter Chips */}
+          {/* Quick Category Filter Chips */}
           <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-border/40">
             <span className="caption text-xs font-mono text-muted-foreground mr-1">
-              Filter By:
+              Category Filter:
             </span>
 
-            {["All", "Food", "Rent", "Electricity", "Internet", "Other"].map((cat) => (
+            {["All", "Milk", "Roti", "Grocery", "Electricity", "Internet", "Other"].map((cat) => (
               <FilterChip
                 key={cat}
                 label={cat}
@@ -123,7 +123,7 @@ export default function ExpensesPage() {
             ))}
 
             <FilterChip
-              label="My Expenses"
+              label="My Purchases Only"
               isActive={onlyMyExpenses}
               onClick={() => setOnlyMyExpenses(!onlyMyExpenses)}
             />
@@ -142,8 +142,8 @@ export default function ExpensesPage() {
           {/* Results Render */}
           {expenses.length === 0 ? (
             <EmptyState
-              title="Koi kharcha abhi tak add nahi hua."
-              description="Aap ya aapka koi roommate naya expense add karega to wo yahan list me realtime dikhai dega."
+              title="Koi room purchase abhi tak record nahi hui."
+              description="Jab bhi aap ya koi roommate Doodh, Roti ya Grocery buy karega, wo purchase yahan real-time list mein show ho gi."
               icon={Icons.expenses}
               action={
                 <Link href="/expenses/new">

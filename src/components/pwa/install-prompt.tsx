@@ -4,6 +4,7 @@ import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/lib/icons";
+import Image from "next/image";
 
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = React.useState<any>(null);
@@ -60,7 +61,7 @@ export function InstallPrompt() {
       setShowIOSGuide(true);
     } else {
       // Fallback instruction for browser menu add to home screen
-      alert("Mobile Browser Menu (⋮ or  Share) par tap karein aur 'Add to Home Screen' / 'Install App' select karein.");
+      alert("Mobile Browser Menu (⋮ or Share) par tap karein aur 'Add to Home Screen' select karein.");
     }
   };
 
@@ -80,9 +81,11 @@ export function InstallPrompt() {
         className="fixed bottom-20 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-50 p-4 rounded-2xl bg-slate-900 text-white border border-emerald-500/40 shadow-2xl backdrop-blur-xl"
       >
         <div className="flex items-center space-x-3.5">
-          <img
+          <Image
             src="/icon-192.png"
             alt="KamraKhata Icon"
+            width={40}
+            height={40}
             className="h-10 w-10 shrink-0 rounded-xl border border-emerald-500/30 object-cover shadow-md"
           />
 
@@ -120,8 +123,8 @@ export function InstallPrompt() {
           <div className="mt-3 pt-3 border-t border-slate-700/60 text-xs text-slate-200 space-y-1">
             <p className="font-bold text-emerald-400">📱 iPhone / iPad Par Install Karein:</p>
             <ol className="list-decimal list-inside space-y-0.5 text-[11px] text-slate-300">
-              <li>Safari menu mein **Share icon** ⎋ tap karein</li>
-              <li>Neeche scroll karke **"Add to Home Screen" ➕** chunein</li>
+              <li>Safari menu mein <strong>Share icon</strong> ⎋ tap karein</li>
+              <li>Neeche scroll karke <strong>&quot;Add to Home Screen&quot; ➕</strong> chunein</li>
             </ol>
           </div>
         )}

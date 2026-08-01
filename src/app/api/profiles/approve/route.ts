@@ -175,7 +175,7 @@ export async function PATCH(req: NextRequest) {
 </html>`;
 
           await resend.emails.send({
-            from: "KamraKhata <onboarding@resend.dev>",
+            from: "KamraKhata <noreply@emergingedge.tech>",
             to: [recipientEmail],
             subject,
             html: htmlBody,

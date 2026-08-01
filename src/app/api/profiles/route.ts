@@ -218,7 +218,7 @@ export async function POST(req: NextRequest) {
 </html>`;
 
         await resend.emails.send({
-          from: "KamraKhata <onboarding@resend.dev>",
+          from: "KamraKhata <noreply@emergingedge.tech>",
           to: [cleanEmail],
           subject: `🎉 Welcome to KamraKhata Room 14 - Login Credentials`,
           html: htmlBody,

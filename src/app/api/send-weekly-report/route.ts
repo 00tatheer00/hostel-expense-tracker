@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     const recipientEmails = validEmails.length > 0 ? validEmails : ["onboarding@resend.dev"];
 
     const data = await resend.emails.send({
-      from: `${siteConfig.name} <onboarding@resend.dev>`,
+      from: `${siteConfig.name} <noreply@emergingedge.tech>`,
       to: recipientEmails,
       subject: `📊 Weekly Khata Report - ${siteConfig.roomNumber}, ${siteConfig.hostelName}`,
       html: htmlBody,

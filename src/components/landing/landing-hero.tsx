@@ -215,8 +215,10 @@ export function LandingHero() {
                     <div className="flex items-start space-x-2">
                       <Icons.checkCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                       <div className="space-y-0.5">
-                        <h4 className="font-bold text-xs text-foreground">🎉 Account Created!</h4>
-                        <p className="text-[11px] opacity-90">Aap ka Room 14 account ban gaya hai.</p>
+                        <h4 className="font-bold text-xs text-foreground">🎉 Account Created & Email Sent!</h4>
+                        <p className="text-[11px] opacity-90">
+                          📧 <strong>Apni Email Inbox Check Karein!</strong> Login credentials <strong>{registeredData.email}</strong> par mail kar diye gaye hain.
+                        </p>
                       </div>
                     </div>
 
@@ -235,9 +237,13 @@ export function LandingHero() {
                       </div>
                     </div>
 
-                    <a href="/" className="w-full h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm">
-                      <span>Enter Room 14 →</span>
-                    </a>
+                    <button 
+                      type="button"
+                      onClick={() => setActiveFormTab("login")} 
+                      className="w-full h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm"
+                    >
+                      <span>Log In Screen Par Jayein →</span>
+                    </button>
                   </div>
                 ) : (
                   <form onSubmit={handleRegisterSubmit} className="space-y-3">

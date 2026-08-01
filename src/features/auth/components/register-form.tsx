@@ -69,41 +69,43 @@ export function RegisterForm() {
 
         <CardContent className="space-y-4">
           {registeredData ? (
-            <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-900 dark:text-emerald-200 text-xs space-y-3 shadow-md animate-fade-in">
-              <div className="flex items-start space-x-2.5">
-                <Icons.checkCircle className="h-6 w-6 text-emerald-500 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <h4 className="font-bold text-sm text-foreground">🎉 Account Successfully Created!</h4>
-                  <p className="text-xs opacity-90">Aap ka account Room 14 portal par active ho gaya hai.</p>
+              <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-900 dark:text-emerald-200 text-xs space-y-3 shadow-md animate-fade-in">
+                <div className="flex items-start space-x-2.5">
+                  <Icons.checkCircle className="h-6 w-6 text-emerald-500 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-sm text-foreground">🎉 Account Created & Email Sent!</h4>
+                    <p className="text-xs opacity-90">
+                      📧 <strong>Apni Email Inbox Check Karein!</strong> Aap ke login credentials <strong>{registeredData.email}</strong> par bhej diye gaye hain.
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              {/* Login Credentials Box */}
-              <div className="p-3 rounded-lg bg-background/90 border border-emerald-500/30 text-foreground space-y-1.5 font-mono text-xs">
-                <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider font-sans">
-                  🔑 Aap Ke Login Credentials:
+                {/* Login Credentials Box */}
+                <div className="p-3 rounded-lg bg-background/90 border border-emerald-500/30 text-foreground space-y-1.5 font-mono text-xs">
+                  <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider font-sans">
+                    🔑 Login Credentials (Sent to Email):
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground font-sans">Name:</span>
+                    <strong className="font-bold">{registeredData.name}</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground font-sans">Email/ID:</span>
+                    <strong className="font-bold">{registeredData.email}</strong>
+                  </div>
+                  <div className="flex justify-between border-t border-border/40 pt-1">
+                    <span className="text-muted-foreground font-sans">Password:</span>
+                    <strong className="font-bold text-emerald-600 dark:text-emerald-400">{registeredData.pass}</strong>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground font-sans">Name:</span>
-                  <strong className="font-bold">{registeredData.name}</strong>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground font-sans">Email/ID:</span>
-                  <strong className="font-bold">{registeredData.email}</strong>
-                </div>
-                <div className="flex justify-between border-t border-border/40 pt-1">
-                  <span className="text-muted-foreground font-sans">Password:</span>
-                  <strong className="font-bold text-emerald-600 dark:text-emerald-400">{registeredData.pass}</strong>
-                </div>
-              </div>
 
-              <div className="pt-2 flex items-center justify-between">
-                <span className="text-[10px] opacity-80">Credentials screen & email par bhej diye hain.</span>
-                <a href="/" className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm">
-                  <span>Enter Room 14 →</span>
-                </a>
+                <div className="pt-2 flex items-center justify-between">
+                  <span className="text-[10px] opacity-80">Check your inbox or log in below.</span>
+                  <a href="/login" className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm">
+                    <span>Go to Log In Screen →</span>
+                  </a>
+                </div>
               </div>
-            </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {serverError && (

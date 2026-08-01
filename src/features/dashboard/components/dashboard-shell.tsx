@@ -105,7 +105,7 @@ export function DashboardShell() {
             </Badge>
           </div>
           <p className="caption text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Personal debt analytics & roommate split tracker.
+            Welcome back, <strong className="text-foreground">{user?.name || "Roommate"}</strong>! Live debt analytics & roommate split tracker for Room 14.
           </p>
         </div>
 

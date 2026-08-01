@@ -44,8 +44,11 @@ export function TopNav() {
             <ThemeToggle />
 
             {user && (
-              <div className="flex items-center space-x-1.5 border-l border-border/60 pl-2">
+              <div className="flex items-center space-x-2 border-l border-border/60 pl-2">
                 <Avatar name={user.name} size="sm" />
+                <span className="text-xs font-bold text-foreground max-w-[90px] truncate">
+                  {user.name}
+                </span>
                 <Button
                   variant="ghost"
                   size="icon"

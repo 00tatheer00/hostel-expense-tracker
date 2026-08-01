@@ -6,7 +6,7 @@ import { CreateExpenseInput } from "@/lib/validations/expense";
 import { BalanceService } from "@/services/balance.service";
 import { calculateSplit } from "@/utils/calc-utils";
 import { useAuth } from "@/hooks/use-auth";
-
+import { createClient } from "@/lib/supabase/client";
 import { SettlementRow } from "@/types/database";
 
 // Local storage helper for expenses & settlements
@@ -114,7 +114,6 @@ export function useExpenses() {
 
   const createExpense = async (input: CreateExpenseInput): Promise<ExpenseWithSplits> => {
     setIsLoading(true);
-    await new Promise((res) => setTimeout(res, 400)); // Simulate async latency
 
     const shares = calculateSplit(input.amount, input.splitUserIds.length);
     const payer = roommates.find((r) => r.id === input.paidBy) || roommates[0];
@@ -140,9 +139,36 @@ export function useExpenses() {
       splits: newSplits,
     };
 
+    // Save to local store
     const current = getStoredExpenses();
     const updated = [newExpense, ...current];
     updateStore(updated);
+
+    // Sync to Supabase Database
+    try {
+      const supabase = createClient();
+      await supabase.from("expenses").insert({
+        id: newExpense.id,
+        amount: newExpense.amount,
+        description: newExpense.description,
+        category: newExpense.category,
+        paid_by: newExpense.paid_by,
+        created_at: newExpense.created_at,
+      });
+
+      const splitsPayload = newSplits.map((s) => ({
+        id: s.id,
+        expense_id: s.expense_id,
+        user_id: s.user_id,
+        share_amount: s.share_amount,
+        created_at: s.created_at,
+      }));
+
+      await supabase.from("splits").insert(splitsPayload);
+    } catch (e) {
+      console.log("Supabase sync note:", e);
+    }
+
     setIsLoading(false);
     return newExpense;
   };

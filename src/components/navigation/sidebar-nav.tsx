@@ -52,7 +52,7 @@ export function SidebarNav() {
           </Link>
           <Badge variant="success" className="text-[10px] font-mono gap-1 w-fit bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Room 14 Live Khata</span>
+            <span>Room 14 Live</span>
           </Badge>
         </div>
 
@@ -73,7 +73,7 @@ export function SidebarNav() {
         {/* Navigation Items */}
         <nav className="space-y-1">
           <div className="px-2 pb-1 text-[10px] font-mono font-semibold uppercase text-muted-foreground tracking-wider">
-            Menu Navigation
+            Navigation
           </div>
           {NAV_ITEMS.filter((item) => item.href !== "/admin" || user?.role === "Room Admin").map((item) => {
             const Icon = Icons[item.icon] || Icons.dashboard;
@@ -106,10 +106,10 @@ export function SidebarNav() {
         <div className="p-3 rounded-xl border border-border/60 bg-surface/30 space-y-1">
           <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
             <span className="flex items-center">
-              <span>Aap Ka Net Hisaab</span>
+              <span>Your Net Balance</span>
               <InfoPopover
-                title="Your Net Hisaab"
-                explanation="Green = Aap ko paise LENE HAIN. Red = Aap ko paise DENE HAIN."
+                title="Your Net Balance"
+                explanation="Green = You get money back. Red = You owe money."
               />
             </span>
           </div>
@@ -123,7 +123,7 @@ export function SidebarNav() {
             )}
           </div>
           <div className="text-[10px] text-muted-foreground">
-            {isPositive ? "Roommates se LENE HAIN" : isNegative ? "Roommates ko DENE HAIN" : "Hisaab barabar hai"}
+            {isPositive ? "Receivable from roommates" : isNegative ? "Payable to roommates" : "All settled up"}
           </div>
         </div>
 
@@ -136,7 +136,7 @@ export function SidebarNav() {
           className="w-full justify-start text-xs font-semibold text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 gap-2"
         >
           <Icons.logout className="h-4 w-4 shrink-0" />
-          <span>Log Out Karein</span>
+          <span>Log Out</span>
         </Button>
       </div>
     </aside>

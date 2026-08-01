@@ -2,27 +2,17 @@ import { NavItem } from "@/types";
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    title: "Khata Home",
+    title: "Dashboard",
     href: "/",
     icon: "dashboard",
   },
   {
-    title: "Admin Panel",
-    href: "/admin",
-    icon: "settings",
-  },
-  {
-    title: "Tareeqa (Guide)",
-    href: "/guide",
-    icon: "help",
-  },
-  {
-    title: "Daily Kharcha",
+    title: "Expenses",
     href: "/expenses",
     icon: "expenses",
   },
   {
-    title: "Khaata Safaya",
+    title: "Settlements",
     href: "/settlements",
     icon: "wallet",
   },
@@ -32,7 +22,17 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "analytics",
   },
   {
-    title: "Profile",
+    title: "Admin Panel",
+    href: "/admin",
+    icon: "settings",
+  },
+  {
+    title: "User Guide",
+    href: "/guide",
+    icon: "help",
+  },
+  {
+    title: "My Profile",
     href: "/profile",
     icon: "profile",
   },

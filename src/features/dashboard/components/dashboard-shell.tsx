@@ -36,10 +36,10 @@ export function DashboardShell() {
         <div>
           <div className="flex items-center space-x-2">
             <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center">
-              <span>Room 14 Live Khata</span>
+              <span>Room 14 Expense Dashboard</span>
               <InfoPopover
                 title="Room 14 Dashboard"
-                explanation="Yeh Room 14 (Al Syed Hostel) ka main dashboard hai jahan live personal hisaab, qarza analytics aur rozana ke kharchay dikhayi dete hain."
+                explanation="Room 14 live personal balance analytics, spending breakdown, and roommate expense tracking."
               />
             </h1>
             <Badge variant="success" className="font-mono text-xs gap-1">
@@ -48,7 +48,7 @@ export function DashboardShell() {
             </Badge>
           </div>
           <p className="caption text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Personal debt analytics & equal roommate split tracker.
+            Personal debt analytics & roommate split tracker.
           </p>
         </div>
 
@@ -56,19 +56,19 @@ export function DashboardShell() {
           <Link href="/guide">
             <Button variant="secondary" size="sm" className="gap-1.5 font-semibold text-xs border border-border/60">
               <Icons.help className="h-3.5 w-3.5 text-amber-500" />
-              <span>Tareeqa</span>
+              <span>Guide</span>
             </Button>
           </Link>
           <Link href="/expenses/new">
             <Button size="sm" className="gap-1.5 shadow-subtle font-semibold bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
               <Icons.plus className="h-4 w-4" />
-              <span>Naya Kharcha Jodein</span>
+              <span>Add Expense</span>
             </Button>
           </Link>
           <Link href="/settlements/new">
             <Button variant="outline" size="sm" className="gap-1.5 font-semibold text-xs border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
               <Icons.checkCircle className="h-3.5 w-3.5 text-emerald-600" />
-              <span>Khaata Safaya</span>
+              <span>Settle Up</span>
             </Button>
           </Link>
         </div>

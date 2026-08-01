@@ -21,19 +21,19 @@ export function RecentExpenseList({ expenses }: RecentExpenseListProps) {
     <SectionCard
       title={
         <span className="flex items-center">
-          <span>Aakhri Daily Kharchay</span>
+          <span>Recent Room Purchases</span>
           <InfoPopover
-            title="Recent Daily Kharcha"
-            explanation="Room 14 mein hone wale halia kharchon ki list (doodh, roti, sabzi, grocery, wagaira)."
+            title="Recent Purchases"
+            explanation="Recent daily shared purchases (groceries, milk, bills, etc.)."
           />
         </span>
       }
-      description="Room 14 Al Syed Hostel ke recent kharchay"
+      description="Room 14 transaction history log"
       action={
         expenses.length > 0 ? (
           <Link href="/expenses">
             <Button variant="ghost" size="sm" className="text-xs gap-1 text-muted-foreground hover:text-foreground">
-              <span>Sabhi Dekhein</span>
+              <span>View All</span>
               <Icons.chevronRight className="h-3.5 w-3.5" />
             </Button>
           </Link>

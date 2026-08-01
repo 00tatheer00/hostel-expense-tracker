@@ -32,10 +32,10 @@ export function QuickAddBar() {
       <div className="flex items-center justify-between">
         <span className="caption text-xs font-mono font-semibold uppercase text-muted-foreground flex items-center space-x-1.5">
           <Icons.sparkles className="h-3.5 w-3.5 text-amber-500" />
-          <span>Fawri Daily Kharcha Shortcuts</span>
+          <span>Quick Expense Shortcuts</span>
           <InfoPopover
             title="1-Tap Shortcuts"
-            explanation="Daily roze hone wale kharchon (Doodh, Roti, Pani, Gas, Bill) ko fast add karne ke liye kisi bhi pill par tap karein."
+            explanation="Tap any shortcut pill to quickly record recurring purchases like Milk, Bread, Water, Bills, etc."
           />
         </span>
         <Badge variant="outline" className="text-[10px] font-mono font-semibold">

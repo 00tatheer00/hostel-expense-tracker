@@ -21,10 +21,10 @@ export function BalanceList({ balances }: BalanceListProps) {
     <SectionCard
       title={
         <span className="flex items-center">
-          <span>Roommates Ka Live Hisaab</span>
+          <span>Roommate Live Balances</span>
           <InfoPopover
             title="Live Balances"
-            explanation="Yeh list har roommate ka final hisaab dikhati hai (paise lene hain ya dene hain)."
+            explanation="Final net balance status for each roommate (receivable or payable)."
           />
         </span>
       }

@@ -134,32 +134,32 @@ export function PersonalDebtAnalyticsCard() {
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-xl sm:text-2xl font-black font-heading tracking-wide">
-                  👋 {currentUser.name} Ka Personal Hisaab
+                  👋 {currentUser.name}&apos;s Debt Analytics
                 </span>
                 <Badge className="bg-indigo-500/30 text-indigo-200 border-indigo-400/40 text-[10px] font-mono">
                   Live Analytics
                 </Badge>
               </div>
               <p className="text-xs text-indigo-200/80 mt-1">
-                Aap ke upar kitna total qarza hai aur baakiyon par aap ke kitne paise hain.
+                Your total debt to roommates and amounts owed to you in Room 14.
               </p>
             </div>
 
             <Link href="/settlements/new">
               <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs shadow-lg border-0 gap-1.5 self-start sm:self-center">
                 <Icons.checkCircle className="h-4 w-4" />
-                <span>Hisab Safaya Karein</span>
+                <span>Settle Up</span>
               </Button>
             </Link>
           </div>
 
           {/* 3 Main Vibrant Metric Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Card 1: Total Qarza (You Owe to Roommates) */}
+            {/* Card 1: Total Debt (You Owe to Roommates) */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-rose-500/20 to-rose-950/40 p-4 border border-rose-500/40 backdrop-blur-md">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-rose-200 uppercase tracking-wider">
-                  🔴 Aap Par Total Qarza
+                  🔴 Total You Owe
                 </span>
                 <div className="p-2 rounded-xl bg-rose-500/20 text-rose-400">
                   <Icons.arrowUpRight className="h-4 w-4" />
@@ -169,15 +169,15 @@ export function PersonalDebtAnalyticsCard() {
                 {formatCurrency(totalYouOwe)}
               </div>
               <p className="text-[10px] text-rose-300/80 mt-1">
-                {totalYouOwe > 0 ? "Roommates ko DENE HAIN" : "Aap par koi qarza nahi hai! 🎉"}
+                {totalYouOwe > 0 ? "Payable to roommates" : "No debt pending! 🎉"}
               </p>
             </div>
 
-            {/* Card 2: Baakiyon par Aap Ka Qarza (Roommates Owe You) */}
+            {/* Card 2: Receivables (Roommates Owe You) */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-500/20 to-emerald-950/40 p-4 border border-emerald-500/40 backdrop-blur-md">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-emerald-200 uppercase tracking-wider">
-                  🟢 Baakiyon Par Aap Ka Qarza
+                  🟢 Total Owed to You
                 </span>
                 <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
                   <Icons.arrowDownLeft className="h-4 w-4" />
@@ -187,7 +187,7 @@ export function PersonalDebtAnalyticsCard() {
                 {formatCurrency(totalTheyOweYou)}
               </div>
               <p className="text-[10px] text-emerald-300/80 mt-1">
-                {totalTheyOweYou > 0 ? "Roommates se LENE HAIN" : "Baakiyon par abhi koi len den nahi hai"}
+                {totalTheyOweYou > 0 ? "Receivable from roommates" : "No receivables currently"}
               </p>
             </div>
 
@@ -195,7 +195,7 @@ export function PersonalDebtAnalyticsCard() {
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-indigo-500/20 to-indigo-950/40 p-4 border border-indigo-500/40 backdrop-blur-md">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-indigo-200 uppercase tracking-wider">
-                  ⚡ Aap Ka Net Balance Status
+                  ⚡ Net Balance Status
                 </span>
                 <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300">
                   <Icons.wallet className="h-4 w-4" />
@@ -212,10 +212,10 @@ export function PersonalDebtAnalyticsCard() {
               </div>
               <p className="text-[10px] text-indigo-200/80 mt-1 font-semibold">
                 {netTotalBalance > 0
-                  ? "Overall: Aap Profit / Plus mein hain"
+                  ? "Overall: Net Positive / Receivable"
                   : netTotalBalance < 0
-                  ? "Overall: Aap par net dene waji hain"
-                  : "Overall: Hisaab ekdam barabar hai"}
+                  ? "Overall: Net Payable"
+                  : "Overall: Completely Settled"}
               </p>
             </div>
           </div>
@@ -228,13 +228,13 @@ export function PersonalDebtAnalyticsCard() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <CardTitle className="text-base font-bold flex items-center gap-2">
-                <span>🤝 Ek Ek Roommate Ka Person-by-Person Hisaab</span>
+                <span>🤝 Person-by-Person Debt Breakdown</span>
                 <Badge variant="outline" className="text-xs font-mono">
                   {pairwiseData.length} Roommates
                 </Badge>
               </CardTitle>
               <CardDescription className="text-xs text-muted-foreground mt-0.5">
-                Konse特定 roommate ka aap par kitna qarza hai aur aap ka us par kitna hai.
+                Exact 1-on-1 debt balance with each roommate.
               </CardDescription>
             </div>
           </div>

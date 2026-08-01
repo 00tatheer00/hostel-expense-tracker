@@ -9,13 +9,14 @@ import { Icons } from "@/lib/icons";
 import { scaleIn } from "@/lib/motion";
 import { siteConfig } from "@/config/site";
 import { InfoPopover } from "@/components/common/info-popover";
+import { UserProfile } from "@/types/auth";
 
 export function RegisterForm() {
-  const { register: registerAuth, isLoading } = useAuth();
+  const { register: registerAuth, activateSession, isLoading } = useAuth();
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [serverError, setServerError] = React.useState<string | null>(null);
-  const [registeredData, setRegisteredData] = React.useState<{ name: string; email: string; pass: string } | null>(null);
+  const [registeredData, setRegisteredData] = React.useState<{ name: string; email: string; pass: string; userProfile: UserProfile } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,11 +38,12 @@ export function RegisterForm() {
 
     if (res.error) {
       setServerError(res.error);
-    } else {
+    } else if (res.userProfile) {
       setRegisteredData({
         name: name.trim(),
         email: email.trim(),
         pass: autoPassword,
+        userProfile: res.userProfile,
       });
     }
   };
@@ -108,12 +110,17 @@ export function RegisterForm() {
                 </div>
               </div>
 
-              <a
-                href="/"
+              <button
+                type="button"
+                onClick={() => {
+                  if (registeredData.userProfile) {
+                    activateSession(registeredData.userProfile);
+                  }
+                }}
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-[1.01]"
               >
                 <span>🚀 Enter Room 14 Dashboard Now →</span>
-              </a>
+              </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">

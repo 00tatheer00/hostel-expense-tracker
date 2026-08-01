@@ -237,7 +237,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     name: string,
     email: string,
     password?: string
-  ): Promise<{ success: boolean; error?: string }> => {
+  ): Promise<{ success: boolean; error?: string; userProfile?: UserProfile }> => {
     setIsLoading(true);
     const cleanName = name.trim();
     const cleanEmail = email.trim().toLowerCase();
@@ -283,17 +283,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: false, error: apiError };
     }
 
-    // 2. Log in user & save session
-    setUser(newUserProfile);
-    setAuthCookie(newUserProfile);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("kamrakhata_auth_user", JSON.stringify(newUserProfile));
-      window.dispatchEvent(new Event("kamrakhata_data_change"));
-      window.dispatchEvent(new Event("storage"));
-    }
-
     setIsLoading(false);
-    return { success: true };
+    return { success: true, userProfile: newUserProfile };
   };
 
   const approveUser = async (userId: string) => {
@@ -403,6 +394,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const activateSession = (userProfile: UserProfile) => {
+    setUser(userProfile);
+    setAuthCookie(userProfile);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("kamrakhata_auth_user", JSON.stringify(userProfile));
+      window.dispatchEvent(new Event("kamrakhata_data_change"));
+      window.dispatchEvent(new Event("storage"));
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -411,6 +412,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         login,
         register,
+        activateSession,
         approveUser,
         rejectUser,
         logout,

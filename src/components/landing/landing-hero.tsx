@@ -8,9 +8,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Icons } from "@/lib/icons";
 import { siteConfig } from "@/config/site";
 import { fadeIn, scaleIn } from "@/lib/motion";
+import { UserProfile } from "@/types/auth";
 
 export function LandingHero() {
-  const { login, register: registerAuth, isLoading } = useAuth();
+  const { login, register: registerAuth, activateSession, isLoading } = useAuth();
   const [activeFormTab, setActiveFormTab] = React.useState<"login" | "register" | "guide">("login");
   const [showPassword, setShowPassword] = React.useState(false);
 
@@ -21,7 +22,7 @@ export function LandingHero() {
   // Register form state
   const [regName, setRegName] = React.useState("");
   const [regEmail, setRegEmail] = React.useState("");
-  const [registeredData, setRegisteredData] = React.useState<{ name: string; email: string; pass: string } | null>(null);
+  const [registeredData, setRegisteredData] = React.useState<{ name: string; email: string; pass: string; userProfile: UserProfile } | null>(null);
 
   const [serverError, setServerError] = React.useState<string | null>(null);
 
@@ -59,11 +60,12 @@ export function LandingHero() {
 
     if (!res.success && res.error) {
       setServerError(res.error);
-    } else {
+    } else if (res.userProfile) {
       setRegisteredData({
         name: regName.trim(),
         email: regEmail.trim(),
         pass: autoPassword,
+        userProfile: res.userProfile,
       });
     }
   };
@@ -231,7 +233,7 @@ export function LandingHero() {
                         <span>📧 EMAIL DISPATCHED TO YOUR INBOX:</span>
                       </div>
                       <p className="text-xs text-foreground font-sans leading-relaxed">
-                        Aap ke login credentials email <strong>{registeredData.email}</strong> par send kar diye gaye hain. Email inbox check karein.
+                        Aap ke login credentials email <strong>{registeredData.email}</strong> par send kar diye gaye hain. Email inbox (or Spam folder) check karein.
                       </p>
 
                       <div className="border-t border-border/60 pt-2 space-y-1 text-xs">
@@ -250,12 +252,17 @@ export function LandingHero() {
                       </div>
                     </div>
 
-                    <a
-                      href="/"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (registeredData.userProfile) {
+                          activateSession(registeredData.userProfile);
+                        }
+                      }}
                       className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-[1.01]"
                     >
                       <span>🚀 Enter Room 14 Dashboard Now →</span>
-                    </a>
+                    </button>
                   </div>
                 ) : (
                   <form onSubmit={handleRegisterSubmit} className="space-y-3">

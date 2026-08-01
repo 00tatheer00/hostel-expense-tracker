@@ -218,15 +218,21 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`;
 
-        await resend.emails.send({
+        const emailRes = await resend.emails.send({
           from: "KamraKhata <noreply@emergingedge.tech>",
           to: [cleanEmail],
           subject: `🎉 Welcome to KamraKhata Room 14 - Login Credentials`,
           html: htmlBody,
         });
+
+        if (emailRes.error) {
+          console.error("Welcome email Resend error:", emailRes.error);
+        } else {
+          console.log("Welcome email sent successfully:", emailRes.data);
+        }
       }
     } catch (emailErr) {
-      console.error("Welcome email send error:", emailErr);
+      console.error("Welcome email exception:", emailErr);
     }
 
     return NextResponse.json({

@@ -13,7 +13,8 @@ export interface AuthContextType {
   profile: UserProfile | null;
   isLoading: boolean;
   login: (email: string, password?: string) => Promise<{ success: boolean; error?: string }>;
-  register: (name: string, email: string, password?: string) => Promise<{ success: boolean; error?: string }>;
+  register: (name: string, email: string, password?: string) => Promise<{ success: boolean; error?: string; userProfile?: UserProfile }>;
+  activateSession: (userProfile: UserProfile) => void;
   approveUser: (userId: string) => Promise<void>;
   rejectUser: (userId: string) => Promise<void>;
   logout: () => Promise<void>;

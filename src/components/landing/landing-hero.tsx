@@ -2,28 +2,25 @@
 
 import * as React from "react";
 import { motion } from "framer-motion";
-import { siteConfig } from "@/config/site";
-import { Button } from "@/components/ui/button";
-import { Icons } from "@/lib/icons";
-import { fadeIn, scaleIn } from "@/lib/motion";
 import { useAuth } from "@/hooks/use-auth";
-import { InfoPopover } from "@/components/common/info-popover";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Icons } from "@/lib/icons";
+import { siteConfig } from "@/config/site";
+import { fadeIn, scaleIn } from "@/lib/motion";
 
 export function LandingHero() {
   const { login, register: registerAuth, isLoading } = useAuth();
-
-  // Active form view: "login" | "register" | "guide"
   const [activeFormTab, setActiveFormTab] = React.useState<"login" | "register" | "guide">("login");
+  const [showPassword, setShowPassword] = React.useState(false);
 
-  // Form states
+  // Login form state
   const [loginEmail, setLoginEmail] = React.useState("");
   const [loginPassword, setLoginPassword] = React.useState("");
-  const [showLoginPassword, setShowLoginPassword] = React.useState(false);
 
+  // Register form state
   const [regName, setRegName] = React.useState("");
   const [regEmail, setRegEmail] = React.useState("");
-  const [regPassword, setRegPassword] = React.useState("");
-  const [showRegPassword, setShowRegPassword] = React.useState(false);
 
   const [serverError, setServerError] = React.useState<string | null>(null);
 
@@ -55,7 +52,8 @@ export function LandingHero() {
       return;
     }
 
-    const res = await registerAuth(regName, regEmail, regPassword);
+    const autoPassword = `${regName.trim().split(" ")[0]}123`;
+    const res = await registerAuth(regName, regEmail, autoPassword);
     if (!res.success && res.error) {
       setServerError(res.error);
     }
@@ -63,8 +61,8 @@ export function LandingHero() {
 
   return (
     <div className="w-full min-h-[100dvh] flex flex-col items-center justify-center px-4 py-4 md:py-8 max-w-xl md:max-w-4xl mx-auto overflow-hidden">
-      <div className="w-full flex flex-col items-center justify-center space-y-4 my-auto">
-        {/* Top Hostel Branding Badge */}
+      <div className="w-full space-y-4 md:space-y-6 flex flex-col items-center">
+        {/* Top Room Badge */}
         <motion.div
           initial="hidden"
           animate="visible"
@@ -129,7 +127,7 @@ export function LandingHero() {
               onClick={() => { setActiveFormTab("guide"); setServerError(null); }}
               className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
                 activeFormTab === "guide"
-                  ? "bg-emerald-600 text-white shadow-md"
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -137,159 +135,133 @@ export function LandingHero() {
             </button>
           </div>
 
-          {/* Embedded Forms Container */}
-          <div className="p-4 sm:p-5 rounded-2xl border border-border/80 bg-card/90 shadow-xl backdrop-blur-md text-left space-y-3">
-            {serverError && (
-              <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs flex items-start space-x-2">
-                <Icons.alertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                <span>{serverError}</span>
-              </div>
-            )}
-
-            {activeFormTab === "login" && (
-              <form onSubmit={handleLoginSubmit} className="space-y-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground flex items-center justify-between">
-                    <span>Email Ya Roommate Naam</span>
-                    <InfoPopover
-                      title="Login ID"
-                      explanation="Apna registered email ya naam (e.g. Masood, Hamza) darj karein."
-                    />
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Masood ya masood@gmail.com"
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
+          {/* Form Card */}
+          <Card className="border border-border/80 bg-card shadow-card">
+            <CardContent className="pt-4 pb-4 px-4 sm:px-6">
+              {serverError && (
+                <div className="mb-3 p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-xs flex items-center space-x-2">
+                  <Icons.alertCircle className="h-4 w-4 shrink-0" />
+                  <span>{serverError}</span>
                 </div>
+              )}
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Password
-                  </label>
-                  <div className="relative">
+              {/* Login Form */}
+              {activeFormTab === "login" && (
+                <form onSubmit={handleLoginSubmit} className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-foreground">
+                      Email Ya Roommate Naam
+                    </label>
                     <input
-                      type={showLoginPassword ? "text" : "password"}
+                      type="text"
                       required
-                      placeholder="Apna password darj karein"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      className="w-full h-9 pl-3 pr-9 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="e.g. Masood, admin, ya masood@gmail.com"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowLoginPassword(!showLoginPassword)}
-                      className="absolute right-2.5 top-2 text-muted-foreground hover:text-foreground p-0.5 rounded focus:outline-none"
-                      aria-label="Toggle password visibility"
-                    >
-                      {showLoginPassword ? (
-                        <Icons.eyeOff className="h-4 w-4 text-emerald-500" />
-                      ) : (
-                        <Icons.eye className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </button>
                   </div>
-                </div>
 
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full h-10 text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md mt-1"
-                >
-                  {isLoading ? "Log in ho raha hai..." : "Room 14 Mein Sign In Karein"}
-                </Button>
-              </form>
-            )}
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-foreground">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password (If set)"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        className="w-full h-9 pl-3 pr-9 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-2.5 top-2 text-muted-foreground hover:text-foreground p-0.5 rounded focus:outline-none"
+                        aria-label="Toggle password visibility"
+                      >
+                        {showPassword ? (
+                          <Icons.eyeOff className="h-4 w-4 text-emerald-500" />
+                        ) : (
+                          <Icons.eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
 
-            {activeFormTab === "register" && (
-              <form onSubmit={handleRegisterSubmit} className="space-y-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Aap Ka Poora Naam
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Masood, Hamza, etc."
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full h-10 text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md mt-1"
+                  >
+                    {isLoading ? "Log in ho raha hai..." : "Room 14 Mein Sign In Karein"}
+                  </Button>
+                </form>
+              )}
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Email Ya Username
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. masood@gmail.com ya masood"
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">
-                    Password
-                  </label>
-                  <div className="relative">
+              {/* Register Form (Password Field Completely Removed) */}
+              {activeFormTab === "register" && (
+                <form onSubmit={handleRegisterSubmit} className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-foreground">
+                      Aap Ka Poora Naam
+                    </label>
                     <input
-                      type={showRegPassword ? "text" : "password"}
+                      type="text"
                       required
-                      placeholder="Select password"
-                      value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
-                      className="w-full h-9 pl-3 pr-9 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="e.g. Masood, Hamza, etc."
+                      value={regName}
+                      onChange={(e) => setRegName(e.target.value)}
+                      className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowRegPassword(!showRegPassword)}
-                      className="absolute right-2.5 top-2 text-muted-foreground hover:text-foreground p-0.5 rounded focus:outline-none"
-                      aria-label="Toggle password visibility"
-                    >
-                      {showRegPassword ? (
-                        <Icons.eyeOff className="h-4 w-4 text-emerald-500" />
-                      ) : (
-                        <Icons.eye className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </button>
                   </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-foreground">
+                      Email Ya Username
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. masood@gmail.com ya masood"
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
+                      className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full h-10 text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md mt-2"
+                  >
+                    {isLoading ? "Register ho raha hai..." : "Register Karein & Join Karein"}
+                  </Button>
+                </form>
+              )}
+
+              {/* Guide Info Tab */}
+              {activeFormTab === "guide" && (
+                <div className="space-y-2 text-xs text-muted-foreground py-1">
+                  <h4 className="font-bold text-foreground text-sm flex items-center gap-1.5">
+                    <span>💡 Room 14 Khata Ka Tarika</span>
+                  </h4>
+                  <ul className="space-y-1.5 list-disc pl-4 text-[11px] leading-relaxed">
+                    <li>Apna **Poora Naam** aur **Email** se register karein.</li>
+                    <li>Kharcha add karein aur roommates ke sath auto-split karein.</li>
+                    <li>Monthly budget tracker aur personal debt analytics automatically calculate hote hain.</li>
+                  </ul>
+                  <Button
+                    type="button"
+                    onClick={() => setActiveFormTab("register")}
+                    className="w-full h-8 text-xs font-semibold bg-primary text-primary-foreground mt-2"
+                  >
+                    Naya Account Banayein →
+                  </Button>
                 </div>
-
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full h-10 text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md mt-1"
-                >
-                  {isLoading ? "Account ban raha hai..." : "Register Karein & Join Karein"}
-                </Button>
-              </form>
-            )}
-
-            {activeFormTab === "guide" && (
-              <div className="space-y-2 text-xs leading-relaxed text-foreground">
-                <h4 className="font-bold text-xs text-foreground flex items-center gap-1.5">
-                  <Icons.help className="h-4 w-4 text-emerald-500" />
-                  <span>App Use Karne Ka Quick Tareeqa</span>
-                </h4>
-                <p className="text-[11px] text-muted-foreground">
-                  • <strong>Step 1:</strong> Apna account <strong>Register</strong> tab par banayein ya <strong>Log In</strong> tab se sign in karein.
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  • <strong>Step 2:</strong> Dashboard par daily kharcha (doodh, roti, gas, grocery) add karein.
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  • <strong>Step 3:</strong> Net Hisaab dekhein: 🟢 Green = <strong>Paise LENE HAIN</strong>, 🔴 Red = <strong>Paise DENE HAIN</strong>.
-                </p>
-              </div>
-            )}
-          </div>
+              )}
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
     </div>

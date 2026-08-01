@@ -156,42 +156,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ) || null;
     }
 
-    // 2. Check custom registered roommates in localStorage
+    // 2. Check custom registered roommates in localStorage & Supabase
     if (!matchedUser && typeof window !== "undefined") {
       const customUsersRaw = localStorage.getItem("kamrakhata_custom_roommates");
       if (customUsersRaw) {
         try {
           const customUsers: UserProfile[] = JSON.parse(customUsersRaw);
           matchedUser = customUsers.find(
-            (u) => u.email.toLowerCase() === normalizedEmail || u.name.toLowerCase() === normalizedEmail
+            (u) =>
+              u.email.toLowerCase() === normalizedEmail ||
+              u.name.toLowerCase() === normalizedEmail ||
+              u.email.toLowerCase().startsWith(normalizedEmail + "@") ||
+              u.email.toLowerCase().split("@")[0] === normalizedEmail
           ) || null;
         } catch (e) {
           console.error("Failed to parse custom roommates", e);
-        }
-      }
-    }
-
-    // 3. Fallback: Create active session for entered username/email
-    if (!matchedUser && normalizedEmail) {
-      const displayName = email.split("@")[0];
-      const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-      const isAdminLogin = normalizedEmail.includes("admin");
-      matchedUser = {
-        id: `rm-${Date.now()}`,
-        name: capitalizedName,
-        email: email.includes("@") ? email : `${email}@kamrakhata.internal`,
-        role: isAdminLogin ? "Room Admin" : "Roommate",
-        status: "approved",
-      };
-
-      // Save user profile for persistence
-      if (typeof window !== "undefined") {
-        try {
-          const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
-          existing.push(matchedUser);
-          localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(existing));
-        } catch (e) {
-          console.error("Failed to save roommate profile", e);
         }
       }
     }
@@ -200,16 +179,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       return {
         success: false,
-        error: "Meharbani karke apna naam ya email darj karein.",
+        error: "Yeh account registered nahi hai. Meharbani karke pehle Register karein.",
       };
     }
 
-    // Check if account is pending approval
+    // STRICT CHECK: Block entry if account status is pending
     if (matchedUser.status === "pending") {
       setIsLoading(false);
       return {
         success: false,
-        error: "Aap ka account Room Admin ki approval ke liye pending hai. Admin approve karega tab aap enter honge.",
+        error: "Aap ka account Room Admin ki approval ke liye pending hai. Room Admin jab tak approve nahi karega, aap log in nahi kar sakte.",
       };
     }
 
@@ -217,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       return {
         success: false,
-        error: "Aap ka account request Admin ki taraf se reject ho gaya hai.",
+        error: "Aap ki registration request Room Admin ki taraf se reject ho gayi hai.",
       };
     }
 
@@ -282,6 +261,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
         existing.push(newUserProfile);
         localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(existing));
+        window.dispatchEvent(new Event("kamrakhata_data_change"));
+        window.dispatchEvent(new Event("storage"));
       } catch (e) {
         console.error("Failed to store custom roommate", e);
       }
@@ -306,7 +287,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (newUserProfile.status === "pending") {
       return {
         success: false,
-        error: "Aap ka account ban gaya hai! Approval ke liye Admin ko bheja gaya hai. Admin approve karega tab aap log in kar sakenge.",
+        error: "Aap ka account ban gaya hai! Approval ke liye Room Admin ko bhej diya gaya hai. Admin jab tak approve nahi karega, aap enter nahi ho sakte.",
       };
     }
 
@@ -322,6 +303,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
         const updated = existing.map((u) => (u.id === userId ? { ...u, status: "approved" as const } : u));
         localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(updated));
+        window.dispatchEvent(new Event("kamrakhata_data_change"));
+        window.dispatchEvent(new Event("storage"));
       } catch (e) {
         console.error("Failed to approve user", e);
       }
@@ -334,6 +317,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const existing: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
         const updated = existing.map((u) => (u.id === userId ? { ...u, status: "rejected" as const } : u));
         localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(updated));
+        window.dispatchEvent(new Event("kamrakhata_data_change"));
+        window.dispatchEvent(new Event("storage"));
       } catch (e) {
         console.error("Failed to reject user", e);
       }

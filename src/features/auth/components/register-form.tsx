@@ -19,9 +19,12 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [serverError, setServerError] = React.useState<string | null>(null);
 
+  const [pendingNotice, setPendingNotice] = React.useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
+    setPendingNotice(null);
 
     if (!name.trim()) {
       setServerError("Meharbani karke apna poora naam likhein");
@@ -33,16 +36,19 @@ export function RegisterForm() {
     }
 
     const res = await registerAuth(name, email, password);
-    if (!res.success && res.error) {
-      setServerError(res.error);
+    
+    // Dispatch registration notification email
+    await EmailService.sendRegistrationEmail({
+      name: name.trim(),
+      email: email.trim(),
+      role: "Roommate",
+      status: "pending",
+    });
+
+    if (res.error) {
+      setPendingNotice(res.error);
     } else {
-      // Trigger email dispatch notification
-      await EmailService.sendRegistrationEmail({
-        name: name.trim(),
-        email: email.trim(),
-        role: "Roommate",
-        status: "pending",
-      });
+      setPendingNotice("Aap ka account register ho gaya hai! Approval request Room Admin ko bhej di gayi hai.");
     }
   };
 
@@ -69,12 +75,30 @@ export function RegisterForm() {
 
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {serverError && (
+            {pendingNotice ? (
+              <div className="p-4 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-900 dark:text-amber-200 text-xs space-y-3">
+                <div className="flex items-start space-x-2.5">
+                  <Icons.clock className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-sm text-foreground">⏳ Registration Submitted - Pending Admin Approval!</h4>
+                    <p className="text-xs opacity-90">{pendingNotice}</p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-amber-500/30 flex items-center justify-between">
+                  <span className="text-[11px] opacity-80">Room Admin approve karega tab aap log in honge.</span>
+                  <a href="/login" className="font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
+                    <span>Log In Screen</span>
+                    <Icons.chevronRight className="h-3.5 w-3.5" />
+                  </a>
+                </div>
+              </div>
+            ) : serverError ? (
               <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-xs flex items-start space-x-2">
                 <Icons.alertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                 <span>{serverError}</span>
               </div>
-            )}
+            ) : null}
 
             {/* Name Field */}
             <div className="space-y-1.5">

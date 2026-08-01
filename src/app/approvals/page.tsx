@@ -16,6 +16,7 @@ import { UserProfile } from "@/types/auth";
 export default function ApprovalsPage() {
   const { user, isLoading } = useAuth();
   const [allUsers, setAllUsers] = React.useState<UserProfile[]>([]);
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
   const refreshUsers = React.useCallback(async () => {
     let list: UserProfile[] = [];
@@ -51,6 +52,28 @@ export default function ApprovalsPage() {
       window.removeEventListener("kamrakhata_data_change", handleStorage);
     };
   }, [refreshUsers]);
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!window.confirm(`Kya aap ${userName} ko Room 14 se remove/delete karna chahte hain?`)) {
+      return;
+    }
+
+    setDeletingId(userId);
+    try {
+      const res = await fetch(`/api/profiles?id=${userId}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        window.dispatchEvent(new Event("kamrakhata_data_change"));
+        refreshUsers();
+      } else {
+        alert(data.error || "Failed to remove roommate");
+      }
+    } catch (e: any) {
+      alert("Error removing roommate: " + e.message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -89,13 +112,13 @@ export default function ApprovalsPage() {
     );
   }
 
-  const roommatesList = allUsers.filter((u) => !u.name?.toLowerCase().includes("admin"));
+  const roommatesList = allUsers.filter((u) => !u.name?.toLowerCase().includes("admin") && !u.email?.toLowerCase().includes("admin"));
 
   return (
     <PageWrapper>
       <PageHeader
-        title="Roommates Directory"
-        subtitle={`${siteConfig.roomNumber}, ${siteConfig.hostelName} - Live active registered roommates.`}
+        title="Roommates Directory & Management"
+        subtitle={`${siteConfig.roomNumber}, ${siteConfig.hostelName} - Live active registered roommates management.`}
         badge={
           <Badge variant="success" className="font-mono text-xs gap-1">
             <Icons.checkCircle className="h-3.5 w-3.5" />
@@ -122,7 +145,7 @@ export default function ApprovalsPage() {
               <span>👥 Active Roommate Members ({roommatesList.length})</span>
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
-              Roommates who are registered and active in Room 14 portal.
+              Roommates registered in Room 14 portal. Admin unko yahan se remove/delete kar sakta hai.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-3">
@@ -139,7 +162,7 @@ export default function ApprovalsPage() {
             ) : (
               <div className="divide-y divide-border/60">
                 {roommatesList.map((aUser) => (
-                  <div key={aUser.id} className="py-3 flex items-center justify-between">
+                  <div key={aUser.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center space-x-3">
                       <Avatar name={aUser.name} size="md" />
                       <div>
@@ -147,9 +170,22 @@ export default function ApprovalsPage() {
                         <p className="text-xs text-muted-foreground font-mono">{aUser.email}</p>
                       </div>
                     </div>
-                    <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
-                      Active Member
-                    </Badge>
+
+                    <div className="flex items-center space-x-2 self-end sm:self-center">
+                      <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
+                        Active Member
+                      </Badge>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={deletingId === aUser.id}
+                        onClick={() => handleDeleteUser(aUser.id, aUser.name)}
+                        className="text-xs font-bold text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 gap-1"
+                      >
+                        <Icons.trash className="h-3.5 w-3.5" />
+                        <span>{deletingId === aUser.id ? "Deleting..." : "Remove Roommate"}</span>
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

@@ -24,15 +24,17 @@ export function AdminApprovalPanel() {
   const { settlements } = useSettlements();
   const [allUsers, setAllUsers] = React.useState<UserProfile[]>([]);
   const [activeTab, setActiveTab] = React.useState<"approvals" | "transfer" | "breakdown" | "reports">("approvals");
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
-  const refreshUsers = React.useCallback(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored: UserProfile[] = JSON.parse(localStorage.getItem("kamrakhata_custom_roommates") || "[]");
-        setAllUsers(stored);
-      } catch (e) {
-        console.error("Failed to fetch custom users", e);
+  const refreshUsers = React.useCallback(async () => {
+    try {
+      const res = await fetch("/api/profiles");
+      const data = await res.json();
+      if (data.profiles && Array.isArray(data.profiles)) {
+        setAllUsers(data.profiles);
       }
+    } catch (e) {
+      console.error("Failed to fetch profiles for Admin panel", e);
     }
   }, []);
 
@@ -48,6 +50,28 @@ export function AdminApprovalPanel() {
   const handleReject = async (userId: string) => {
     await rejectUser(userId);
     refreshUsers();
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!window.confirm(`Kya aap ${userName} ko Room 14 se remove/delete karna chahte hain?`)) {
+      return;
+    }
+
+    setDeletingId(userId);
+    try {
+      const res = await fetch(`/api/profiles?id=${userId}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        window.dispatchEvent(new Event("kamrakhata_data_change"));
+        refreshUsers();
+      } else {
+        alert(data.error || "Failed to remove roommate");
+      }
+    } catch (e: any) {
+      alert("Error removing roommate: " + e.message);
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const pendingUsers = allUsers.filter((u) => u.status === "pending");
@@ -377,7 +401,7 @@ export function AdminApprovalPanel() {
               <CardContent className="pt-3">
                 <div className="divide-y divide-border/60">
                   {approvedUsers.map((aUser) => (
-                    <div key={aUser.id} className="py-2.5 flex items-center justify-between">
+                    <div key={aUser.id} className="py-2.5 flex items-center justify-between gap-2">
                       <div className="flex items-center space-x-3">
                         <Avatar name={aUser.name} size="sm" />
                         <div>
@@ -385,9 +409,24 @@ export function AdminApprovalPanel() {
                           <p className="text-[10px] text-muted-foreground font-mono">{aUser.email}</p>
                         </div>
                       </div>
-                      <Badge variant="outline" className="text-[9px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
-                        {aUser.role || "Approved Member"}
-                      </Badge>
+
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="outline" className="text-[9px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
+                          {aUser.role || "Approved Member"}
+                        </Badge>
+                        {!aUser.name?.toLowerCase().includes("admin") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={deletingId === aUser.id}
+                            onClick={() => handleDeleteUser(aUser.id, aUser.name)}
+                            className="text-[11px] h-7 px-2 font-bold text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 gap-1"
+                          >
+                            <Icons.trash className="h-3 w-3" />
+                            <span>{deletingId === aUser.id ? "Deleting..." : "Remove"}</span>
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

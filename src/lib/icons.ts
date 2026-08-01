@@ -33,6 +33,8 @@ import {
   ArrowLeft,
   Eye,
   EyeOff,
+  Trash2,
+  UserX,
   LucideIcon,
 } from "lucide-react";
 
@@ -45,6 +47,8 @@ export const Icons = {
   analytics: PieChart,
   profile: User,
   userPlus: UserPlus,
+  userX: UserX,
+  trash: Trash2,
   sun: Sun,
   moon: Moon,
   laptop: Laptop,

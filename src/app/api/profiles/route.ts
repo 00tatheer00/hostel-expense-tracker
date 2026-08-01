@@ -43,72 +43,78 @@ export async function GET() {
         email: u.email,
         role,
         status,
-        avatarColor: u.avatar_color || "#10B981",
-        created_at: u.created_at,
+        avatarColor: u.avatar_color,
+        createdAt: u.created_at,
       };
     });
 
-    return NextResponse.json({ profiles });
+    return NextResponse.json({ success: true, profiles });
   } catch (e: any) {
     console.error("GET profiles exception:", e);
-    return NextResponse.json({ profiles: [], error: e.message }, { status: 500 });
+    return NextResponse.json({ profiles: [], error: e.message }, { status: 200 });
   }
 }
 
-// POST /api/profiles — instant roommate registration (Direct entry + Email credentials)
+// POST /api/profiles — register a new roommate into Supabase users table
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { id, name, email, password, role } = body;
 
-    if (!name || !email) {
-      return NextResponse.json({ success: false, error: "Name and email are required" }, { status: 400 });
+    const cleanName = (name || "").trim();
+    const cleanEmail = (email || "").trim().toLowerCase();
+    const assignedRole = role || (cleanName.toLowerCase().includes("admin") || cleanEmail.includes("admin") ? "Room Admin" : "Roommate");
+    const assignedPassword = password || `${cleanName.split(" ")[0]}123`;
+
+    if (!cleanName || !cleanEmail) {
+      return NextResponse.json(
+        { success: false, error: "Name and Email are required" },
+        { status: 400 }
+      );
     }
 
     const supabase = getServiceClient();
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanName = name.trim();
 
-    // Check for duplicate email in users table
-    const { data: existing } = await supabase
+    // Check if email already registered
+    const { data: existingUser } = await supabase
       .from("users")
       .select("id")
       .eq("email", cleanEmail)
-      .limit(1);
+      .maybeSingle();
 
-    if (existing && existing.length > 0) {
-      return NextResponse.json({ success: false, error: "Yeh email pehle se registered hai." }, { status: 409 });
+    if (existingUser) {
+      return NextResponse.json(
+        { success: false, error: `Account with email ${cleanEmail} already exists. Please log in.` },
+        { status: 400 }
+      );
     }
 
-    // Generate valid UUID for id
-    let validUuid = id;
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!validUuid || !uuidRegex.test(validUuid)) {
-      validUuid = crypto.randomUUID();
-    }
+    const validUuid = (id && typeof id === "string" && id.length === 36) ? id : (
+      typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "a1b2c3d4-0000-4000-8000-" + Date.now().toString(16).slice(-12).padStart(12, '0')
+    );
 
-    const assignedRole = role || (cleanName.toLowerCase().includes("admin") || cleanEmail.includes("admin") ? "Room Admin" : "Roommate");
-    const assignedPassword = password && password.trim() ? password.trim() : `${cleanName.split(" ")[0]}123`;
-
-    // Store metadata in theme column
     const themeMetadata = JSON.stringify({
       role: assignedRole,
       status: "approved",
       password: assignedPassword,
     });
 
-    const { error } = await supabase.from("users").insert({
-      id: validUuid,
-      name: cleanName,
-      email: cleanEmail,
-      avatar_color: "#10B981",
-      theme: themeMetadata,
-      created_at: new Date().toISOString(),
-    });
+    const { data: newUser, error: insertError } = await supabase
+      .from("users")
+      .insert({
+        id: validUuid,
+        name: cleanName,
+        email: cleanEmail,
+        avatar_color: "#10B981",
+        theme: themeMetadata,
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
 
-    if (error) {
-      console.error("POST users registration error:", error);
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    if (insertError) {
+      console.error("Supabase user insert error:", insertError);
+      return NextResponse.json({ success: false, error: insertError.message }, { status: 500 });
     }
 
     // Send styled welcome email with credentials via Resend
@@ -235,6 +241,31 @@ export async function POST(req: NextRequest) {
     });
   } catch (e: any) {
     console.error("POST profiles exception:", e);
+    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+  }
+}
+
+// DELETE /api/profiles?id=[userId] — delete roommate record from Supabase users table
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("id");
+
+    if (!userId) {
+      return NextResponse.json({ success: false, error: "userId parameter is required" }, { status: 400 });
+    }
+
+    const supabase = getServiceClient();
+    const { error } = await supabase.from("users").delete().eq("id", userId);
+
+    if (error) {
+      console.error("DELETE user error:", error);
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, message: `Roommate ${userId} removed successfully` });
+  } catch (e: any) {
+    console.error("DELETE profiles exception:", e);
     return NextResponse.json({ success: false, error: e.message }, { status: 500 });
   }
 }

@@ -14,15 +14,15 @@ export const CreateExpenseSchema = z.object({
     .min(2, { message: "Description kam se kam 2 characters ka hona chahiye" })
     .max(100, { message: "Description maximum 100 characters ka ho sakta hai" }),
   category: CategorySchema,
-  paidBy: z.string().uuid({ message: "Invalid payer user ID" }),
+  paidBy: z.string().min(1, { message: "Meharbani karke paidBy select karein" }),
   splitUserIds: z
-    .array(z.string().uuid())
+    .array(z.string().min(1))
     .min(1, { message: "Kam se kam 1 roommate split me shamil hona chahiye" }),
 });
 
 export const CreateSettlementSchema = z.object({
-  fromUser: z.string().uuid({ message: "Invalid sender user ID" }),
-  toUser: z.string().uuid({ message: "Invalid receiver user ID" }),
+  fromUser: z.string().min(1, { message: "Invalid sender user ID" }),
+  toUser: z.string().min(1, { message: "Invalid receiver user ID" }),
   amount: MoneySchema,
   note: z.string().max(100).optional(),
 }).refine((data) => data.fromUser !== data.toUser, {

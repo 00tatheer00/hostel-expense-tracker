@@ -45,7 +45,7 @@ export function MemberSelector({
           disabled={isAllSelected}
           className="text-xs text-primary underline-offset-4 hover:underline disabled:opacity-50 disabled:no-underline font-medium"
         >
-          Select All 6 Roommates
+          Select All ({members.length} Roommates)
         </button>
       </div>
 

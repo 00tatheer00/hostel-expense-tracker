@@ -4,6 +4,7 @@ export type IconName = keyof typeof Icons;
 
 export interface NavItem {
   title: string;
+  mobileTitle?: string;
   href: string;
   icon: IconName;
   badge?: string | number;

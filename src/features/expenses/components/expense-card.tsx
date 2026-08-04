@@ -23,27 +23,29 @@ export function ExpenseCard({ expense, isPinned = false, onTogglePin }: ExpenseC
   return (
     <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
       <div className="group relative flex flex-col justify-between p-4 rounded-xl border border-border/70 bg-card hover:bg-surface/50 transition-all shadow-subtle space-y-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3 min-w-0">
-            <Avatar name={payerName} size="md" />
-            <div className="space-y-1 truncate">
-              <div className="flex items-center space-x-2">
+        <div className="flex items-start justify-between gap-2.5">
+          {/* Avatar & Main Details */}
+          <div className="flex items-start space-x-3 min-w-0 flex-1">
+            <Avatar name={payerName} size="md" className="shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex flex-wrap items-center gap-1.5">
                 <Link
                   href={`/expenses/${expense.id}`}
-                  className="font-heading text-sm font-bold text-foreground hover:underline truncate"
+                  className="font-heading text-sm font-bold text-foreground hover:underline break-words line-clamp-2"
                 >
                   {expense.description}
                 </Link>
-                <CategoryBadge category={expense.category} />
+                <CategoryBadge category={expense.category} className="shrink-0" />
               </div>
-              <p className="caption text-xs text-muted-foreground">
+              <p className="caption text-xs text-muted-foreground break-words">
                 Paid by <strong className="text-foreground">{payerName}</strong> • {formatDate(expense.created_at)}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 shrink-0 pl-2">
-            <span className="numeric text-lg font-bold text-foreground">
+          {/* Amount & Actions */}
+          <div className="flex items-center space-x-1 sm:space-x-2 shrink-0 text-right">
+            <span className="numeric text-base sm:text-lg font-bold text-foreground whitespace-nowrap">
               {formatCurrency(Number(expense.amount))}
             </span>
 

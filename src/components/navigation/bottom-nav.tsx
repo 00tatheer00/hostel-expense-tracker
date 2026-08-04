@@ -56,8 +56,8 @@ export function BottomNav() {
               >
                 <Icon className="h-4 w-4" />
               </div>
-              <span className="mt-0.5 truncate max-w-[64px] text-center">
-                {item.title}
+              <span className="mt-0.5 text-center text-[10px] leading-tight whitespace-nowrap overflow-hidden text-ellipsis px-0.5">
+                {item.mobileTitle || item.title}
               </span>
             </Link>
           );

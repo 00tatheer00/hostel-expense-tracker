@@ -56,17 +56,20 @@ export function SettlementCard({
         </div>
 
         {/* Sender -> Receiver */}
-        <div className="flex items-center space-x-3 pt-1">
-          <div className="flex items-center space-x-2 min-w-0">
-            <Avatar name={fromUser.name} size="sm" />
-            <span className="text-xs font-semibold truncate">{fromUser.name}</span>
+        <div className="flex items-center justify-between gap-2 pt-1 bg-surface/30 p-2 rounded-lg border border-border/30">
+          <div className="flex items-center space-x-2 min-w-0 flex-1">
+            <Avatar name={fromUser.name} size="sm" className="shrink-0" />
+            <span className="text-xs font-semibold text-foreground truncate">{fromUser.name}</span>
           </div>
 
-          <span className="text-xs text-muted-foreground font-mono">paid</span>
+          <div className="flex items-center space-x-1 shrink-0 text-muted-foreground px-1">
+            <span className="text-[10px] font-mono uppercase tracking-wide">paid</span>
+            <Icons.chevronRight className="h-3.5 w-3.5" />
+          </div>
 
-          <div className="flex items-center space-x-2 min-w-0">
-            <Avatar name={toUser.name} size="sm" />
-            <span className="text-xs font-semibold truncate">{toUser.name}</span>
+          <div className="flex items-center justify-end space-x-2 min-w-0 flex-1">
+            <span className="text-xs font-semibold text-foreground truncate">{toUser.name}</span>
+            <Avatar name={toUser.name} size="sm" className="shrink-0" />
           </div>
         </div>
 

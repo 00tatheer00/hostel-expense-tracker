@@ -9,6 +9,7 @@ import { SectionCard } from "@/components/common/section-card";
 import { CategoryBadge } from "@/features/expenses/components/category-badge";
 import { Avatar } from "@/components/ui/avatar";
 import { useExpenses } from "@/features/expenses/hooks/use-expenses";
+import { useAuth } from "@/hooks/use-auth";
 import { DeleteDialog } from "@/features/expenses/components/delete-dialog";
 import { formatCurrency, formatDate } from "@/utils/formatters";
 import { Button } from "@/components/ui/button";
@@ -19,9 +20,15 @@ export default function ExpenseDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
+  const { user } = useAuth();
   const { getExpenseById, deleteExpense } = useExpenses();
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const isAdmin =
+    user?.role === "Room Admin" ||
+    user?.name?.toLowerCase().includes("admin") ||
+    user?.email?.toLowerCase().includes("admin");
 
   const expense = getExpenseById(id);
 
@@ -42,6 +49,7 @@ export default function ExpenseDetailsPage() {
   }
 
   const handleDelete = async () => {
+    if (!isAdmin) return;
     setIsDeleting(true);
     try {
       await deleteExpense(expense.id);
@@ -71,15 +79,17 @@ export default function ExpenseDetailsPage() {
                 <span>Edit</span>
               </Button>
             </Link>
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={() => setShowDeleteDialog(true)}
-              className="gap-1.5 text-xs font-semibold"
-            >
-              <Icons.alertCircle className="h-3.5 w-3.5" />
-              <span>Delete</span>
-            </Button>
+            {isAdmin && (
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => setShowDeleteDialog(true)}
+                className="gap-1.5 text-xs font-semibold"
+              >
+                <Icons.alertCircle className="h-3.5 w-3.5" />
+                <span>Delete</span>
+              </Button>
+            )}
           </div>
         }
       />

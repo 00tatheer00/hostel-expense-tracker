@@ -64,12 +64,34 @@ export async function PUT(
   }
 }
 
-// DELETE /api/expenses/[id] - delete an expense
+// DELETE /api/expenses/[id] - delete an expense (Admin Only)
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const authCookie = req.cookies.get("kamrakhata_auth_user")?.value;
+    let isAdmin = false;
+    if (authCookie) {
+      try {
+        const user = JSON.parse(decodeURIComponent(authCookie));
+        if (
+          user?.role === "Room Admin" ||
+          user?.name?.toLowerCase().includes("admin") ||
+          user?.email?.toLowerCase().includes("admin")
+        ) {
+          isAdmin = true;
+        }
+      } catch (e) {}
+    }
+
+    if (!isAdmin) {
+      return NextResponse.json(
+        { success: false, error: "Sirf Room Admin hi expense delete kar sakta hai." },
+        { status: 403 }
+      );
+    }
+
     const expenseId = params.id;
     if (!expenseId) {
       return NextResponse.json({ success: false, error: "Expense ID is required" }, { status: 400 });

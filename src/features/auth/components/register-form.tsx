@@ -146,7 +146,7 @@ export function RegisterForm() {
                   id="name"
                   type="text"
                   required
-                  placeholder="e.g. Masood, Hamza, Bilal"
+                  placeholder="e.g. Sadam, Ahmed Ali, Syed ALi Mehdi, Muhammad Rohail"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full h-10 px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"

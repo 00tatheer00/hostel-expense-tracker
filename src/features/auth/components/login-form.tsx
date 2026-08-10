@@ -181,28 +181,58 @@ export function LoginForm() {
           {/* Quick Demo Credentials Helper */}
           <div className="w-full space-y-1.5 pt-1">
             <span className="text-[10px] font-mono font-semibold uppercase text-muted-foreground block">
-              ⚡ Quick Login Shortcuts
+              ⚡ Room 14 Static Roommates Quick Login
             </span>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => login("admin", "TatheerIsAdmin.123")}
-                className="text-[11px] font-mono border-indigo-500/40 text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 gap-1 h-7"
+                className="text-[10px] font-mono border-indigo-500/40 text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 gap-1 h-7"
               >
                 <Icons.shieldAlert className="h-3 w-3" />
-                <span>Admin Login (admin / TatheerIsAdmin.123)</span>
+                <span>Tatheer (Admin)</span>
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => login("masood@gmail.com", "masood123")}
-                className="text-[11px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1 h-7"
+                onClick={() => login("Sadam")}
+                className="text-[10px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1 h-7"
               >
                 <Icons.users className="h-3 w-3" />
-                <span>Masood</span>
+                <span>Sadam</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => login("Ahmed Ali")}
+                className="text-[10px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1 h-7"
+              >
+                <Icons.users className="h-3 w-3" />
+                <span>Ahmed Ali</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => login("Syed ALi Mehdi")}
+                className="text-[10px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1 h-7"
+              >
+                <Icons.users className="h-3 w-3" />
+                <span>Syed ALi Mehdi</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => login("Muhammad Rohail")}
+                className="text-[10px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1 h-7"
+              >
+                <Icons.users className="h-3 w-3" />
+                <span>Muhammad Rohail</span>
               </Button>
             </div>
           </div>

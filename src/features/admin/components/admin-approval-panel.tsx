@@ -73,8 +73,21 @@ export function AdminApprovalPanel() {
       const res = await fetch(`/api/profiles?id=${userId}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
+        if (typeof window !== "undefined") {
+          try {
+            const raw = localStorage.getItem("kamrakhata_custom_roommates");
+            if (raw) {
+              const list = JSON.parse(raw);
+              const filtered = list.filter(
+                (u: any) => u.id !== userId && u.email !== userId && u.name?.toLowerCase() !== userName.toLowerCase()
+              );
+              localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(filtered));
+            }
+          } catch {}
+        }
         window.dispatchEvent(new Event("kamrakhata_data_change"));
-        refreshUsers();
+        window.dispatchEvent(new Event("storage"));
+        await refreshUsers();
       } else {
         alert(data.error || "Failed to remove roommate");
       }

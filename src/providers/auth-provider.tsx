@@ -82,10 +82,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
 
           if (restoredProfile) {
+            // Verify restored user wasn't deleted by Admin
+            if (restoredProfile.role !== "Room Admin") {
+              try {
+                const res = await fetch("/api/profiles");
+                const data = await res.json();
+                const dbProfiles: UserProfile[] = data.profiles || [];
+                const exists = dbProfiles.some(
+                  (p: any) =>
+                    p.id === restoredProfile?.id ||
+                    p.email?.toLowerCase() === restoredProfile?.email?.toLowerCase() ||
+                    p.name?.toLowerCase() === restoredProfile?.name?.toLowerCase()
+                );
+                if (!exists && dbProfiles.length > 0) {
+                  restoredProfile = null;
+                  if (typeof window !== "undefined") {
+                    localStorage.removeItem("kamrakhata_auth_user");
+                  }
+                }
+              } catch {}
+            }
+          }
+
+          if (restoredProfile) {
             setUser(restoredProfile);
             setAuthCookie(restoredProfile);
           } else {
             setUser(null);
+            setAuthCookie(null);
           }
         }
       } catch (error) {
@@ -151,12 +175,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
+    let fetchedFromApi = false;
+
     // 2. Check registered roommates from central database (cross-device)
     if (!matchedUser) {
       try {
         const res = await fetch("/api/profiles");
         const data = await res.json();
         const dbProfiles: UserProfile[] = data.profiles || [];
+        fetchedFromApi = true;
 
         matchedUser = dbProfiles.find(
           (u: any) =>
@@ -166,7 +193,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ) || null;
 
         // Also sync to localStorage for faster subsequent lookups
-        if (typeof window !== "undefined" && dbProfiles.length > 0) {
+        if (typeof window !== "undefined") {
           localStorage.setItem("kamrakhata_custom_roommates", JSON.stringify(dbProfiles));
         }
       } catch (e) {
@@ -174,8 +201,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // 3. Fallback: Check localStorage only
-    if (!matchedUser && typeof window !== "undefined") {
+    // 3. Fallback: Check localStorage ONLY if API fetch failed
+    if (!matchedUser && !fetchedFromApi && typeof window !== "undefined") {
       const customUsersRaw = localStorage.getItem("kamrakhata_custom_roommates");
       if (customUsersRaw) {
         try {
@@ -196,7 +223,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       return {
         success: false,
-        error: "Yeh account registered nahi hai. Meharbani karke pehle Register karein.",
+        error: "Yeh account registered nahi hai ya Admin ne delete kar diya hai.",
       };
     }
 
@@ -243,6 +270,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Check if explicitly Admin
     const isAdminRegistration = cleanName.toLowerCase().includes("admin") || cleanEmail.includes("admin");
+
+    // Strict validation for allowed 5 static Room 14 members
+    const allowedStaticMembers = [
+      "tatheer",
+      "sadam",
+      "ahmed ali",
+      "syed ali mehdi",
+      "muhammad rohail",
+      "admin"
+    ];
+
+    const lowerName = cleanName.toLowerCase();
+    const lowerEmail = cleanEmail.toLowerCase();
+    const isAllowed = allowedStaticMembers.some(
+      (m) => lowerName.includes(m) || lowerEmail.includes(m)
+    );
+
+    if (!isAllowed) {
+      return {
+        success: false,
+        error: "Aap Room 14 ke official member nahi hain. Sirf Room 14 ke 5 official roommates (Tatheer, Sadam, Ahmed Ali, Syed ALi Mehdi, Muhammad Rohail) hi register ho sakte hain.",
+      };
+    }
 
     const newUserProfile: UserProfile = {
       id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "a1b2c3d4-0000-4000-8000-" + Date.now().toString(16).slice(-12).padStart(12, '0'),

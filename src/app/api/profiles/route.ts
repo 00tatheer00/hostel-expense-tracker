@@ -73,6 +73,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Strict validation for allowed 5 static Room 14 members
+    const allowedStaticMembers = [
+      "tatheer",
+      "sadam",
+      "ahmed ali",
+      "syed ali mehdi",
+      "muhammad rohail",
+      "admin"
+    ];
+
+    const lowerName = cleanName.toLowerCase();
+    const lowerEmail = cleanEmail.toLowerCase();
+    const isAllowed = allowedStaticMembers.some(
+      (m) => lowerName.includes(m) || lowerEmail.includes(m)
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Aap Room 14 ke official member nahi hain. Sirf Room 14 ke 5 official roommates (Tatheer, Sadam, Ahmed Ali, Syed ALi Mehdi, Muhammad Rohail) hi register ho sakte hain.",
+        },
+        { status: 400 }
+      );
+    }
+
     const supabase = getServiceClient();
 
     // Check if email already registered
@@ -245,25 +271,84 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE /api/profiles?id=[userId] — delete roommate record from Supabase users table
+// DELETE /api/profiles?id=[userId] — delete roommate record and clean up foreign key references
 export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("id");
+    const userIdParam = searchParams.get("id");
 
-    if (!userId) {
+    if (!userIdParam) {
       return NextResponse.json({ success: false, error: "userId parameter is required" }, { status: 400 });
     }
 
     const supabase = getServiceClient();
-    const { error } = await supabase.from("users").delete().eq("id", userId);
 
-    if (error) {
-      console.error("DELETE user error:", error);
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    // 1. Find user by id or email
+    const { data: targetUser } = await supabase
+      .from("users")
+      .select("id, email, name")
+      .or(`id.eq.${userIdParam},email.eq.${userIdParam}`)
+      .maybeSingle();
+
+    const targetId = targetUser?.id || userIdParam;
+
+    // 2. Delete all expense_splits for this user
+    const { error: splitErr } = await supabase
+      .from("expense_splits")
+      .delete()
+      .eq("user_id", targetId);
+
+    if (splitErr) {
+      console.warn("Error clearing user expense_splits:", splitErr);
     }
 
-    return NextResponse.json({ success: true, message: `Roommate ${userId} removed successfully` });
+    // 3. Delete all settlements involving this user (from_user or to_user)
+    const { error: stlFromErr } = await supabase
+      .from("settlements")
+      .delete()
+      .eq("from_user", targetId);
+    if (stlFromErr) console.warn("Error clearing settlements from_user:", stlFromErr);
+
+    const { error: stlToErr } = await supabase
+      .from("settlements")
+      .delete()
+      .eq("to_user", targetId);
+    if (stlToErr) console.warn("Error clearing settlements to_user:", stlToErr);
+
+    // 4. Delete expenses paid by this user (and their splits first)
+    const { data: userExpenses } = await supabase
+      .from("expenses")
+      .select("id")
+      .eq("paid_by", targetId);
+
+    if (userExpenses && userExpenses.length > 0) {
+      const expIds = userExpenses.map((e) => e.id);
+      await supabase.from("expense_splits").delete().in("expense_id", expIds);
+      await supabase.from("expenses").delete().eq("paid_by", targetId);
+    }
+
+    // 5. Delete user from users table
+    const { error: userDeleteErr } = await supabase
+      .from("users")
+      .delete()
+      .eq("id", targetId);
+
+    if (userDeleteErr) {
+      console.error("DELETE user error:", userDeleteErr);
+      return NextResponse.json({ success: false, error: userDeleteErr.message }, { status: 500 });
+    }
+
+    // 6. Delete user from Supabase Auth if applicable
+    try {
+      await supabase.auth.admin.deleteUser(targetId);
+    } catch (authErr) {
+      console.warn("Auth user delete warning:", authErr);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Roommate ${targetUser?.name || targetId} removed successfully`,
+    });
   } catch (e: any) {
     console.error("DELETE profiles exception:", e);
     return NextResponse.json({ success: false, error: e.message }, { status: 500 });

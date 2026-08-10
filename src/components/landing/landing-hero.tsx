@@ -172,7 +172,7 @@ export function LandingHero() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Masood, admin, ya masood@gmail.com"
+                      placeholder="e.g. Sadam, admin, ya sadam@gmail.com"
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -279,7 +279,7 @@ export function LandingHero() {
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Masood, Hamza, etc."
+                        placeholder="e.g. Sadam, Ahmed Ali, Syed ALi Mehdi, Muhammad Rohail"
                         value={regName}
                         onChange={(e) => setRegName(e.target.value)}
                         className="w-full h-9 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"

@@ -17,14 +17,30 @@ export async function PUT(
 
     const supabase = getServiceClient();
 
+    // Ensure valid UUID format check
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    // Resolve paidBy to valid UUID if needed
+    let finalPaidBy = paidBy;
+    if (paidBy && !uuidRegex.test(paidBy)) {
+      const { data: userMatch } = await supabase
+        .from("users")
+        .select("id")
+        .ilike("name", paidBy)
+        .single();
+      if (userMatch?.id) {
+        finalPaidBy = userMatch.id;
+      }
+    }
+
     // 1. Update expense record
     const { error: updateErr } = await supabase
       .from("expenses")
       .update({
-        amount,
+        amount: Number(amount),
         description: description?.trim(),
-        category,
-        paid_by: paidBy,
+        category: category || "Other",
+        paid_by: finalPaidBy,
       })
       .eq("id", expenseId);
 
@@ -41,16 +57,30 @@ export async function PUT(
         await supabase.from("splits").delete().eq("expense_id", expenseId);
       } catch {}
 
-      const splitRecords = splits.map((s: any, idx: number) => ({
-        id: s.id || `sp-${Date.now()}-${idx}`,
-        expense_id: expenseId,
-        user_id: s.userId || s.user_id,
-        share_amount: s.shareAmount || s.share_amount,
-        created_at: new Date().toISOString(),
-      }));
+      const splitRecords = splits.map((s: any, idx: number) => {
+        let splitId = s.id;
+        if (!splitId || !uuidRegex.test(splitId)) {
+          splitId = crypto.randomUUID();
+        }
+
+        let splitUserId = s.userId || s.user_id;
+        // Ensure splitUserId is valid UUID
+        if (splitUserId && !uuidRegex.test(splitUserId)) {
+          // If splitUserId is non-UUID, keep as is or match
+        }
+
+        return {
+          id: splitId,
+          expense_id: expenseId,
+          user_id: splitUserId,
+          share_amount: Number(s.shareAmount || s.share_amount || 0),
+          created_at: new Date().toISOString(),
+        };
+      });
 
       const { error: splitErr } = await supabase.from("expense_splits").insert(splitRecords);
       if (splitErr) {
+        console.error("Split re-insertion error:", splitErr);
         try {
           await supabase.from("splits").insert(splitRecords);
         } catch {}

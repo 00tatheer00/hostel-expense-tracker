@@ -40,6 +40,7 @@ export function ExpenseForm({
     control,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<CreateExpenseInput>({
     resolver: zodResolver(CreateExpenseSchema),
@@ -51,6 +52,18 @@ export function ExpenseForm({
       splitUserIds: defaultSplits,
     },
   });
+
+  React.useEffect(() => {
+    if (initialData || roommates.length > 0) {
+      reset({
+        amount: initialData?.amount || undefined,
+        description: initialData?.description || "",
+        category: initialData?.category || "Food",
+        paidBy: initialData?.paidBy || currentUserId || (roommates[0]?.id ?? ""),
+        splitUserIds: initialData?.splitUserIds || roommates.map((r) => r.id),
+      });
+    }
+  }, [initialData, roommates, currentUserId, reset]);
 
   const watchedAmount = watch("amount") || 0;
   const watchedSplitUserIds = watch("splitUserIds") || [];

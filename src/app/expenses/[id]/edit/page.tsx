@@ -15,10 +15,23 @@ export default function EditExpensePage() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
-  const { getExpenseById, roommates, updateExpense } = useExpenses();
+  const { getExpenseById, roommates, updateExpense, isLoading } = useExpenses();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const expense = getExpenseById(id);
+
+  if (isLoading && !expense) {
+    return (
+      <PageWrapper>
+        <PageHeader title="Edit Expense" subtitle="Loading transaction details..." />
+        <SectionCard title="Loading">
+          <div className="py-12 flex justify-center items-center">
+            <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        </SectionCard>
+      </PageWrapper>
+    );
+  }
 
   if (!expense) {
     return (

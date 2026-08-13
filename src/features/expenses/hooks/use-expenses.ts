@@ -228,6 +228,45 @@ export function useExpenses() {
     const shares = calculateSplit(input.amount, input.splitUserIds.length);
     const payer = roommates.find((r) => r.id === input.paidBy || r.name.toLowerCase() === input.paidBy.toLowerCase()) || roommates[0];
 
+    const updatedSplits = input.splitUserIds.map((uId, idx) => ({
+      id: `sp-${Date.now()}-${idx}`,
+      expense_id: id,
+      user_id: uId,
+      share_amount: shares[idx],
+      created_at: new Date().toISOString(),
+      user: roommates.find((r) => r.id === uId),
+    }));
+
+    const updatedExpenseObj: ExpenseWithSplits = {
+      id,
+      amount: input.amount,
+      description: input.description,
+      category: input.category,
+      paid_by: payer?.id || input.paidBy,
+      created_at: new Date().toISOString(),
+      payer,
+      splits: updatedSplits,
+    };
+
+    // 1. Instantly update React local state
+    setExpenses((prev) =>
+      prev.map((exp) => (exp.id === id ? updatedExpenseObj : exp))
+    );
+
+    // 2. Instantly update localStorage fallback
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem("kamrakhata_expenses");
+        if (raw) {
+          const parsed: ExpenseWithSplits[] = JSON.parse(raw);
+          const next = parsed.map((e) => (e.id === id ? updatedExpenseObj : e));
+          localStorage.setItem("kamrakhata_expenses", JSON.stringify(next));
+        }
+      } catch (e) {
+        console.error("Failed to update localStorage expenses:", e);
+      }
+    }
+
     const splitsPayload = input.splitUserIds.map((uId, idx) => ({
       id: `sp-${Date.now()}-${idx}`,
       userId: uId,
@@ -236,18 +275,23 @@ export function useExpenses() {
       share_amount: shares[idx],
     }));
 
+    // 3. Sync to API / Supabase
     try {
-      await fetch(`/api/expenses/${id}`, {
+      const res = await fetch(`/api/expenses/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: input.amount,
           description: input.description,
           category: input.category,
-          paidBy: input.paidBy,
+          paidBy: payer?.id || input.paidBy,
           splits: splitsPayload,
         }),
       });
+      const data = await res.json();
+      if (!data.success) {
+        console.error("API failed to update expense:", data.error);
+      }
     } catch (e) {
       console.error("Failed to update expense via API:", e);
     }
@@ -258,26 +302,7 @@ export function useExpenses() {
     }
 
     setIsLoading(false);
-
-    const updatedSplits = input.splitUserIds.map((uId, idx) => ({
-      id: `sp-${Date.now()}-${idx}`,
-      expense_id: id,
-      user_id: uId,
-      share_amount: shares[idx],
-      created_at: new Date().toISOString(),
-      user: roommates.find((r) => r.id === uId),
-    }));
-
-    return {
-      id,
-      amount: input.amount,
-      description: input.description,
-      category: input.category,
-      paid_by: input.paidBy,
-      created_at: new Date().toISOString(),
-      payer,
-      splits: updatedSplits,
-    };
+    return updatedExpenseObj;
   };
 
   const deleteExpense = async (id: string): Promise<boolean> => {

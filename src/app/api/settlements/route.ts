@@ -44,11 +44,24 @@ export async function POST(req: NextRequest) {
       settlementId = crypto.randomUUID();
     }
 
+    let finalFromUser = fromUser;
+    let finalToUser = toUser;
+
+    if (fromUser && !uuidRegex.test(fromUser)) {
+      const { data: userMatch } = await supabase.from("users").select("id").ilike("name", fromUser).maybeSingle();
+      if (userMatch?.id) finalFromUser = userMatch.id;
+    }
+
+    if (toUser && !uuidRegex.test(toUser)) {
+      const { data: userMatch } = await supabase.from("users").select("id").ilike("name", toUser).maybeSingle();
+      if (userMatch?.id) finalToUser = userMatch.id;
+    }
+
     const { error } = await supabase.from("settlements").insert({
       id: settlementId,
-      from_user: fromUser,
-      to_user: toUser,
-      amount,
+      from_user: finalFromUser,
+      to_user: finalToUser,
+      amount: Number(amount),
       note: note || null,
       created_at: new Date().toISOString(),
     });

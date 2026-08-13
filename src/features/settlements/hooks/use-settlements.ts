@@ -68,6 +68,20 @@ export function useSettlements() {
       created_at: new Date().toISOString(),
     };
 
+    // 1. Instantly update React local state
+    setSettlements((prev) => [newSettlement, ...prev]);
+
+    // 2. Instantly update localStorage fallback
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem("kamrakhata_settlements");
+        const list: SettlementRow[] = raw ? JSON.parse(raw) : [];
+        localStorage.setItem("kamrakhata_settlements", JSON.stringify([newSettlement, ...list]));
+      } catch (e) {
+        console.error("Failed to update localStorage settlements:", e);
+      }
+    }
+
     try {
       await fetch("/api/settlements", {
         method: "POST",
@@ -95,6 +109,23 @@ export function useSettlements() {
 
   const deleteSettlement = async (id: string): Promise<boolean> => {
     setIsLoading(true);
+
+    // 1. Instantly update React local state
+    setSettlements((prev) => prev.filter((s) => s.id !== id));
+
+    // 2. Instantly update localStorage fallback
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem("kamrakhata_settlements");
+        if (raw) {
+          const list: SettlementRow[] = JSON.parse(raw);
+          localStorage.setItem("kamrakhata_settlements", JSON.stringify(list.filter((s) => s.id !== id)));
+        }
+      } catch (e) {
+        console.error("Failed to delete from localStorage settlements:", e);
+      }
+    }
+
     try {
       await fetch(`/api/settlements/${id}`, {
         method: "DELETE",

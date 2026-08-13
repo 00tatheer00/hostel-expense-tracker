@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -96,7 +97,7 @@ export function LandingHero() {
           className="space-y-3 text-center max-w-lg flex flex-col items-center"
         >
           <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-2xl border-2 border-indigo-500/40 p-0.5 bg-slate-900">
-            <img src="/logo.png" alt="RoomHesabKitaab Logo" className="w-full h-full object-cover rounded-xl" />
+            <Image src="/logo.png" alt="RoomHesabKitaab Logo" width={64} height={64} className="w-full h-full object-cover rounded-xl" />
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-heading text-foreground leading-tight">
             RoomHesabKitaab —{" "}

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import { Container } from "@/components/layout/container";
@@ -27,7 +28,7 @@ export function TopNav() {
           {/* Logo & Room Title */}
           <Link href="/" className="flex items-center space-x-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden shadow-subtle border border-indigo-500/30">
-              <img src="/logo.png" alt="RoomHesabKitaab Logo" className="h-full w-full object-cover" />
+              <Image src="/logo.png" alt="RoomHesabKitaab Logo" width={32} height={32} className="h-full w-full object-cover" />
             </div>
             <div className="flex flex-col">
               <span className="font-heading text-base font-extrabold tracking-tight text-slate-900 dark:text-foreground">

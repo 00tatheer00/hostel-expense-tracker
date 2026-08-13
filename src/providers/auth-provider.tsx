@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { UserProfile, AuthContextType } from "@/types/auth";
+import { ALLOWED_STATIC_MEMBERS } from "@/config/site";
 
 export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
@@ -271,19 +272,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check if explicitly Admin
     const isAdminRegistration = cleanName.toLowerCase().includes("admin") || cleanEmail.includes("admin");
 
-    // Strict validation for allowed 5 static Room 14 members
-    const allowedStaticMembers = [
-      "tatheer",
-      "sadam",
-      "ahmed ali",
-      "syed ali mehdi",
-      "muhammad rohail",
-      "admin"
-    ];
-
     const lowerName = cleanName.toLowerCase();
     const lowerEmail = cleanEmail.toLowerCase();
-    const isAllowed = allowedStaticMembers.some(
+    const isAllowed = ALLOWED_STATIC_MEMBERS.some(
       (m) => lowerName.includes(m) || lowerEmail.includes(m)
     );
 

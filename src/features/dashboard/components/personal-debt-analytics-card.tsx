@@ -309,19 +309,21 @@ export function PersonalDebtAnalyticsCard() {
                         </strong>
                       </div>
 
-                      <div className="p-2.5 rounded-xl bg-surface/50 border border-border/40 space-y-1.5 text-[11px]">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground font-medium">Is bande ka aap par qarza:</span>
-                          <span className="font-mono font-bold text-rose-600 dark:text-rose-400">
-                            {formatCurrency(item.youOweThem)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground font-medium">Aap ka is bande par qarza:</span>
+                      <div className="p-2.5 rounded-xl bg-surface/50 border border-border/40 text-[11px] font-medium flex justify-between items-center">
+                        <span className="text-muted-foreground">Safi Status (Net Position):</span>
+                        {isGetsBack ? (
                           <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                            {formatCurrency(item.theyOweYou)}
+                            +{formatCurrency(item.theyOweYou)} (Receivable)
                           </span>
-                        </div>
+                        ) : isOwes ? (
+                          <span className="font-mono font-bold text-rose-600 dark:text-rose-400">
+                            -{formatCurrency(item.youOweThem)} (Payable)
+                          </span>
+                        ) : (
+                          <span className="font-mono font-bold text-foreground">
+                            {formatCurrency(0)} (Settled)
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

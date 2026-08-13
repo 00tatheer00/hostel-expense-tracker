@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import { NAV_ITEMS } from "@/constants/navigation";
 import { siteConfig } from "@/config/site";
@@ -65,7 +66,7 @@ export function SidebarNav() {
         <div className="space-y-2 pb-4 border-b border-slate-200/80 dark:border-border/40">
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl overflow-hidden shadow-lg transition-transform group-hover:scale-105 border border-indigo-500/30">
-              <img src="/logo.png" alt="RoomHesabKitaab Logo" className="h-full w-full object-cover" />
+              <Image src="/logo.png" alt="RoomHesabKitaab Logo" width={40} height={40} className="h-full w-full object-cover" />
             </div>
             <div className="flex flex-col">
               <span className="font-heading text-lg font-extrabold tracking-tight text-slate-900 dark:text-foreground">

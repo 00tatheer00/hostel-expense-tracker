@@ -120,7 +120,7 @@ export function useAnalytics() {
 
   // Personal Insights for active user
   const personalAnalytics: PersonalAnalytics = React.useMemo(() => {
-    const activeUserName = user?.name || "Waheed";
+    const activeUserName = user?.name || roommates[0]?.name || "Roommate";
     const activeUserObj = roommates.find((r) => r.name.toLowerCase() === activeUserName.toLowerCase()) || roommates[0];
 
     const activeUserId = activeUserObj?.id || "";

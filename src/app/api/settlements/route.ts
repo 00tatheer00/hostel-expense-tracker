@@ -36,6 +36,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (fromUser === toUser) {
+      return NextResponse.json(
+        { success: false, error: "Sender aur Recipient roommates alag hone chahiye." },
+        { status: 400 }
+      );
+    }
+
     const supabase = getServiceClient();
     
     let settlementId = id;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getServiceClient } from "@/lib/supabase/service";
+import { ALLOWED_STATIC_MEMBERS } from "@/config/site";
 
 // GET /api/profiles — fetch all registered roommates from Supabase users table
 export async function GET() {
@@ -73,19 +74,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Strict validation for allowed 5 static Room 14 members
-    const allowedStaticMembers = [
-      "tatheer",
-      "sadam",
-      "ahmed ali",
-      "syed ali mehdi",
-      "muhammad rohail",
-      "admin"
-    ];
-
+    // Strict validation for allowed static Room 14 members
     const lowerName = cleanName.toLowerCase();
     const lowerEmail = cleanEmail.toLowerCase();
-    const isAllowed = allowedStaticMembers.some(
+    const isAllowed = ALLOWED_STATIC_MEMBERS.some(
       (m) => lowerName.includes(m) || lowerEmail.includes(m)
     );
 
@@ -145,8 +137,7 @@ export async function POST(req: NextRequest) {
 
     // Send styled welcome email with credentials via Resend
     try {
-      const fallbackKey = "re_" + "R5SkA7g9_3odQJa7EyJhw3okmrL4qTyF7";
-      const resendKey = process.env.RESEND_API_KEY || fallbackKey;
+      const resendKey = process.env.RESEND_API_KEY;
       if (resendKey) {
         const resend = new Resend(resendKey);
 

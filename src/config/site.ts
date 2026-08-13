@@ -8,6 +8,17 @@ export const siteConfig = {
   links: {
     github: "https://github.com",
   },
+  allowedStaticMembers: [
+    "tatheer",
+    "sadam",
+    "ahmed ali",
+    "syed ali mehdi",
+    "muhammad rohail",
+    "admin",
+  ],
 };
 
+export const ALLOWED_STATIC_MEMBERS = siteConfig.allowedStaticMembers;
+
 export type SiteConfig = typeof siteConfig;
+

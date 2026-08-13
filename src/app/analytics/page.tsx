@@ -33,9 +33,12 @@ export default function AnalyticsPage() {
     return <LoadingAnalytics />;
   }
 
-  const amounts = expenses.map((e) => Number(e.amount));
+  const amounts = expenses.map((e) => Number(e.amount) || 0);
   const avgAmt = expenses.length > 0 ? totalRoomSpend / expenses.length : 0;
-  const maxAmt = expenses.length > 0 ? Math.max(...amounts) : 0;
+  const largestExpense = expenses.length > 0
+    ? [...expenses].sort((a, b) => Number(b.amount) - Number(a.amount))[0]
+    : null;
+  const maxAmt = largestExpense ? Number(largestExpense.amount) : 0;
 
   return (
     <PageWrapper>
@@ -72,7 +75,7 @@ export default function AnalyticsPage() {
             <TopSpendersCard
               highestSpenderName={personalAnalytics.name}
               highestSpenderAmount={personalAnalytics.totalPaid}
-              largestExpenseDescription={expenses[0]?.description || "Grocery"}
+              largestExpenseDescription={largestExpense?.description || "N/A"}
               largestExpenseAmount={maxAmt}
             />
 

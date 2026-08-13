@@ -32,6 +32,7 @@ export function SettlementForm({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<CreateSettlementInput>({
     resolver: zodResolver(CreateSettlementSchema),
@@ -42,6 +43,17 @@ export function SettlementForm({
       note: "",
     },
   });
+
+  React.useEffect(() => {
+    if (roommates.length > 0) {
+      reset({
+        fromUser: initialFromId || roommates[0]?.id || "",
+        toUser: initialToId || (roommates.find((r) => r.id !== (initialFromId || roommates[0]?.id))?.id ?? (roommates[1]?.id || "")),
+        amount: initialAmount || undefined,
+        note: "",
+      });
+    }
+  }, [roommates, initialFromId, initialToId, initialAmount, reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

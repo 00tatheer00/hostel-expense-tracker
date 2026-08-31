@@ -5,18 +5,19 @@ import { SettlementRow, SuggestedSettlement } from "@/types/database";
 import { CreateSettlementInput } from "@/lib/validations/expense";
 import { SettlementAlgorithmService } from "@/services/settlement-algorithm.service";
 import { useExpenses } from "@/features/expenses/hooks/use-expenses";
+import { isExpenseLocked, filterItemsByMonth } from "@/utils/month-utils";
 
 export function useSettlements() {
-  const [settlements, setSettlements] = React.useState<SettlementRow[]>([]);
+  const [allSettlements, setAllSettlements] = React.useState<SettlementRow[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const { roommates, roomBalances } = useExpenses();
+  const { roommates, roomBalances, selectedMonth, isLocked } = useExpenses();
 
   const refreshSettlements = React.useCallback(async () => {
     try {
       const res = await fetch("/api/settlements");
       const data = await res.json();
       if (data.settlements) {
-        setSettlements(data.settlements);
+        setAllSettlements(data.settlements);
         if (typeof window !== "undefined") {
           localStorage.setItem("kamrakhata_settlements", JSON.stringify(data.settlements));
         }
@@ -26,7 +27,7 @@ export function useSettlements() {
       if (typeof window !== "undefined") {
         try {
           const raw = localStorage.getItem("kamrakhata_settlements");
-          if (raw) setSettlements(JSON.parse(raw));
+          if (raw) setAllSettlements(JSON.parse(raw));
         } catch {}
       }
     }
@@ -48,9 +49,14 @@ export function useSettlements() {
     };
   }, [refreshSettlements]);
 
+  // Settlements scoped to selected month
+  const settlements = React.useMemo(() => {
+    return filterItemsByMonth(allSettlements, selectedMonth);
+  }, [allSettlements, selectedMonth]);
+
   const algorithmService = React.useMemo(() => new SettlementAlgorithmService(), []);
 
-  // Compute smart settlement suggestions dynamically from room balances
+  // Compute smart settlement suggestions dynamically from current scoped room balances
   const smartSuggestions: SuggestedSettlement[] = React.useMemo(() => {
     return algorithmService.computeOptimalSettlements(roomBalances);
   }, [roomBalances, algorithmService]);
@@ -69,7 +75,7 @@ export function useSettlements() {
     };
 
     // 1. Instantly update React local state
-    setSettlements((prev) => [newSettlement, ...prev]);
+    setAllSettlements((prev) => [newSettlement, ...prev]);
 
     // 2. Instantly update localStorage fallback
     if (typeof window !== "undefined") {
@@ -108,10 +114,16 @@ export function useSettlements() {
   };
 
   const deleteSettlement = async (id: string): Promise<boolean> => {
+    // Check if settlement is locked
+    const existing = allSettlements.find((s) => s.id === id);
+    if (existing && isExpenseLocked(existing.created_at)) {
+      throw new Error("🔒 August 2026 ka settlement record locked hai aur delete nahi ho sakta.");
+    }
+
     setIsLoading(true);
 
     // 1. Instantly update React local state
-    setSettlements((prev) => prev.filter((s) => s.id !== id));
+    setAllSettlements((prev) => prev.filter((s) => s.id !== id));
 
     // 2. Instantly update localStorage fallback
     if (typeof window !== "undefined") {
@@ -145,8 +157,11 @@ export function useSettlements() {
 
   return {
     settlements,
+    allSettlements,
     roommates,
     smartSuggestions,
+    selectedMonth,
+    isLocked,
     isLoading,
     recordSettlement,
     deleteSettlement,

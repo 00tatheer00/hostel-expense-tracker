@@ -11,29 +11,36 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/lib/icons";
 import { staggerContainer, listItemAnimation } from "@/lib/motion";
 import { InfoPopover } from "@/components/common/info-popover";
+import { useExpenses } from "@/features/expenses/hooks/use-expenses";
 
 export interface RecentExpenseListProps {
   expenses: ExpenseWithSplits[];
 }
 
 export function RecentExpenseList({ expenses }: RecentExpenseListProps) {
+  const { isLocked, selectedMonth } = useExpenses();
+
   return (
     <SectionCard
       title={
-        <span className="flex items-center">
-          <span>Recent Room Purchases</span>
+        <span className="flex items-center space-x-2">
+          <span>{isLocked ? "🔒 August 2026 Purchases History" : "Recent Room Purchases"}</span>
           <InfoPopover
-            title="Recent Purchases"
-            explanation="Recent daily shared purchases (groceries, milk, bills, etc.)."
+            title="Purchases History"
+            explanation="Shared purchases log for the selected month."
           />
         </span>
       }
-      description="Room 14 transaction history log"
+      description={
+        isLocked
+          ? "August 2026 ka locked ledger (Read-Only)"
+          : `Room 14 transaction history log for ${selectedMonth === "all" ? "All Time" : "September 2026"}`
+      }
       action={
         expenses.length > 0 ? (
           <Link href="/expenses">
             <Button variant="ghost" size="sm" className="text-xs gap-1 text-muted-foreground hover:text-foreground">
-              <span>View All</span>
+              <span>View All Ledger</span>
               <Icons.chevronRight className="h-3.5 w-3.5" />
             </Button>
           </Link>
@@ -42,16 +49,18 @@ export function RecentExpenseList({ expenses }: RecentExpenseListProps) {
     >
       {expenses.length === 0 ? (
         <EmptyState
-          title="Abhi tak koi kharcha add nahi hua."
-          description="Aap ya aap ka koi bhi roommate naya kharcha add karega toh woh yahan live dikhayi dega."
+          title={isLocked ? "August 2026 mein koi kharcha nahi mila." : "September 2026 mein abhi tak koi kharcha add nahi hua."}
+          description={isLocked ? "August record khali hai." : "Aap ya aap ka koi bhi roommate September ka naya kharcha add karega toh woh yahan live show hoga."}
           icon={Icons.expenses}
           action={
-            <Link href="/expenses/new">
-              <Button className="gap-2 shadow-subtle font-semibold">
-                <Icons.plus className="h-4 w-4" />
-                <span>Naya Kharcha Jodein</span>
-              </Button>
-            </Link>
+            !isLocked ? (
+              <Link href="/expenses/new">
+                <Button className="gap-2 shadow-subtle font-semibold">
+                  <Icons.plus className="h-4 w-4" />
+                  <span>Naya Kharcha Jodein</span>
+                </Button>
+              </Link>
+            ) : undefined
           }
         />
       ) : (

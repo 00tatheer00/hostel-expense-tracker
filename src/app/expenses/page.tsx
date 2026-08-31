@@ -16,11 +16,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/lib/icons";
+import { MonthSelector } from "@/components/common/month-selector";
+import { MonthLockBanner } from "@/components/common/month-lock-banner";
 
 import { siteConfig } from "@/config/site";
 
 export default function ExpensesPage() {
-  const { expenses } = useExpenses();
+  const { expenses, allExpenses, isLocked, selectedMonth, setSelectedMonth } = useExpenses();
   const { user } = useAuth();
 
   const [searchQuery, setSearchQuery] = React.useState<string>("");
@@ -81,25 +83,52 @@ export default function ExpensesPage() {
 
   return (
     <PageWrapper>
+      {/* Month Lock Banner when viewing August */}
+      <MonthLockBanner />
+
       <PageHeader
-        title="Recent Room Purchases"
+        title="Room Purchases & Ledger"
         subtitle={`${siteConfig.roomNumber}, ${siteConfig.hostelName} - Live milk, roti, grocery & utility bill purchases history.`}
         badge={
-          <Badge variant="outline" className="font-mono text-xs">
-            {filteredExpenses.length} / {expenses.length} Purchases
-          </Badge>
+          isLocked ? (
+            <Badge variant="warning" className="font-mono text-xs bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40">
+              🔒 August 2026 Locked ({filteredExpenses.length} Records)
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="font-mono text-xs">
+              {filteredExpenses.length} / {expenses.length} Purchases ({selectedMonth === "all" ? "All Time" : "September 2026"})
+            </Badge>
+          )
         }
         action={
-          <Link href="/expenses/new">
-            <Button className="gap-2 shadow-subtle font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+          isLocked ? (
+            <Button
+              onClick={() => setSelectedMonth("2026-09")}
+              className="gap-2 shadow-subtle font-semibold bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
               <Icons.plus className="h-4 w-4" />
-              <span>Add Naya Kharcha</span>
+              <span>Add Expense (in Sep)</span>
             </Button>
-          </Link>
+          ) : (
+            <Link href="/expenses/new">
+              <Button className="gap-2 shadow-subtle font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+                <Icons.plus className="h-4 w-4" />
+                <span>Add Naya Kharcha</span>
+              </Button>
+            </Link>
+          )
         }
       />
 
-      <SectionCard title="🛒 Purchases Ledger & Instant Search" description={`Filter and search ${siteConfig.roomNumber} room transactions`}>
+      {/* Month Switcher Tabs */}
+      <div className="mb-2">
+        <MonthSelector />
+      </div>
+
+      <SectionCard
+        title={isLocked ? "🔒 August 2026 Locked Archive Ledger (Read-Only)" : "🛒 Purchases Ledger & Instant Search"}
+        description={isLocked ? "August ke records lock hain aur srf parhne ke liye dastiyab hain." : `Filter and search ${siteConfig.roomNumber} room transactions`}
+      >
         <div className="space-y-4">
           {/* Search Bar & Sort Menu */}
           <div className="flex flex-col sm:flex-row gap-3">
@@ -142,16 +171,18 @@ export default function ExpensesPage() {
           {/* Results Render */}
           {expenses.length === 0 ? (
             <EmptyState
-              title="Koi room purchase abhi tak record nahi hui."
-              description="Jab bhi aap ya koi roommate Doodh, Roti ya Grocery buy karega, wo purchase yahan real-time list mein show ho gi."
+              title={isLocked ? "August 2026 mein koi kharcha nahi mila." : "September 2026 mein koi kharcha abhi tak record nahi hua."}
+              description={isLocked ? "August ka record khali hai." : "Naya month shuru ho chuka hai! Pehla kharcha add karne ke liye Add Naya Kharcha button dabayein."}
               icon={Icons.expenses}
               action={
-                <Link href="/expenses/new">
-                  <Button className="gap-2 shadow-subtle">
-                    <Icons.plus className="h-4 w-4" />
-                    <span>Naya Kharcha Jodein</span>
-                  </Button>
-                </Link>
+                !isLocked ? (
+                  <Link href="/expenses/new">
+                    <Button className="gap-2 shadow-subtle">
+                      <Icons.plus className="h-4 w-4" />
+                      <span>Naya Kharcha Jodein</span>
+                    </Button>
+                  </Link>
+                ) : undefined
               }
             />
           ) : filteredExpenses.length === 0 ? (

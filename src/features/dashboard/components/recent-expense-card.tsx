@@ -7,10 +7,13 @@ import { ExpenseWithSplits } from "@/types/database";
 import { CategoryBadge } from "@/features/expenses/components/category-badge";
 import { Avatar } from "@/components/ui/avatar";
 import { formatCurrency, formatDate } from "@/utils/formatters";
+import { isExpenseLocked } from "@/utils/month-utils";
+import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
 
 export function RecentExpenseCard({ expense }: { expense: ExpenseWithSplits }) {
   const payerName = expense.payer?.name || "Roommate";
+  const isLocked = isExpenseLocked(expense.created_at);
 
   return (
     <motion.div whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
@@ -26,6 +29,11 @@ export function RecentExpenseCard({ expense }: { expense: ExpenseWithSplits }) {
                 {expense.description}
               </span>
               <CategoryBadge category={expense.category} className="shrink-0" />
+              {isLocked && (
+                <Badge variant="outline" className="text-[9px] font-mono border-amber-500/40 text-amber-700 dark:text-amber-300 py-0 px-1 bg-amber-500/10">
+                  🔒 Locked
+                </Badge>
+              )}
             </div>
             <p className="caption text-[11px] text-muted-foreground break-words">
               Paid by <strong className="text-foreground">{payerName}</strong> • {formatDate(expense.created_at)}

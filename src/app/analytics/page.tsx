@@ -14,6 +14,8 @@ import { RoomInsights } from "@/features/analytics/components/room-insights";
 import { EmptyAnalytics } from "@/features/analytics/components/empty-analytics";
 import { LoadingAnalytics } from "@/features/analytics/components/loading-analytics";
 import { useAnalytics } from "@/features/analytics/hooks/use-analytics";
+import { MonthLockBanner } from "@/components/common/month-lock-banner";
+import { MonthSelector } from "@/components/common/month-selector";
 
 export default function AnalyticsPage() {
   const {
@@ -24,8 +26,6 @@ export default function AnalyticsPage() {
     categoryBreakdown,
     personalAnalytics,
     roomAnalytics,
-    selectedMonth,
-    setSelectedMonth,
     isLoading,
   } = useAnalytics();
 
@@ -42,11 +42,16 @@ export default function AnalyticsPage() {
 
   return (
     <PageWrapper>
+      {/* Month Lock Banner when viewing August */}
+      <MonthLockBanner />
+
       {/* Analytics Page Header */}
-      <AnalyticsHeader
-        selectedMonth={selectedMonth}
-        onMonthChange={setSelectedMonth}
-      />
+      <AnalyticsHeader />
+
+      {/* Month Selector Tabs */}
+      <div className="mb-4">
+        <MonthSelector />
+      </div>
 
       <ContentWrapper>
         {expenses.length === 0 ? (

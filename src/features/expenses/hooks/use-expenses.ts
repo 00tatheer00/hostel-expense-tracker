@@ -6,11 +6,14 @@ import { CreateExpenseInput } from "@/lib/validations/expense";
 import { BalanceService } from "@/services/balance.service";
 import { calculateSplit } from "@/utils/calc-utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useMonth } from "@/providers/month-provider";
+import { filterItemsByMonth, isExpenseLocked, ACTIVE_MONTH_KEY } from "@/utils/month-utils";
 
 export function useExpenses() {
   const { user } = useAuth();
-  const [expenses, setExpenses] = React.useState<ExpenseWithSplits[]>([]);
-  const [settlements, setSettlements] = React.useState<SettlementRow[]>([]);
+  const { selectedMonth, setSelectedMonth, isLocked } = useMonth();
+  const [allExpenses, setAllExpenses] = React.useState<ExpenseWithSplits[]>([]);
+  const [allSettlements, setAllSettlements] = React.useState<SettlementRow[]>([]);
   const [dbRoommates, setDbRoommates] = React.useState<UserRow[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const balanceService = React.useMemo(() => new BalanceService(), []);
@@ -22,7 +25,7 @@ export function useExpenses() {
       const expRes = await fetch("/api/expenses");
       const expData = await expRes.json();
       if (expData.expenses) {
-        setExpenses(expData.expenses);
+        setAllExpenses(expData.expenses);
         if (typeof window !== "undefined") {
           localStorage.setItem("kamrakhata_expenses", JSON.stringify(expData.expenses));
         }
@@ -33,7 +36,7 @@ export function useExpenses() {
       if (typeof window !== "undefined") {
         try {
           const raw = localStorage.getItem("kamrakhata_expenses");
-          if (raw) setExpenses(JSON.parse(raw));
+          if (raw) setAllExpenses(JSON.parse(raw));
         } catch {}
       }
     }
@@ -43,7 +46,7 @@ export function useExpenses() {
       const stlRes = await fetch("/api/settlements");
       const stlData = await stlRes.json();
       if (stlData.settlements) {
-        setSettlements(stlData.settlements);
+        setAllSettlements(stlData.settlements);
         if (typeof window !== "undefined") {
           localStorage.setItem("kamrakhata_settlements", JSON.stringify(stlData.settlements));
         }
@@ -53,7 +56,7 @@ export function useExpenses() {
       if (typeof window !== "undefined") {
         try {
           const raw = localStorage.getItem("kamrakhata_settlements");
-          if (raw) setSettlements(JSON.parse(raw));
+          if (raw) setAllSettlements(JSON.parse(raw));
         } catch {}
       }
     }
@@ -153,6 +156,15 @@ export function useExpenses() {
     return list;
   }, [dbRoommates, user]);
 
+  // Filtered expenses & settlements based on the active selected month
+  const expenses = React.useMemo(() => {
+    return filterItemsByMonth(allExpenses, selectedMonth);
+  }, [allExpenses, selectedMonth]);
+
+  const settlements = React.useMemo(() => {
+    return filterItemsByMonth(allSettlements, selectedMonth);
+  }, [allSettlements, selectedMonth]);
+
   const createExpense = async (input: CreateExpenseInput): Promise<ExpenseWithSplits> => {
     setIsLoading(true);
 
@@ -167,6 +179,11 @@ export function useExpenses() {
       shareAmount: shares[idx],
       share_amount: shares[idx],
     }));
+
+    // If currently viewing locked month, switch to September (Active)
+    if (isLocked) {
+      setSelectedMonth(ACTIVE_MONTH_KEY);
+    }
 
     // Post to API / Supabase
     try {
@@ -223,6 +240,12 @@ export function useExpenses() {
     id: string,
     input: CreateExpenseInput
   ): Promise<ExpenseWithSplits> => {
+    // 1. Guard against updating locked month expense
+    const existing = allExpenses.find((e) => e.id === id);
+    if (existing && isExpenseLocked(existing.created_at)) {
+      throw new Error("🔒 August 2026 ka kharcha locked hai aur edit nahi kiya ja sakta.");
+    }
+
     setIsLoading(true);
 
     const shares = calculateSplit(input.amount, input.splitUserIds.length);
@@ -233,7 +256,7 @@ export function useExpenses() {
       expense_id: id,
       user_id: uId,
       share_amount: shares[idx],
-      created_at: new Date().toISOString(),
+      created_at: existing?.created_at || new Date().toISOString(),
       user: roommates.find((r) => r.id === uId),
     }));
 
@@ -243,13 +266,13 @@ export function useExpenses() {
       description: input.description,
       category: input.category,
       paid_by: payer?.id || input.paidBy,
-      created_at: new Date().toISOString(),
+      created_at: existing?.created_at || new Date().toISOString(),
       payer,
       splits: updatedSplits,
     };
 
     // 1. Instantly update React local state
-    setExpenses((prev) =>
+    setAllExpenses((prev) =>
       prev.map((exp) => (exp.id === id ? updatedExpenseObj : exp))
     );
 
@@ -291,9 +314,11 @@ export function useExpenses() {
       const data = await res.json();
       if (!data.success) {
         console.error("API failed to update expense:", data.error);
+        throw new Error(data.error || "Failed to update expense");
       }
     } catch (e) {
       console.error("Failed to update expense via API:", e);
+      throw e;
     }
 
     await refreshData();
@@ -306,13 +331,24 @@ export function useExpenses() {
   };
 
   const deleteExpense = async (id: string): Promise<boolean> => {
+    // 1. Guard against deleting locked month expense
+    const existing = allExpenses.find((e) => e.id === id);
+    if (existing && isExpenseLocked(existing.created_at)) {
+      throw new Error("🔒 August 2026 ka kharcha locked hai aur delete nahi kiya ja sakta.");
+    }
+
     setIsLoading(true);
     try {
-      await fetch(`/api/expenses/${id}`, {
+      const res = await fetch(`/api/expenses/${id}`, {
         method: "DELETE",
       });
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || "Failed to delete expense");
+      }
     } catch (e) {
       console.error("Failed to delete expense via API:", e);
+      throw e;
     }
 
     await refreshData();
@@ -325,10 +361,11 @@ export function useExpenses() {
   };
 
   const getExpenseById = (id: string): ExpenseWithSplits | undefined => {
-    return expenses.find((e) => e.id === id);
+    return allExpenses.find((e) => e.id === id);
   };
 
-  // Recalculate roommate net balances dynamically incorporating expenses & settlements
+  // Dynamic Roommate Net Balances for the active month view
+  // When August is selected, this produces the exact hisaab of August!
   const roomBalances: UserBalanceSummary[] = React.useMemo(() => {
     const rawExpenses = expenses.map((e) => ({
       id: e.id,
@@ -353,10 +390,15 @@ export function useExpenses() {
   }, [expenses, roommates, settlements, balanceService]);
 
   return {
+    allExpenses,
+    allSettlements,
     expenses,
     settlements,
     roommates,
     roomBalances,
+    selectedMonth,
+    setSelectedMonth,
+    isLocked,
     isLoading,
     createExpense,
     updateExpense,

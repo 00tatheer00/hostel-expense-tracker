@@ -12,6 +12,7 @@ import { useExpenses } from "@/features/expenses/hooks/use-expenses";
 import { useAuth } from "@/hooks/use-auth";
 import { DeleteDialog } from "@/features/expenses/components/delete-dialog";
 import { formatCurrency, formatDate } from "@/utils/formatters";
+import { isExpenseLocked } from "@/utils/month-utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
@@ -48,8 +49,10 @@ export default function ExpenseDetailsPage() {
     );
   }
 
+  const isLocked = isExpenseLocked(expense.created_at);
+
   const handleDelete = async () => {
-    if (!isAdmin) return;
+    if (!isAdmin || isLocked) return;
     setIsDeleting(true);
     try {
       await deleteExpense(expense.id);
@@ -67,28 +70,71 @@ export default function ExpenseDetailsPage() {
 
   return (
     <PageWrapper>
+      {/* Locked Alert Banner */}
+      {isLocked && (
+        <div className="p-4 rounded-2xl border border-amber-500/50 bg-amber-500/10 text-foreground flex items-center space-x-3 mb-4 shadow-xs">
+          <div className="p-2 rounded-xl bg-amber-500 text-white font-bold shrink-0">
+            <Icons.alertCircle className="h-5 w-5" />
+          </div>
+          <div>
+            <h4 className="text-xs sm:text-sm font-bold flex items-center gap-2">
+              <span>🔒 August 2026 Archive Record (Locked)</span>
+              <Badge variant="warning" className="text-[10px] font-mono">
+                Read-Only
+              </Badge>
+            </h4>
+            <p className="caption text-xs text-muted-foreground mt-0.5">
+              Yeh kharcha August 2026 ka hai aur locked hai. Isay edit ya delete nahi kiya ja sakta.
+            </p>
+          </div>
+        </div>
+      )}
+
       <PageHeader
         title={expense.description}
         subtitle={`Recorded on ${formatDate(expense.created_at)}`}
-        badge={<CategoryBadge category={expense.category} />}
+        badge={
+          <div className="flex items-center space-x-2">
+            <CategoryBadge category={expense.category} />
+            {isLocked && (
+              <Badge variant="warning" className="text-[10px] font-mono bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40">
+                🔒 Locked Month
+              </Badge>
+            )}
+          </div>
+        }
         action={
           <div className="flex items-center space-x-2">
-            <Link href={`/expenses/${expense.id}/edit`}>
-              <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-                <Icons.settings className="h-3.5 w-3.5" />
-                <span>Edit</span>
-              </Button>
-            </Link>
-            {isAdmin && (
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={() => setShowDeleteDialog(true)}
-                className="gap-1.5 text-xs font-semibold"
-              >
-                <Icons.alertCircle className="h-3.5 w-3.5" />
-                <span>Delete</span>
-              </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/expenses")}
+              className="gap-1.5 text-xs"
+            >
+              <Icons.chevronRight className="h-3.5 w-3.5 rotate-180" />
+              <span>Back</span>
+            </Button>
+
+            {!isLocked && (
+              <>
+                <Link href={`/expenses/${expense.id}/edit`}>
+                  <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                    <Icons.settings className="h-3.5 w-3.5" />
+                    <span>Edit</span>
+                  </Button>
+                </Link>
+                {isAdmin && (
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="gap-1.5 text-xs font-semibold"
+                  >
+                    <Icons.alertCircle className="h-3.5 w-3.5" />
+                    <span>Delete</span>
+                  </Button>
+                )}
+              </>
             )}
           </div>
         }
@@ -164,12 +210,14 @@ export default function ExpenseDetailsPage() {
         </SectionCard>
       </div>
 
-      <DeleteDialog
-        isOpen={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-        onConfirm={handleDelete}
-        isDeleting={isDeleting}
-      />
+      {!isLocked && (
+        <DeleteDialog
+          isOpen={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          onConfirm={handleDelete}
+          isDeleting={isDeleting}
+        />
+      )}
     </PageWrapper>
   );
 }

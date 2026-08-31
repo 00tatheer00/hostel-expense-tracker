@@ -27,7 +27,7 @@ export interface PairwiseDebtItem {
 
 export function PersonalDebtAnalyticsCard() {
   const { user } = useAuth();
-  const { expenses, roommates } = useExpenses();
+  const { expenses, roommates, selectedMonth, isLocked } = useExpenses();
   const { settlements } = useSettlements();
 
   const currentUser = React.useMemo(() => {
@@ -37,7 +37,7 @@ export function PersonalDebtAnalyticsCard() {
     ) || { id: user.id, name: user.name, email: user.email };
   }, [user, roommates]);
 
-  // Compute Pairwise Debt for logged in user vs each roommate
+  // Compute Pairwise Debt for logged in user vs each roommate for current scoped month
   const pairwiseData: PairwiseDebtItem[] = React.useMemo(() => {
     if (!currentUser) return [];
 
@@ -124,20 +124,28 @@ export function PersonalDebtAnalyticsCard() {
 
   return (
     <div className="space-y-6">
-      {/* Premium Minimalist Hero Section: Clean & Harmonious Theme Colors */}
+      {/* Premium Hero Section */}
       <div className="rounded-3xl bg-card border border-border/80 p-6 sm:p-7 shadow-sm space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/40">
           <div>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xl sm:text-2xl font-extrabold font-heading text-foreground">
-                👋 {currentUser.name}&apos;s Debt Analytics
+                👋 {currentUser.name}&apos;s {isLocked ? "August 2026 Debt Analytics" : "Debt Analytics"}
               </span>
-              <Badge variant="outline" className="text-[10px] font-mono border-indigo-500/30 text-indigo-600 dark:text-indigo-400">
-                Live Analytics
-              </Badge>
+              {isLocked ? (
+                <Badge variant="warning" className="text-[10px] font-mono border-amber-500/40 text-amber-800 dark:text-amber-200 bg-amber-500/10">
+                  🔒 August Locked
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-[10px] font-mono border-indigo-500/30 text-indigo-600 dark:text-indigo-400">
+                  {selectedMonth === "all" ? "All Time" : "September 2026 Active"}
+                </Badge>
+              )}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Your total debt to roommates and amounts owed to you in Room 14.
+              {isLocked
+                ? "August 2026 ka hisaab: kis roommate ne kitne dene/lene the."
+                : "Your total debt to roommates and amounts owed to you in Room 14."}
             </p>
           </div>
 
@@ -245,7 +253,9 @@ export function PersonalDebtAnalyticsCard() {
             </Badge>
           </CardTitle>
           <CardDescription className="text-xs text-muted-foreground">
-            Exact 1-on-1 debt balance with each roommate.
+            {isLocked
+              ? "August 2026 mein kis roommate ke sath kya safi hisaab tha."
+              : "Exact 1-on-1 debt balance with each roommate."}
           </CardDescription>
         </CardHeader>
 

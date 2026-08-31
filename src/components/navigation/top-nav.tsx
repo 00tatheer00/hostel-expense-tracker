@@ -11,6 +11,7 @@ import { siteConfig } from "@/config/site";
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { MonthSelector } from "@/components/common/month-selector";
 
 export function TopNav() {
   const pathname = usePathname();
@@ -24,24 +25,25 @@ export function TopNav() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md transition-colors md:hidden shadow-xs">
       <Container size="lg">
-        <div className="flex h-14 items-center justify-between">
+        <div className="flex h-14 items-center justify-between gap-2">
           {/* Logo & Room Title */}
-          <Link href="/" className="flex items-center space-x-2.5">
+          <Link href="/" className="flex items-center space-x-2 shrink-0">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden shadow-subtle border border-indigo-500/30">
               <Image src="/logo.png" alt="RoomHesabKitaab Logo" width={32} height={32} className="h-full w-full object-cover" />
             </div>
             <div className="flex flex-col">
-              <span className="font-heading text-base font-extrabold tracking-tight text-slate-900 dark:text-foreground">
+              <span className="font-heading text-xs font-extrabold tracking-tight text-slate-900 dark:text-foreground truncate max-w-[100px]">
                 {siteConfig.name}
               </span>
-              <span className="caption text-[10px] font-mono text-slate-500 dark:text-muted-foreground -mt-0.5 font-medium">
-                {siteConfig.roomNumber} • Al Syed Hostel
+              <span className="caption text-[9px] font-mono text-slate-500 dark:text-muted-foreground -mt-0.5 font-medium">
+                {siteConfig.roomNumber}
               </span>
             </div>
           </Link>
 
-          {/* Right Actions: Theme Toggle & User Avatar */}
-          <div className="flex items-center space-x-2">
+          {/* Center/Right Actions: Month Selector, Theme Toggle & User Avatar */}
+          <div className="flex items-center space-x-1.5 shrink-0">
+            <MonthSelector compact />
             <ThemeToggle />
 
             {user && (

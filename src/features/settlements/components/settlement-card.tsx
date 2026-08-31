@@ -6,8 +6,10 @@ import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { SettlementRow, UserRow } from "@/types/database";
 import { formatCurrency, formatDate } from "@/utils/formatters";
+import { isExpenseLocked } from "@/utils/month-utils";
 import { Icons } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export interface SettlementCardProps {
   settlement: SettlementRow;
@@ -26,6 +28,7 @@ export function SettlementCard({
   const toUser = roommates.find((r) => r.id === settlement.to_user) || {
     name: "Roommate",
   };
+  const isLocked = isExpenseLocked(settlement.created_at);
 
   return (
     <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
@@ -35,13 +38,18 @@ export function SettlementCard({
             <span className="caption text-xs font-mono text-muted-foreground">
               {formatDate(settlement.created_at)}
             </span>
+            {isLocked && (
+              <Badge variant="outline" className="text-[9px] font-mono border-amber-500/40 text-amber-700 dark:text-amber-300 py-0 px-1 bg-amber-500/10">
+                🔒 Locked
+              </Badge>
+            )}
           </div>
 
           <div className="flex items-center space-x-2">
             <span className="numeric text-base sm:text-lg font-bold text-emerald-700 dark:text-emerald-400">
               {formatCurrency(Number(settlement.amount))}
             </span>
-            {onDelete && (
+            {!isLocked && onDelete && (
               <Button
                 variant="ghost"
                 size="icon"

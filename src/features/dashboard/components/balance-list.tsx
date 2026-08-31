@@ -8,27 +8,33 @@ import { UserBalanceSummary } from "@/types/database";
 import { staggerContainer, listItemAnimation } from "@/lib/motion";
 import { Badge } from "@/components/ui/badge";
 import { InfoPopover } from "@/components/common/info-popover";
+import { useExpenses } from "@/features/expenses/hooks/use-expenses";
 
 export interface BalanceListProps {
   balances: UserBalanceSummary[];
 }
 
 export function BalanceList({ balances }: BalanceListProps) {
+  const { isLocked, selectedMonth } = useExpenses();
   const creditorCount = balances.filter((b) => b.netBalance > 0.01).length;
   const debtorCount = balances.filter((b) => b.netBalance < -0.01).length;
 
   return (
     <SectionCard
       title={
-        <span className="flex items-center">
-          <span>Roommate Live Balances</span>
+        <span className="flex items-center space-x-2">
+          <span>{isLocked ? "🔒 August 2026 Balances (Kis K Kitny Hain)" : "Roommate Net Balances"}</span>
           <InfoPopover
-            title="Live Balances"
-            explanation="Final net balance status for each roommate (receivable or payable)."
+            title="Roommate Balances"
+            explanation="Final net balance status for each roommate (receivable or payable) for the selected period."
           />
         </span>
       }
-      description="Room 14 roommates balance status • Auto-sorted"
+      description={
+        isLocked
+          ? "August 2026 ka final safi hisaab (Read-Only Archive)"
+          : `Room 14 roommates balance status for ${selectedMonth === "all" ? "All Time" : "September 2026"} • Auto-sorted`
+      }
       action={
         <div className="flex items-center space-x-1.5">
           {creditorCount > 0 && (

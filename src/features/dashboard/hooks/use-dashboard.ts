@@ -21,7 +21,16 @@ export interface DashboardMetrics {
 }
 
 export function useDashboard() {
-  const { expenses, roommates, roomBalances, isLoading } = useExpenses();
+  const {
+    expenses,
+    allExpenses,
+    roommates,
+    roomBalances,
+    selectedMonth,
+    setSelectedMonth,
+    isLocked,
+    isLoading,
+  } = useExpenses();
   const balanceService = React.useMemo(() => new BalanceService(), []);
 
   // Sorted room balances: Creditors first, debtors last
@@ -29,7 +38,7 @@ export function useDashboard() {
     return sortBalancesByNet(roomBalances);
   }, [roomBalances]);
 
-  // Recent 10 expenses
+  // Recent 10 expenses for selected month
   const recentExpenses = React.useMemo(() => {
     return [...expenses].slice(0, 10);
   }, [expenses]);
@@ -54,7 +63,7 @@ export function useDashboard() {
       };
     }
 
-    const currentMonthSpend = balanceService.calculateMonthlySpent(
+    const currentMonthSpend = balanceService.calculateTotalSpent(
       expenses.map((e) => ({
         id: e.id,
         amount: e.amount,
@@ -112,10 +121,15 @@ export function useDashboard() {
 
   return {
     expenses,
+    allExpenses,
     recentExpenses,
     roommates,
+    roomBalances,
     sortedBalances,
     metrics,
+    selectedMonth,
+    setSelectedMonth,
+    isLocked,
     isLoading,
   };
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceClient } from "@/lib/supabase/service";
+import { isExpenseLocked } from "@/utils/month-utils";
 
 // DELETE /api/settlements/[id] - delete a settlement
 export async function DELETE(
@@ -13,6 +14,23 @@ export async function DELETE(
     }
 
     const supabase = getServiceClient();
+
+    // 1. Fetch existing settlement to check lock status
+    const { data: existing } = await supabase
+      .from("settlements")
+      .select("created_at")
+      .eq("id", settlementId)
+      .single();
+
+    if (existing && isExpenseLocked(existing.created_at)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "🔒 August 2026 settlement record locked hai. Isay delete nahi kiya ja sakta.",
+        },
+        { status: 403 }
+      );
+    }
 
     const { error } = await supabase.from("settlements").delete().eq("id", settlementId);
 

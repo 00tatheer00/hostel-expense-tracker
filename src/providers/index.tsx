@@ -5,6 +5,7 @@ import { ThemeProvider } from "./theme-provider";
 import { QueryProvider } from "./query-provider";
 import { ToastProvider } from "./toast-provider";
 import { AuthProvider } from "./auth-provider";
+import { MonthProvider } from "./month-provider";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -16,7 +17,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     >
       <QueryProvider>
         <AuthProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <MonthProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </MonthProvider>
         </AuthProvider>
       </QueryProvider>
     </ThemeProvider>

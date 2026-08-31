@@ -6,7 +6,6 @@ import { PageWrapper } from "@/components/layout/page-wrapper";
 import { ContentWrapper } from "@/components/layout/content-wrapper";
 import { BalanceList } from "./balance-list";
 import { RecentExpenseList } from "./recent-expense-list";
-import { QuickAddBar } from "@/features/expenses/components/quick-add-bar";
 import { BudgetTracker } from "@/features/budget/components/budget-tracker";
 import { LoadingDashboard } from "./loading-dashboard";
 import { useDashboard } from "../hooks/use-dashboard";
@@ -14,9 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
 import { InfoPopover } from "@/components/common/info-popover";
-
+import { MonthSelector } from "@/components/common/month-selector";
+import { MonthLockBanner } from "@/components/common/month-lock-banner";
 import { PersonalDebtAnalyticsCard } from "./personal-debt-analytics-card";
-
 import { useAuth } from "@/hooks/use-auth";
 
 export function DashboardShell() {
@@ -25,6 +24,9 @@ export function DashboardShell() {
     recentExpenses,
     sortedBalances,
     metrics,
+    selectedMonth,
+    setSelectedMonth,
+    isLocked,
     isLoading,
   } = useDashboard();
 
@@ -60,6 +62,9 @@ export function DashboardShell() {
 
   return (
     <PageWrapper>
+      {/* Month Lock Banner when viewing August 2026 */}
+      <MonthLockBanner />
+
       {/* Live Admin Member Registered Notification Banner */}
       {user?.role === "Room Admin" && roommateMembers.length > 0 && (
         <div className="p-4 rounded-2xl border border-emerald-500/50 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 text-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
@@ -89,10 +94,10 @@ export function DashboardShell() {
         </div>
       )}
 
-      {/* Easy Clean Header */}
+      {/* Header with Title & Quick Month Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/40">
         <div>
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center">
               <span>Room 14 Expense Dashboard</span>
               <InfoPopover
@@ -100,13 +105,19 @@ export function DashboardShell() {
                 explanation="Room 14 live personal balance analytics, spending breakdown, and roommate expense tracking."
               />
             </h1>
-            <Badge variant="success" className="font-mono text-xs gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Al Syed Hostel</span>
-            </Badge>
+            {isLocked ? (
+              <Badge variant="warning" className="font-mono text-xs gap-1 bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40">
+                <span>🔒 August 2026 Archive (Read-Only)</span>
+              </Badge>
+            ) : (
+              <Badge variant="success" className="font-mono text-xs gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>September 2026 (Active)</span>
+              </Badge>
+            )}
           </div>
           <p className="caption text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Welcome back, <strong className="text-foreground">{user?.name || "Roommate"}</strong>! Live debt analytics & roommate split tracker for Room 14.
+            Welcome back, <strong className="text-foreground">{user?.name || "Roommate"}</strong>! {isLocked ? "Viewing locked August 2026 balance sheet (kis k kitny hin)." : "Live September 2026 debt analytics & roommate split tracker."}
           </p>
         </div>
 
@@ -117,12 +128,25 @@ export function DashboardShell() {
               <span>Guide</span>
             </Button>
           </Link>
-          <Link href="/expenses/new">
-            <Button size="sm" className="gap-1.5 shadow-subtle font-semibold bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
+          
+          {isLocked ? (
+            <Button
+              size="sm"
+              onClick={() => setSelectedMonth("2026-09")}
+              className="gap-1.5 shadow-subtle font-semibold bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
+            >
               <Icons.plus className="h-4 w-4" />
-              <span>Add Expense</span>
+              <span>Add Expense (in Sep)</span>
             </Button>
-          </Link>
+          ) : (
+            <Link href="/expenses/new">
+              <Button size="sm" className="gap-1.5 shadow-subtle font-semibold bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
+                <Icons.plus className="h-4 w-4" />
+                <span>Add Expense</span>
+              </Button>
+            </Link>
+          )}
+
           <Link href="/settlements/new">
             <Button variant="outline" size="sm" className="gap-1.5 font-semibold text-xs border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
               <Icons.checkCircle className="h-3.5 w-3.5 text-emerald-600" />
@@ -132,11 +156,16 @@ export function DashboardShell() {
         </div>
       </div>
 
+      {/* Prominent Month Switcher Tabs Bar */}
+      <div className="pt-1">
+        <MonthSelector />
+      </div>
+
       <ContentWrapper>
         {/* 1. Personalized Debt Analytics & Person-by-Person Breakdown */}
         <PersonalDebtAnalyticsCard />
 
-        {/* 2. Current Balances - Auto-sorted Roommates */}
+        {/* 2. Current Balances - Auto-sorted Roommates for the selected month */}
         <BalanceList balances={sortedBalances} />
 
         {/* 4. Monthly Budget Tracker */}

@@ -15,6 +15,7 @@ import { Icons } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/formatters";
 import { InfoPopover } from "@/components/common/info-popover";
+import { MonthSelector } from "@/components/common/month-selector";
 
 export function SidebarNav() {
   const pathname = usePathname();
@@ -61,9 +62,9 @@ export function SidebarNav() {
 
   return (
     <aside className="fixed top-0 left-0 bottom-0 w-64 z-40 hidden md:flex flex-col justify-between h-screen border-r border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-slate-900/85 backdrop-blur-2xl p-4 overflow-y-auto selection:bg-muted shadow-sm">
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Header Branding */}
-        <div className="space-y-2 pb-4 border-b border-slate-200/80 dark:border-border/40">
+        <div className="space-y-2 pb-3 border-b border-slate-200/80 dark:border-border/40">
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl overflow-hidden shadow-lg transition-transform group-hover:scale-105 border border-indigo-500/30">
               <Image src="/logo.png" alt="RoomHesabKitaab Logo" width={40} height={40} className="h-full w-full object-cover" />
@@ -77,10 +78,12 @@ export function SidebarNav() {
               </span>
             </div>
           </Link>
-          <Badge variant="success" className="text-[10px] font-mono gap-1 w-fit bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Room 14 Live</span>
-          </Badge>
+          <div className="flex items-center justify-between">
+            <Badge variant="success" className="text-[10px] font-mono gap-1 w-fit bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Room 14 Live</span>
+            </Badge>
+          </div>
         </div>
 
         {/* User Profile Card */}
@@ -95,6 +98,14 @@ export function SidebarNav() {
           <Badge variant="outline" className="text-[9px] font-mono px-1.5 border-emerald-500/40 text-emerald-700 dark:text-emerald-400 font-semibold">
             Active
           </Badge>
+        </div>
+
+        {/* Month Switcher Selector in Sidebar */}
+        <div className="space-y-1.5">
+          <div className="px-1 text-[10px] font-mono font-bold uppercase text-slate-400 dark:text-muted-foreground tracking-wider flex items-center justify-between">
+            <span>Selected Period</span>
+          </div>
+          <MonthSelector compact className="w-full" />
         </div>
 
         {/* Navigation Items */}

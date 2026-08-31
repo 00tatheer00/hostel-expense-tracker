@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceClient } from "@/lib/supabase/service";
+import { isExpenseLocked } from "@/utils/month-utils";
 
 // PUT /api/expenses/[id] - update an expense and its splits
 export async function PUT(
@@ -17,6 +18,23 @@ export async function PUT(
 
     const supabase = getServiceClient();
 
+    // 1. Fetch existing expense to verify lock status
+    const { data: existingExpense } = await supabase
+      .from("expenses")
+      .select("created_at")
+      .eq("id", expenseId)
+      .single();
+
+    if (existingExpense && isExpenseLocked(existingExpense.created_at)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "🔒 August 2026 record locked hai. Isay edit ya delete nahi kiya ja sakta.",
+        },
+        { status: 403 }
+      );
+    }
+
     // Ensure valid UUID format check
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -33,7 +51,7 @@ export async function PUT(
       }
     }
 
-    // 1. Update expense record
+    // 2. Update expense record
     const { error: updateErr } = await supabase
       .from("expenses")
       .update({
@@ -49,25 +67,20 @@ export async function PUT(
       return NextResponse.json({ success: false, error: updateErr.message }, { status: 500 });
     }
 
-    // 2. Re-create splits if provided
+    // 3. Re-create splits if provided
     if (splits && Array.isArray(splits)) {
-      // Delete existing splits for this expense
       await supabase.from("expense_splits").delete().eq("expense_id", expenseId);
       try {
         await supabase.from("splits").delete().eq("expense_id", expenseId);
       } catch {}
 
-      const splitRecords = splits.map((s: any, idx: number) => {
+      const splitRecords = splits.map((s: any) => {
         let splitId = s.id;
         if (!splitId || !uuidRegex.test(splitId)) {
           splitId = crypto.randomUUID();
         }
 
-        let splitUserId = s.userId || s.user_id;
-        // Ensure splitUserId is valid UUID
-        if (splitUserId && !uuidRegex.test(splitUserId)) {
-          // If splitUserId is non-UUID, keep as is or match
-        }
+        const splitUserId = s.userId || s.user_id;
 
         return {
           id: splitId,
@@ -128,6 +141,23 @@ export async function DELETE(
     }
 
     const supabase = getServiceClient();
+
+    // 1. Fetch existing expense to verify lock status
+    const { data: existingExpense } = await supabase
+      .from("expenses")
+      .select("created_at")
+      .eq("id", expenseId)
+      .single();
+
+    if (existingExpense && isExpenseLocked(existingExpense.created_at)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "🔒 August 2026 record locked hai. Isay delete nahi kiya ja sakta.",
+        },
+        { status: 403 }
+      );
+    }
 
     // Delete splits first if cascade delete isn't enabled
     await supabase.from("expense_splits").delete().eq("expense_id", expenseId);

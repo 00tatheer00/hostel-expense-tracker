@@ -8,7 +8,9 @@ import { SectionCard } from "@/components/common/section-card";
 import { ExpenseForm } from "@/features/expenses/components/expense-form";
 import { useExpenses } from "@/features/expenses/hooks/use-expenses";
 import { CreateExpenseInput } from "@/lib/validations/expense";
+import { isExpenseLocked } from "@/utils/month-utils";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
 
 export default function EditExpensePage() {
@@ -17,6 +19,7 @@ export default function EditExpensePage() {
   const id = params?.id as string;
   const { getExpenseById, roommates, updateExpense, isLoading } = useExpenses();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const expense = getExpenseById(id);
 
@@ -48,6 +51,40 @@ export default function EditExpensePage() {
     );
   }
 
+  const isLocked = isExpenseLocked(expense.created_at);
+
+  if (isLocked) {
+    return (
+      <PageWrapper>
+        <PageHeader
+          title="Expense Locked (Read-Only)"
+          subtitle={`"${expense.description}" is part of locked August 2026 archive.`}
+        />
+        <SectionCard title="🔒 Record Locked">
+          <div className="p-8 text-center space-y-4 max-w-lg mx-auto">
+            <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <Icons.alertCircle className="h-8 w-8" />
+            </div>
+            <h3 className="font-heading text-lg font-bold text-foreground">
+              Yeh kharcha August 2026 ka hai aur locked hai!
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              31st August 11:59 PM par August ka hisaab mukammal ho chuka hai. Is month ke kisi kharche ko edit ya delete nahi kiya ja sakta.
+            </p>
+            <div className="pt-2 flex justify-center gap-3">
+              <Button variant="outline" onClick={() => router.push(`/expenses/${expense.id}`)}>
+                View Details
+              </Button>
+              <Button onClick={() => router.push("/expenses")}>
+                Back to Expenses
+              </Button>
+            </div>
+          </div>
+        </SectionCard>
+      </PageWrapper>
+    );
+  }
+
   const initialData: Partial<CreateExpenseInput> = {
     amount: Number(expense.amount),
     description: expense.description,
@@ -58,11 +95,13 @@ export default function EditExpensePage() {
 
   const handleSubmit = async (data: CreateExpenseInput) => {
     setIsSubmitting(true);
+    setErrorMessage(null);
     try {
       await updateExpense(expense.id, data);
       router.push(`/expenses/${expense.id}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update expense:", error);
+      setErrorMessage(error?.message || "Failed to update expense");
     } finally {
       setIsSubmitting(false);
     }
@@ -85,6 +124,12 @@ export default function EditExpensePage() {
           </Button>
         }
       />
+
+      {errorMessage && (
+        <div className="p-3 mb-4 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold">
+          {errorMessage}
+        </div>
+      )}
 
       <div className="max-w-2xl mx-auto">
         <ExpenseForm

@@ -4,38 +4,31 @@ import * as React from "react";
 import { PageHeader } from "@/components/common/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
+import { MonthSelector } from "@/components/common/month-selector";
+import { useMonth } from "@/providers/month-provider";
 
-export interface AnalyticsHeaderProps {
-  selectedMonth: string;
-  onMonthChange: (month: string) => void;
-}
+export function AnalyticsHeader() {
+  const { isLocked, selectedMonth } = useMonth();
 
-export function AnalyticsHeader({
-  selectedMonth,
-  onMonthChange,
-}: AnalyticsHeaderProps) {
   return (
     <PageHeader
-      title="Expense Analytics"
-      subtitle="Visual insights, monthly spending trends, and category breakdowns for Room 304."
+      title="Expense Analytics & Trends"
+      subtitle="Visual insights, monthly spending comparisons, and category breakdowns for Room 14."
       badge={
-        <Badge variant="outline" className="font-mono text-xs gap-1">
-          <Icons.analytics className="h-3 w-3 text-muted-foreground" />
-          <span>Real-time Insights</span>
-        </Badge>
+        isLocked ? (
+          <Badge variant="warning" className="font-mono text-xs gap-1 bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40">
+            <span>🔒 August 2026 Archive</span>
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="font-mono text-xs gap-1">
+            <Icons.analytics className="h-3 w-3 text-muted-foreground" />
+            <span>{selectedMonth === "all" ? "All Time Records" : "September 2026 Live Insights"}</span>
+          </Badge>
+        )
       }
       action={
         <div className="flex items-center space-x-2">
-          <span className="caption text-xs font-mono text-muted-foreground">Period:</span>
-          <select
-            value={selectedMonth}
-            onChange={(e) => onMonthChange(e.target.value)}
-            className="h-9 px-3 py-1 text-xs font-medium rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="current">Current Month (July 2026)</option>
-            <option value="previous">Previous Month (June 2026)</option>
-            <option value="all">All Time History</option>
-          </select>
+          <MonthSelector compact />
         </div>
       }
     />

@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { BalanceService } from "@/services/balance.service";
 import { ExpenseCategory, ExpenseWithSplits } from "@/types/database";
 import { calculatePercentage } from "@/utils/calc-utils";
+import { filterItemsByMonth } from "@/utils/month-utils";
 
 export interface CategoryBreakdownItem {
   category: ExpenseCategory;
@@ -39,51 +40,53 @@ export interface RoomAnalytics {
 }
 
 export function useAnalytics() {
-  const { expenses, roommates, roomBalances, isLoading } = useExpenses();
+  const {
+    expenses,
+    allExpenses,
+    roommates,
+    roomBalances,
+    selectedMonth,
+    setSelectedMonth,
+    isLocked,
+    isLoading,
+  } = useExpenses();
   const { user } = useAuth();
-  const [selectedMonth, setSelectedMonth] = React.useState<string>("current");
   const balanceService = React.useMemo(() => new BalanceService(), []);
 
-  // Total Room Spend
+  // Total Room Spend for current scoped expenses
   const totalRoomSpend = React.useMemo(() => {
     return balanceService.calculateTotalSpent(expenses);
   }, [expenses, balanceService]);
 
   // Current Month Spend
-  const currentMonthSpend = React.useMemo(() => {
-    return balanceService.calculateMonthlySpent(expenses);
-  }, [expenses, balanceService]);
+  const currentMonthSpend = totalRoomSpend;
 
-  // Last Month Spend & Comparison Delta
+  // August vs September / Month-over-Month comparison
   const monthlyDelta: MonthlyDelta = React.useMemo(() => {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
+    const augExpenses = filterItemsByMonth(allExpenses, "2026-08");
+    const sepExpenses = filterItemsByMonth(allExpenses, "2026-09");
 
-    const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-    const lastMonthIndex = currentMonth === 0 ? 11 : currentMonth - 1;
+    const augSpend = balanceService.calculateTotalSpent(augExpenses);
+    const sepSpend = balanceService.calculateTotalSpent(sepExpenses);
 
-    const lastMonthSpend = balanceService.calculateMonthlySpent(
-      expenses,
-      lastMonthYear,
-      lastMonthIndex
-    );
+    const thisSpend = selectedMonth === "2026-08" ? augSpend : sepSpend;
+    const prevSpend = selectedMonth === "2026-08" ? 0 : augSpend;
 
     let percentageChange = 0;
-    if (lastMonthSpend > 0) {
+    if (prevSpend > 0) {
       percentageChange =
-        Math.round(((currentMonthSpend - lastMonthSpend) / lastMonthSpend) * 1000) / 10;
-    } else if (currentMonthSpend > 0) {
+        Math.round(((thisSpend - prevSpend) / prevSpend) * 1000) / 10;
+    } else if (thisSpend > 0) {
       percentageChange = 100;
     }
 
     return {
-      thisMonthSpend: currentMonthSpend,
-      lastMonthSpend,
+      thisMonthSpend: thisSpend,
+      lastMonthSpend: prevSpend,
       percentageChange: Math.abs(percentageChange),
       isIncrease: percentageChange >= 0,
     };
-  }, [expenses, currentMonthSpend, balanceService]);
+  }, [allExpenses, selectedMonth, balanceService]);
 
   // Category Breakdown
   const categoryBreakdown: CategoryBreakdownItem[] = React.useMemo(() => {
@@ -163,7 +166,6 @@ export function useAnalytics() {
     const mostExpensiveCategory = sortedCats[0]?.category || "Food";
     const leastUsedCategory = sortedCats[sortedCats.length - 1]?.category || "Other";
 
-    // Approx daily average for 30 days
     const averageDailySpend = Math.round((currentMonthSpend / 30) * 100) / 100;
 
     return {
@@ -185,6 +187,7 @@ export function useAnalytics() {
     roomAnalytics,
     selectedMonth,
     setSelectedMonth,
+    isLocked,
     isLoading,
   };
 }

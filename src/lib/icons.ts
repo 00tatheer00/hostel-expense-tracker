@@ -77,6 +77,7 @@ export const Icons = {
   check: Check,
   x: X,
   refresh: RotateCcw,
+  history: Clock,
   eye: Eye,
   eyeOff: EyeOff,
 };

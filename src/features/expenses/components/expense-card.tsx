@@ -9,6 +9,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { formatCurrency, formatDate } from "@/utils/formatters";
 import { Icons } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { isExpenseLocked } from "@/utils/month-utils";
 
 export interface ExpenseCardProps {
   expense: ExpenseWithSplits;
@@ -16,9 +18,10 @@ export interface ExpenseCardProps {
   onTogglePin?: (id: string) => void;
 }
 
-export function ExpenseCard({ expense, isPinned = false, onTogglePin }: ExpenseCardProps) {
+export function ExpenseCard({ expense }: ExpenseCardProps) {
   const payerName = expense.payer?.name || "Roommate";
   const splitCount = expense.splits?.length || 0;
+  const isLocked = isExpenseLocked(expense.created_at);
 
   return (
     <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
@@ -36,6 +39,11 @@ export function ExpenseCard({ expense, isPinned = false, onTogglePin }: ExpenseC
                   {expense.description}
                 </Link>
                 <CategoryBadge category={expense.category} className="shrink-0" />
+                {isLocked && (
+                  <Badge variant="outline" className="text-[10px] font-mono border-amber-500/40 text-amber-700 dark:text-amber-300 py-0 px-1.5 bg-amber-500/10">
+                    🔒 Locked
+                  </Badge>
+                )}
               </div>
               <p className="caption text-xs text-muted-foreground break-words">
                 Paid by <strong className="text-foreground">{payerName}</strong> • {formatDate(expense.created_at)}
@@ -50,21 +58,23 @@ export function ExpenseCard({ expense, isPinned = false, onTogglePin }: ExpenseC
             </span>
 
             {/* Quick Actions Menu */}
-            <div className="flex items-center space-x-1">
-              {/* Duplicate Button */}
-              <Link
-                href={`/expenses/new?desc=${encodeURIComponent(expense.description)}&cat=${expense.category}&amt=${expense.amount}`}
-                title="Duplicate Expense"
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
+            {!isLocked && (
+              <div className="flex items-center space-x-1">
+                {/* Duplicate Button */}
+                <Link
+                  href={`/expenses/new?desc=${encodeURIComponent(expense.description)}&cat=${expense.category}&amt=${expense.amount}`}
+                  title="Duplicate to September"
                 >
-                  <Icons.plus className="h-3.5 w-3.5" />
-                </Button>
-              </Link>
-            </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                  >
+                    <Icons.plus className="h-3.5 w-3.5" />
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 
@@ -77,7 +87,7 @@ export function ExpenseCard({ expense, isPinned = false, onTogglePin }: ExpenseC
             href={`/expenses/${expense.id}`}
             className="inline-flex items-center space-x-1 font-semibold text-primary hover:underline"
           >
-            <span>Details</span>
+            <span>{isLocked ? "Read Details" : "Details"}</span>
             <Icons.chevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>

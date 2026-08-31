@@ -335,6 +335,38 @@ export function PersonalDebtAnalyticsCard() {
                           </span>
                         )}
                       </div>
+
+                      {/* Direct 1-Click Settle Action Button */}
+                      {!isLocked && isOwes && item.youOweThem > 0 && (
+                        <Link
+                          href={`/settlements/new?from=${currentUser.id}&to=${rm.id}&amount=${item.youOweThem}`}
+                          className="block pt-1"
+                        >
+                          <Button
+                            size="sm"
+                            className="w-full text-xs font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xs gap-1.5 h-8.5"
+                          >
+                            <Icons.checkCircle className="h-3.5 w-3.5" />
+                            <span>{rm.name} Ko Wapis Ada Karein ({formatCurrency(item.youOweThem)})</span>
+                          </Button>
+                        </Link>
+                      )}
+
+                      {!isLocked && isGetsBack && item.theyOweYou > 0 && (
+                        <Link
+                          href={`/settlements/new?from=${rm.id}&to=${currentUser.id}&amount=${item.theyOweYou}`}
+                          className="block pt-1"
+                        >
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full text-xs font-bold border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10 shadow-xs gap-1.5 h-8.5"
+                          >
+                            <Icons.arrowDownLeft className="h-3.5 w-3.5" />
+                            <span>{rm.name} Se Wapis Mile ({formatCurrency(item.theyOweYou)})</span>
+                          </Button>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 );

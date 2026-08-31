@@ -40,8 +40,8 @@ export default function SettlementsPage() {
           )
         }
         action={
-          <Link href="/settlements/new">
-            <Button className="gap-2 shadow-subtle bg-emerald-700 hover:bg-emerald-800 text-white font-semibold">
+          <Link href="/settlements/new" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto gap-2 shadow-subtle bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
               <Icons.checkCircle className="h-4 w-4" />
               <span>Record Payment</span>
             </Button>
@@ -73,7 +73,7 @@ export default function SettlementsPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
               {smartSuggestions.map((sug, idx) => (
                 <SettlementSuggestion key={idx} suggestion={sug} />
               ))}
@@ -88,7 +88,7 @@ export default function SettlementsPage() {
           action={
             settlements.length > 0 ? (
               <Link href="/settlements/history">
-                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground">
+                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground">
                   View Full History
                 </Button>
               </Link>
@@ -98,7 +98,7 @@ export default function SettlementsPage() {
           {settlements.length === 0 ? (
             <SettlementEmptyState />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
               {settlements.slice(0, 6).map((st) => (
                 <SettlementCard
                   key={st.id}

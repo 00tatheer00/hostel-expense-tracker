@@ -260,14 +260,14 @@ export function SettlementForm({
 
         {/* Current Debt Context Alert Banner */}
         {senderUser && receiverUser && (
-          <div className="p-3 rounded-xl border border-indigo-500/30 bg-indigo-500/10 flex items-center justify-between text-xs">
-            <div className="flex items-center space-x-2">
+          <div className="p-3 rounded-xl border border-indigo-500/30 bg-indigo-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <div className="flex items-center space-x-2 min-w-0">
               <Icons.wallet className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
-              <span>
+              <span className="truncate">
                 <strong className="text-foreground">{senderUser.name}</strong> aur <strong className="text-foreground">{receiverUser.name}</strong> ka hisaab:
               </span>
             </div>
-            <div className="font-mono font-bold">
+            <div className="font-mono font-bold shrink-0 self-start sm:self-auto">
               {currentPairwiseDebt > 0 ? (
                 <span className="text-rose-600 dark:text-rose-400">
                   {senderUser.name} ne dene hain: {formatCurrency(currentPairwiseDebt)}

@@ -143,6 +143,25 @@ export function SidebarNav() {
                     {memberCount}
                   </span>
                 )}
+
+                {item.badge && !isApprovalsItem && (
+                  <span
+                    className={cn(
+                      "h-5 px-2 rounded-full text-[9px] font-mono font-extrabold flex items-center justify-center gap-1 shadow-xs tracking-wider",
+                      item.badge === "NEW"
+                        ? "bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 text-white shadow-rose-500/20 animate-pulse"
+                        : "bg-indigo-600 text-white"
+                    )}
+                  >
+                    {item.badge === "NEW" && (
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                      </span>
+                    )}
+                    {item.badge}
+                  </span>
+                )}
               </Link>
             );
           })}

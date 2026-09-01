@@ -37,6 +37,13 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "sparkles",
   },
   {
+    title: "Hostel Rules",
+    mobileTitle: "Rules",
+    href: "/rules",
+    icon: "rules",
+    badge: "NEW",
+  },
+  {
     title: "User Guide",
     href: "/guide",
     icon: "help",
@@ -47,3 +54,4 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "profile",
   },
 ];
+

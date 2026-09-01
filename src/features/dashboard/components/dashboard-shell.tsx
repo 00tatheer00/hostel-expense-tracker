@@ -16,6 +16,7 @@ import { InfoPopover } from "@/components/common/info-popover";
 import { MonthSelector } from "@/components/common/month-selector";
 import { MonthLockBanner } from "@/components/common/month-lock-banner";
 import { PersonalDebtAnalyticsCard } from "./personal-debt-analytics-card";
+import { RulesBanner } from "@/features/rules/components/rules-banner";
 import { useAuth } from "@/hooks/use-auth";
 
 export function DashboardShell() {
@@ -64,6 +65,9 @@ export function DashboardShell() {
     <PageWrapper>
       {/* Month Lock Banner when viewing August 2026 */}
       <MonthLockBanner />
+
+      {/* Animated Blinking Hostel Rules & Guidelines Notice Banner */}
+      <RulesBanner />
 
       {/* Live Admin Member Registered Notification Banner */}
       {user?.role === "Room Admin" && roommateMembers.length > 0 && (

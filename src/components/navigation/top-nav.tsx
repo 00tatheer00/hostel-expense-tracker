@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { MonthSelector } from "@/components/common/month-selector";
+import { cn } from "@/lib/utils";
 
 export function TopNav() {
   const pathname = usePathname();
@@ -41,8 +42,27 @@ export function TopNav() {
             </div>
           </Link>
 
-          {/* Center/Right Actions: Month Selector, Theme Toggle & User Avatar */}
+          {/* Center/Right Actions: Rules, Month Selector, Theme Toggle & User Avatar */}
           <div className="flex items-center space-x-1.5 shrink-0">
+            {/* Blinking Mobile Rules Button */}
+            <Link
+              href="/rules"
+              className={cn(
+                "relative flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-extrabold transition-all border",
+                pathname === "/rules"
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-indigo-500 shadow-sm"
+                  : "bg-gradient-to-r from-amber-500/15 to-rose-500/15 text-amber-900 dark:text-amber-300 border-amber-500/40 hover:border-amber-500"
+              )}
+              title="Hostel Rules & Guidelines"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-80"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+              </span>
+              <Icons.rules className="h-3.5 w-3.5 shrink-0" />
+              <span className="text-[10px] font-mono uppercase tracking-wider font-black">Rules</span>
+            </Link>
+
             <MonthSelector compact />
             <ThemeToggle />
 

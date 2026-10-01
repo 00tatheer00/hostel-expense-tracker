@@ -20,7 +20,7 @@ export async function GET() {
       { settlements: data || [] },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=59",
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
         },
       }
     );

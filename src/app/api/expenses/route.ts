@@ -28,7 +28,7 @@ export async function GET() {
         { expenses: [] },
         {
           headers: {
-            "Cache-Control": "public, s-maxage=10, stale-while-revalidate=59",
+            "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
           },
         }
       );
@@ -78,7 +78,7 @@ export async function GET() {
       { expenses: result },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=59",
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
         },
       }
     );

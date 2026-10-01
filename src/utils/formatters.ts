@@ -6,9 +6,10 @@ export function formatCurrency(
   amount: number,
   currencySymbol: string = "Rs."
 ): string {
+  const hasFractions = amount % 1 !== 0;
   const formatted = new Intl.NumberFormat("en-IN", {
     maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
+    minimumFractionDigits: hasFractions ? 2 : 0,
   }).format(amount);
 
   return `${currencySymbol} ${formatted}`;

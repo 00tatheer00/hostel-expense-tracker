@@ -12,6 +12,7 @@ import { Icons } from "@/lib/icons";
 import { staggerContainer, listItemAnimation } from "@/lib/motion";
 import { InfoPopover } from "@/components/common/info-popover";
 import { useExpenses } from "@/features/expenses/hooks/use-expenses";
+import { useMonth } from "@/providers/month-provider";
 
 export interface RecentExpenseListProps {
   expenses: ExpenseWithSplits[];
@@ -19,12 +20,13 @@ export interface RecentExpenseListProps {
 
 export function RecentExpenseList({ expenses }: RecentExpenseListProps) {
   const { isLocked, selectedMonth } = useExpenses();
+  const { monthLabel } = useMonth();
 
   return (
     <SectionCard
       title={
         <span className="flex items-center space-x-2">
-          <span>{isLocked ? "🔒 August 2026 Purchases History" : "Recent Room Purchases"}</span>
+          <span>{isLocked ? `🔒 ${monthLabel} Purchases History` : "Recent Room Purchases"}</span>
           <InfoPopover
             title="Purchases History"
             explanation="Shared purchases log for the selected month."
@@ -33,8 +35,8 @@ export function RecentExpenseList({ expenses }: RecentExpenseListProps) {
       }
       description={
         isLocked
-          ? "August 2026 ka locked ledger (Read-Only)"
-          : `Room 14 transaction history log for ${selectedMonth === "all" ? "All Time" : "September 2026"}`
+          ? `${monthLabel} ka locked ledger (Read-Only)`
+          : `Room 14 transaction history log for ${selectedMonth === "all" ? "All Time" : "October 2026"}`
       }
       action={
         expenses.length > 0 ? (
@@ -49,8 +51,8 @@ export function RecentExpenseList({ expenses }: RecentExpenseListProps) {
     >
       {expenses.length === 0 ? (
         <EmptyState
-          title={isLocked ? "August 2026 mein koi kharcha nahi mila." : "September 2026 mein abhi tak koi kharcha add nahi hua."}
-          description={isLocked ? "August record khali hai." : "Aap ya aap ka koi bhi roommate September ka naya kharcha add karega toh woh yahan live show hoga."}
+          title={isLocked ? `${monthLabel} mein koi kharcha nahi mila.` : "October 2026 mein abhi tak koi kharcha add nahi hua."}
+          description={isLocked ? "Is mahine ka record khali hai." : "Aap ya aap ka koi bhi roommate October ka naya kharcha add karega toh woh yahan live show hoga."}
           icon={Icons.expenses}
           action={
             !isLocked ? (

@@ -37,8 +37,10 @@ export function MonthSelector({
         >
           {availableMonths.map((m) => (
             <option key={m.key} value={m.key} className="bg-background text-foreground">
-              {m.key === "2026-09"
-                ? "🟢 Sep 2026 (Active)"
+              {m.key === "2026-10"
+                ? "🟢 Oct 2026 (Active)"
+                : m.key === "2026-09"
+                ? "🔒 Sep 2026 (Locked)"
                 : m.key === "2026-08"
                 ? "🔒 Aug 2026 (Locked)"
                 : m.label}
@@ -83,8 +85,10 @@ export function MonthSelector({
               <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse shrink-0" />
             ) : null}
             <span>
-              {m.key === "2026-09"
-                ? "September 2026 (Active)"
+              {m.key === "2026-10"
+                ? "October 2026 (Active)"
+                : m.key === "2026-09"
+                ? "September 2026 (Locked Archive)"
                 : m.key === "2026-08"
                 ? "August 2026 (Locked Archive)"
                 : m.label}

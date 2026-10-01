@@ -26,12 +26,14 @@ export async function GET() {
         role = "Room Admin";
       }
 
+      let userPassword = "";
       if (u.theme) {
         try {
           const parsed = JSON.parse(u.theme);
           if (parsed && typeof parsed === "object") {
             if (parsed.role) role = parsed.role;
             if (parsed.status) status = parsed.status;
+            if (parsed.password) userPassword = parsed.password;
           }
         } catch {
           // Fallback
@@ -46,10 +48,18 @@ export async function GET() {
         status,
         avatarColor: u.avatar_color,
         createdAt: u.created_at,
+        password: userPassword,
       };
     });
 
-    return NextResponse.json({ success: true, profiles });
+    return NextResponse.json(
+      { success: true, profiles },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=59",
+        },
+      }
+    );
   } catch (e: any) {
     console.error("GET profiles exception:", e);
     return NextResponse.json({ profiles: [], error: e.message }, { status: 200 });
@@ -85,7 +95,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "Aap Room 14 ke official member nahi hain. Sirf Room 14 ke 5 official roommates (Tatheer, Sadam, Ahmed Ali, Syed ALi Mehdi, Muhammad Rohail) hi register ho sakte hain.",
+          error: "Aap Room 14 ke official member nahi hain. Sirf Room 14 ke official roommates (Tatheer, Sadam, Ahmed Ali, Syed Ali Mehdi, Muhammad Rohail, Amanullah, Aizaz, Masood) hi register ho sakte hain.",
         },
         { status: 400 }
       );

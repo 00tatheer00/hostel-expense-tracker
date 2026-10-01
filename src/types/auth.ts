@@ -6,6 +6,8 @@ export interface UserProfile {
   status?: "approved" | "pending" | "rejected";
   avatarColor?: string;
   themePreference?: "light" | "dark" | "system";
+  password?: string;
+  createdAt?: string;
 }
 
 export interface AuthContextType {

@@ -61,16 +61,29 @@ export function useAnalytics() {
   // Current Month Spend
   const currentMonthSpend = totalRoomSpend;
 
-  // August vs September / Month-over-Month comparison
+  // Month-over-Month comparison (October vs September vs August)
   const monthlyDelta: MonthlyDelta = React.useMemo(() => {
     const augExpenses = filterItemsByMonth(allExpenses, "2026-08");
     const sepExpenses = filterItemsByMonth(allExpenses, "2026-09");
+    const octExpenses = filterItemsByMonth(allExpenses, "2026-10");
 
     const augSpend = balanceService.calculateTotalSpent(augExpenses);
     const sepSpend = balanceService.calculateTotalSpent(sepExpenses);
+    const octSpend = balanceService.calculateTotalSpent(octExpenses);
 
-    const thisSpend = selectedMonth === "2026-08" ? augSpend : sepSpend;
-    const prevSpend = selectedMonth === "2026-08" ? 0 : augSpend;
+    let thisSpend = octSpend;
+    let prevSpend = sepSpend;
+
+    if (selectedMonth === "2026-08") {
+      thisSpend = augSpend;
+      prevSpend = 0;
+    } else if (selectedMonth === "2026-09") {
+      thisSpend = sepSpend;
+      prevSpend = augSpend;
+    } else {
+      thisSpend = octSpend;
+      prevSpend = sepSpend;
+    }
 
     let percentageChange = 0;
     if (prevSpend > 0) {

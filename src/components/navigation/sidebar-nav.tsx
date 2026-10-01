@@ -21,32 +21,8 @@ export function SidebarNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user, logout, isLoading } = useAuth();
-  const { roomBalances } = useExpenses();
-  const [memberCount, setMemberCount] = React.useState<number>(0);
-
-  const checkRoommateMembers = React.useCallback(async () => {
-    try {
-      const res = await fetch("/api/profiles");
-      const data = await res.json();
-      if (data.profiles && Array.isArray(data.profiles)) {
-        const count = data.profiles.filter((u: any) => !u.name?.toLowerCase().includes("admin")).length;
-        setMemberCount(count);
-      }
-    } catch (e) {
-      console.error("Failed to fetch profiles for sidebar member badge", e);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    checkRoommateMembers();
-    window.addEventListener("storage", checkRoommateMembers);
-    window.addEventListener("kamrakhata_data_change", checkRoommateMembers);
-
-    return () => {
-      window.removeEventListener("storage", checkRoommateMembers);
-      window.removeEventListener("kamrakhata_data_change", checkRoommateMembers);
-    };
-  }, [checkRoommateMembers]);
+  const { roomBalances, allRoommates } = useExpenses();
+  const memberCount = allRoommates.length;
 
   if (!user) {
     return null;

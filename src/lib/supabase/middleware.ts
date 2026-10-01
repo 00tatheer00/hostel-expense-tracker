@@ -57,17 +57,39 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Check auth session
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const isLoginPage = request.nextUrl.pathname === "/login";
-  const mockSessionCookie = request.cookies.get("kamrakhata_auth_user")?.value;
-  const isAuthenticated = !!user || !!mockSessionCookie;
-
+  const pathname = request.nextUrl.pathname;
+  const isLoginPage = pathname === "/login";
   const publicPaths = ["/", "/login", "/register", "/guide"];
-  const isPublicPage = publicPaths.includes(request.nextUrl.pathname);
+  const isPublicPage = publicPaths.includes(pathname);
+
+  // Fast path: Check existing mock/app session cookie first
+  const mockSessionCookie = request.cookies.get("kamrakhata_auth_user")?.value;
+  let isAuthenticated = !!mockSessionCookie;
+
+  // If already authenticated by cookie and not visiting /login, return fast without remote network call
+  if (isAuthenticated && !isLoginPage) {
+    return response;
+  }
+
+  // If unauthenticated and on a public page (except login check), allow fast without remote network call
+  const hasSupabaseCookie = request.cookies.getAll().some((c) => c.name.startsWith("sb-"));
+  if (!isAuthenticated && isPublicPage && !hasSupabaseCookie) {
+    return response;
+  }
+
+  // Check auth session via Supabase only if Supabase cookie exists and mock cookie is absent
+  let user = null;
+  if (!isAuthenticated && hasSupabaseCookie) {
+    try {
+      const {
+        data: { user: supabaseUser },
+      } = await supabase.auth.getUser();
+      user = supabaseUser;
+      if (user) isAuthenticated = true;
+    } catch (err) {
+      console.warn("Middleware Supabase getUser error:", err);
+    }
+  }
 
   if (!isAuthenticated && !isPublicPage) {
     const url = request.nextUrl.clone();

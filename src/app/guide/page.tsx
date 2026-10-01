@@ -100,7 +100,7 @@ export default function GuidePage() {
                     • Agar aap pehli dafa aye hain toh <strong>&quot;Register Roommate&quot;</strong> wale option par jayein aur apna Name, Email aur Password darj karein.
                   </p>
                   <p>
-                    • Test karne ke liye Landing Page par <strong>Waheed, Usman, Ali, Aman, Sadam, Masood</strong> ke 1-Click quick login buttons diye gaye hain.
+                    • Test karne ke liye Login Page par Roommates (<strong>Tatheer Admin, Sadam, Ahmed Ali, Syed Ali Mehdi, Muhammad Rohail, Amanullah, Aizaz, Masood</strong>) ke 1-Click quick login buttons diye gaye hain.
                   </p>
                 </CardContent>
               </Card>

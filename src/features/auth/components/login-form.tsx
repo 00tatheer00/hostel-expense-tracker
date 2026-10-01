@@ -198,7 +198,7 @@ export function LoginForm() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => login("Sadam")}
+                onClick={() => login("Sadam", "Sadam123")}
                 className="text-[10px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1 h-7"
               >
                 <Icons.users className="h-3 w-3" />
@@ -208,7 +208,7 @@ export function LoginForm() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => login("Ahmed Ali")}
+                onClick={() => login("Ahmed Ali", "Ahmad123")}
                 className="text-[10px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1 h-7"
               >
                 <Icons.users className="h-3 w-3" />
@@ -218,7 +218,7 @@ export function LoginForm() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => login("Syed ALi Mehdi")}
+                onClick={() => login("Syed ALi Mehdi", "Syed123")}
                 className="text-[10px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1 h-7"
               >
                 <Icons.users className="h-3 w-3" />
@@ -228,11 +228,41 @@ export function LoginForm() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => login("Muhammad Rohail")}
+                onClick={() => login("Muhammad Rohail", "Muhammad123")}
                 className="text-[10px] font-mono border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1 h-7"
               >
                 <Icons.users className="h-3 w-3" />
                 <span>Muhammad Rohail</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => login("Amanullah", "Aman.123")}
+                className="text-[10px] font-mono border-cyan-500/40 text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20 gap-1 h-7"
+              >
+                <Icons.users className="h-3 w-3" />
+                <span>Amanullah</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => login("Aizaz", "Aizaz.123")}
+                className="text-[10px] font-mono border-pink-500/40 text-pink-600 dark:text-pink-400 bg-pink-500/10 hover:bg-pink-500/20 gap-1 h-7"
+              >
+                <Icons.users className="h-3 w-3" />
+                <span>Aizaz</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => login("Masood", "Masood.123")}
+                className="text-[10px] font-mono border-purple-500/40 text-purple-600 dark:text-purple-400 bg-purple-500/10 hover:bg-purple-500/20 gap-1 h-7"
+              >
+                <Icons.users className="h-3 w-3" />
+                <span>Masood</span>
               </Button>
             </div>
           </div>

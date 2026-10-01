@@ -29,12 +29,17 @@ export function AppLayout({ children }: AppLayoutProps) {
   // 2. Authenticated (Roommate Portal Mode): Clean Light Theme + Ambient Soft Mesh + Fixed Side Panel + Glassmorphism
   return (
     <div className="relative min-h-screen flex bg-gradient-to-br from-slate-50 via-indigo-50/40 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-foreground selection:bg-muted overflow-x-hidden">
-      {/* Soft Ambient Glowing Gradient Mesh Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-50 dark:opacity-40">
-        <div className="absolute -top-[15%] -left-[10%] w-[55vw] h-[55vw] max-w-[650px] max-h-[650px] rounded-full bg-gradient-to-br from-indigo-400/20 via-purple-400/15 to-pink-400/10 blur-[100px] animate-mesh" />
-        <div className="absolute top-[35%] -right-[15%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-gradient-to-br from-emerald-400/20 via-teal-400/15 to-cyan-400/10 blur-[110px] animate-mesh" style={{ animationDelay: "-8s" }} />
-        <div className="absolute -bottom-[15%] left-[20%] w-[60vw] h-[60vw] max-w-[700px] max-h-[700px] rounded-full bg-gradient-to-tr from-blue-400/15 via-indigo-400/15 to-violet-400/10 blur-[120px] animate-float" style={{ animationDelay: "-4s" }} />
-      </div>
+      {/* Soft Ambient Glowing Gradient Mesh Background (Ultra-lightweight GPU-friendly radial gradients) */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-45 dark:opacity-30"
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.12) 0, transparent 40%),
+            radial-gradient(circle at 90% 35%, rgba(16, 185, 129, 0.10) 0, transparent 45%),
+            radial-gradient(circle at 30% 90%, rgba(139, 92, 246, 0.08) 0, transparent 45%)
+          `,
+        }}
+      />
 
       {/* Fixed Desktop Left Side Panel */}
       <SidebarNav />

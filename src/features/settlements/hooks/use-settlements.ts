@@ -1,68 +1,26 @@
 "use client";
 
 import * as React from "react";
-import { SettlementRow, SuggestedSettlement } from "@/types/database";
+import { SettlementRow } from "@/types/database";
 import { CreateSettlementInput } from "@/lib/validations/expense";
-import { SettlementAlgorithmService } from "@/services/settlement-algorithm.service";
 import { useExpenses } from "@/features/expenses/hooks/use-expenses";
-import { isExpenseLocked, filterItemsByMonth } from "@/utils/month-utils";
 
 export function useSettlements() {
-  const [allSettlements, setAllSettlements] = React.useState<SettlementRow[]>([]);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const { roommates, roomBalances, selectedMonth, isLocked } = useExpenses();
-
-  const refreshSettlements = React.useCallback(async () => {
-    try {
-      const res = await fetch("/api/settlements");
-      const data = await res.json();
-      if (data.settlements) {
-        setAllSettlements(data.settlements);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("kamrakhata_settlements", JSON.stringify(data.settlements));
-        }
-      }
-    } catch (e) {
-      console.error("Failed to fetch settlements from API", e);
-      if (typeof window !== "undefined") {
-        try {
-          const raw = localStorage.getItem("kamrakhata_settlements");
-          if (raw) setAllSettlements(JSON.parse(raw));
-        } catch {}
-      }
-    }
-  }, []);
-
-  React.useEffect(() => {
-    refreshSettlements();
-
-    const handleDataChange = () => {
-      refreshSettlements();
-    };
-
-    window.addEventListener("kamrakhata_data_change", handleDataChange);
-    window.addEventListener("storage", handleDataChange);
-
-    return () => {
-      window.removeEventListener("kamrakhata_data_change", handleDataChange);
-      window.removeEventListener("storage", handleDataChange);
-    };
-  }, [refreshSettlements]);
-
-  // Settlements scoped to selected month
-  const settlements = React.useMemo(() => {
-    return filterItemsByMonth(allSettlements, selectedMonth);
-  }, [allSettlements, selectedMonth]);
-
-  const algorithmService = React.useMemo(() => new SettlementAlgorithmService(), []);
-
-  // Compute smart settlement suggestions dynamically from current scoped room balances
-  const smartSuggestions: SuggestedSettlement[] = React.useMemo(() => {
-    return algorithmService.computeOptimalSettlements(roomBalances);
-  }, [roomBalances, algorithmService]);
+  const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
+  const {
+    settlements,
+    allSettlements,
+    roommates,
+    selectedMonth,
+    isLocked,
+    isLoading: isExpensesLoading,
+    updateSettlement: updateSettlementCtx,
+    deleteSettlement: deleteSettlementCtx,
+    refreshData,
+  } = useExpenses();
 
   const recordSettlement = async (input: CreateSettlementInput): Promise<SettlementRow> => {
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     const newSettlementId = `stl-${Date.now()}`;
     const newSettlement: SettlementRow = {
@@ -73,20 +31,6 @@ export function useSettlements() {
       note: input.note || null,
       created_at: new Date().toISOString(),
     };
-
-    // 1. Instantly update React local state
-    setAllSettlements((prev) => [newSettlement, ...prev]);
-
-    // 2. Instantly update localStorage fallback
-    if (typeof window !== "undefined") {
-      try {
-        const raw = localStorage.getItem("kamrakhata_settlements");
-        const list: SettlementRow[] = raw ? JSON.parse(raw) : [];
-        localStorage.setItem("kamrakhata_settlements", JSON.stringify([newSettlement, ...list]));
-      } catch (e) {
-        console.error("Failed to update localStorage settlements:", e);
-      }
-    }
 
     try {
       await fetch("/api/settlements", {
@@ -104,67 +48,48 @@ export function useSettlements() {
       console.error("Failed to record settlement via API:", e);
     }
 
-    await refreshSettlements();
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("kamrakhata_data_change"));
-    }
-
-    setIsLoading(false);
+    await refreshData();
+    setIsSubmitting(false);
     return newSettlement;
   };
 
-  const deleteSettlement = async (id: string): Promise<boolean> => {
-    // Check if settlement is locked
-    const existing = allSettlements.find((s) => s.id === id);
-    if (existing && isExpenseLocked(existing.created_at)) {
-      throw new Error("🔒 August 2026 ka settlement record locked hai aur delete nahi ho sakta.");
-    }
-
-    setIsLoading(true);
-
-    // 1. Instantly update React local state
-    setAllSettlements((prev) => prev.filter((s) => s.id !== id));
-
-    // 2. Instantly update localStorage fallback
-    if (typeof window !== "undefined") {
-      try {
-        const raw = localStorage.getItem("kamrakhata_settlements");
-        if (raw) {
-          const list: SettlementRow[] = JSON.parse(raw);
-          localStorage.setItem("kamrakhata_settlements", JSON.stringify(list.filter((s) => s.id !== id)));
-        }
-      } catch (e) {
-        console.error("Failed to delete from localStorage settlements:", e);
-      }
-    }
-
+  const updateSettlement = async (
+    id: string,
+    input: { fromUser: string; toUser: string; amount: number; note?: string }
+  ): Promise<SettlementRow> => {
+    setIsSubmitting(true);
     try {
-      await fetch(`/api/settlements/${id}`, {
-        method: "DELETE",
-      });
+      const res = await updateSettlementCtx(id, input);
+      setIsSubmitting(false);
+      return res;
     } catch (e) {
-      console.error("Failed to delete settlement via API:", e);
+      setIsSubmitting(false);
+      throw e;
     }
+  };
 
-    await refreshSettlements();
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("kamrakhata_data_change"));
+  const deleteSettlement = async (id: string): Promise<boolean> => {
+    setIsSubmitting(true);
+    try {
+      const res = await deleteSettlementCtx(id);
+      setIsSubmitting(false);
+      return res;
+    } catch (e) {
+      setIsSubmitting(false);
+      throw e;
     }
-
-    setIsLoading(false);
-    return true;
   };
 
   return {
     settlements,
     allSettlements,
     roommates,
-    smartSuggestions,
     selectedMonth,
     isLocked,
-    isLoading,
+    isLoading: isExpensesLoading || isSubmitting,
     recordSettlement,
+    updateSettlement,
     deleteSettlement,
-    refreshSettlements,
+    refreshSettlements: refreshData,
   };
 }

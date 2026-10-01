@@ -6,32 +6,40 @@ export async function GET() {
   try {
     const supabase = getServiceClient();
 
-    // 1. Fetch expenses
-    const { data: expenses, error: expError } = await supabase
-      .from("expenses")
-      .select("*")
-      .order("created_at", { ascending: false });
+    // 1. Fetch expenses, splits, and users in parallel (single roundtrip batch)
+    const [expRes, splitsRes, usersRes] = await Promise.all([
+      supabase.from("expenses").select("*").order("created_at", { ascending: false }),
+      supabase.from("expense_splits").select("*"),
+      supabase.from("users").select("*"),
+    ]);
+
+    const expenses = expRes.data || [];
+    const expError = expRes.error;
+    const splits = splitsRes.data || [];
+    const usersData = usersRes.data || [];
 
     if (expError) {
       console.error("GET expenses error:", expError);
       return NextResponse.json({ expenses: [], error: expError.message }, { status: 200 });
     }
 
-    if (!expenses || expenses.length === 0) {
-      return NextResponse.json({ expenses: [] });
+    if (expenses.length === 0) {
+      return NextResponse.json(
+        { expenses: [] },
+        {
+          headers: {
+            "Cache-Control": "public, s-maxage=10, stale-while-revalidate=59",
+          },
+        }
+      );
     }
 
-    // 2. Fetch all splits
-    const { data: splits } = await supabase.from("expense_splits").select("*");
+    const usersMap = new Map(usersData.map((u: any) => [u.id, u]));
 
-    // 3. Fetch all users for payer and user details
-    const { data: usersData } = await supabase.from("users").select("*");
-    const usersMap = new Map((usersData || []).map((u: any) => [u.id, u]));
-
-    // Join data together
+    // Join data together in memory
     const result = expenses.map((exp: any) => {
       const payerUser = usersMap.get(exp.paid_by);
-      const expSplits = (splits || [])
+      const expSplits = splits
         .filter((s: any) => s.expense_id === exp.id)
         .map((s: any) => {
           const splitUser = usersMap.get(s.user_id);
@@ -66,7 +74,14 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json({ expenses: result });
+    return NextResponse.json(
+      { expenses: result },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=59",
+        },
+      }
+    );
   } catch (e: any) {
     console.error("GET expenses exception:", e);
     return NextResponse.json({ expenses: [], error: e.message }, { status: 500 });

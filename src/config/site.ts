@@ -4,7 +4,7 @@ export const siteConfig = {
   url: "https://roomhesabkitaab.app",
   roomNumber: "Room 14",
   hostelName: "Al Syed Hostel",
-  totalRoommates: 6,
+  totalRoommates: 8,
   links: {
     github: "https://github.com",
   },
@@ -14,6 +14,13 @@ export const siteConfig = {
     "ahmed ali",
     "syed ali mehdi",
     "muhammad rohail",
+    "amanullah",
+    "aman",
+    "amankhan707022",
+    "aizaz",
+    "masood",
+    "masood haider",
+    "masood.haider.bangash1",
     "admin",
   ],
 };

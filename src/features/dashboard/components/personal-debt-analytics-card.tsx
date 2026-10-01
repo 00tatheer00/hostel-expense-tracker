@@ -13,6 +13,8 @@ import { Icons } from "@/lib/icons";
 import { formatCurrency } from "@/utils/formatters";
 import { InfoPopover } from "@/components/common/info-popover";
 
+import { useMonth } from "@/providers/month-provider";
+
 export interface PairwiseDebtItem {
   roommate: {
     id: string;
@@ -28,6 +30,7 @@ export interface PairwiseDebtItem {
 export function PersonalDebtAnalyticsCard() {
   const { user } = useAuth();
   const { expenses, roommates, selectedMonth, isLocked } = useExpenses();
+  const { monthLabel } = useMonth();
   const { settlements } = useSettlements();
 
   const currentUser = React.useMemo(() => {
@@ -130,21 +133,21 @@ export function PersonalDebtAnalyticsCard() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xl sm:text-2xl font-extrabold font-heading text-foreground">
-                👋 {currentUser.name}&apos;s {isLocked ? "August 2026 Debt Analytics" : "Debt Analytics"}
+                👋 {currentUser.name}&apos;s {isLocked ? `${monthLabel} Debt Analytics` : "Debt Analytics"}
               </span>
               {isLocked ? (
                 <Badge variant="warning" className="text-[10px] font-mono border-amber-500/40 text-amber-800 dark:text-amber-200 bg-amber-500/10">
-                  🔒 August Locked
+                  🔒 {monthLabel} Locked
                 </Badge>
               ) : (
                 <Badge variant="outline" className="text-[10px] font-mono border-indigo-500/30 text-indigo-600 dark:text-indigo-400">
-                  {selectedMonth === "all" ? "All Time" : "September 2026 Active"}
+                  {selectedMonth === "all" ? "All Time" : "October 2026 Active"}
                 </Badge>
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {isLocked
-                ? "August 2026 ka hisaab: kis roommate ne kitne dene/lene the."
+                ? `${monthLabel} ka hisaab: kis roommate ne kitne dene/lene the.`
                 : "Your total debt to roommates and amounts owed to you in Room 14."}
             </p>
           </div>

@@ -18,44 +18,28 @@ import { MonthLockBanner } from "@/components/common/month-lock-banner";
 import { PersonalDebtAnalyticsCard } from "./personal-debt-analytics-card";
 import { RulesBanner } from "@/features/rules/components/rules-banner";
 import { useAuth } from "@/hooks/use-auth";
+import { useMonth } from "@/providers/month-provider";
 
 export function DashboardShell() {
   const { user } = useAuth();
+  const { monthLabel, activeMonthKey } = useMonth();
   const {
     recentExpenses,
     sortedBalances,
     metrics,
     selectedMonth,
     setSelectedMonth,
+    allRoommates,
     isLocked,
     isLoading,
   } = useDashboard();
 
-  const [roommateMembers, setRoommateMembers] = React.useState<any[]>([]);
-
-  const checkRoommateMembers = React.useCallback(async () => {
-    try {
-      const res = await fetch("/api/profiles");
-      const data = await res.json();
-      if (data.profiles && Array.isArray(data.profiles)) {
-        const roommates = data.profiles.filter((u: any) => !u.name?.toLowerCase().includes("admin") && !u.email?.toLowerCase().includes("admin"));
-        setRoommateMembers(roommates);
-      }
-    } catch (e) {
-      console.error("Failed to fetch profiles for roommate notification", e);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    checkRoommateMembers();
-    window.addEventListener("storage", checkRoommateMembers);
-    window.addEventListener("kamrakhata_data_change", checkRoommateMembers);
-
-    return () => {
-      window.removeEventListener("storage", checkRoommateMembers);
-      window.removeEventListener("kamrakhata_data_change", checkRoommateMembers);
-    };
-  }, [checkRoommateMembers]);
+  const roommateMembers = React.useMemo(() => {
+    return allRoommates.filter(
+      (u) =>
+        !u.name?.toLowerCase().includes("admin") && !u.email?.toLowerCase().includes("admin")
+    );
+  }, [allRoommates]);
 
   if (isLoading) {
     return <LoadingDashboard />;
@@ -111,17 +95,17 @@ export function DashboardShell() {
             </h1>
             {isLocked ? (
               <Badge variant="warning" className="font-mono text-xs gap-1 bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40">
-                <span>🔒 August 2026 Archive (Read-Only)</span>
+                <span>🔒 {monthLabel} (Read-Only)</span>
               </Badge>
             ) : (
               <Badge variant="success" className="font-mono text-xs gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>September 2026 (Active)</span>
+                <span>{selectedMonth === "all" ? "All Time" : "October 2026 (Active)"}</span>
               </Badge>
             )}
           </div>
           <p className="caption text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Welcome back, <strong className="text-foreground">{user?.name || "Roommate"}</strong>! {isLocked ? "Viewing locked August 2026 balance sheet (kis k kitny hin)." : "Live September 2026 debt analytics & roommate split tracker."}
+            Welcome back, <strong className="text-foreground">{user?.name || "Roommate"}</strong>! {isLocked ? `Viewing locked ${monthLabel} balance sheet (kis k kitny hin).` : "Live October 2026 debt analytics & roommate split tracker."}
           </p>
         </div>
 
@@ -136,11 +120,11 @@ export function DashboardShell() {
           {isLocked ? (
             <Button
               size="sm"
-              onClick={() => setSelectedMonth("2026-09")}
+              onClick={() => setSelectedMonth(activeMonthKey)}
               className="gap-1.5 shadow-subtle font-semibold bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
             >
               <Icons.plus className="h-4 w-4" />
-              <span>Add Expense (in Sep)</span>
+              <span>Add Expense (in Oct)</span>
             </Button>
           ) : (
             <Link href="/expenses/new">

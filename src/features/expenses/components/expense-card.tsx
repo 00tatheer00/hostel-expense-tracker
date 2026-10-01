@@ -63,7 +63,7 @@ export function ExpenseCard({ expense }: ExpenseCardProps) {
                 {/* Duplicate Button */}
                 <Link
                   href={`/expenses/new?desc=${encodeURIComponent(expense.description)}&cat=${expense.category}&amt=${expense.amount}`}
-                  title="Duplicate to September"
+                  title="Duplicate to Current Month"
                 >
                   <Button
                     variant="ghost"

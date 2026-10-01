@@ -16,7 +16,14 @@ export async function GET() {
       return NextResponse.json({ settlements: [], error: error.message }, { status: 200 });
     }
 
-    return NextResponse.json({ settlements: data || [] });
+    return NextResponse.json(
+      { settlements: data || [] },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=59",
+        },
+      }
+    );
   } catch (e: any) {
     console.error("GET settlements exception:", e);
     return NextResponse.json({ settlements: [], error: e.message }, { status: 500 });
@@ -54,14 +61,35 @@ export async function POST(req: NextRequest) {
     let finalFromUser = fromUser;
     let finalToUser = toUser;
 
+    const userLookups: PromiseLike<any>[] = [];
     if (fromUser && !uuidRegex.test(fromUser)) {
-      const { data: userMatch } = await supabase.from("users").select("id").ilike("name", fromUser).maybeSingle();
-      if (userMatch?.id) finalFromUser = userMatch.id;
+      userLookups.push(
+        supabase
+          .from("users")
+          .select("id")
+          .ilike("name", fromUser)
+          .maybeSingle()
+          .then(({ data }) => {
+            if (data?.id) finalFromUser = data.id;
+          })
+      );
     }
 
     if (toUser && !uuidRegex.test(toUser)) {
-      const { data: userMatch } = await supabase.from("users").select("id").ilike("name", toUser).maybeSingle();
-      if (userMatch?.id) finalToUser = userMatch.id;
+      userLookups.push(
+        supabase
+          .from("users")
+          .select("id")
+          .ilike("name", toUser)
+          .maybeSingle()
+          .then(({ data }) => {
+            if (data?.id) finalToUser = data.id;
+          })
+      );
+    }
+
+    if (userLookups.length > 0) {
+      await Promise.all(userLookups);
     }
 
     const { error } = await supabase.from("settlements").insert({

@@ -20,10 +20,12 @@ import { MonthSelector } from "@/components/common/month-selector";
 import { MonthLockBanner } from "@/components/common/month-lock-banner";
 
 import { siteConfig } from "@/config/site";
+import { useMonth } from "@/providers/month-provider";
 
 export default function ExpensesPage() {
   const { expenses, allExpenses, isLocked, selectedMonth, setSelectedMonth } = useExpenses();
   const { user } = useAuth();
+  const { monthLabel, activeMonthKey } = useMonth();
 
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [activeCategoryFilter, setActiveCategoryFilter] = React.useState<string>("All");
@@ -92,22 +94,22 @@ export default function ExpensesPage() {
         badge={
           isLocked ? (
             <Badge variant="warning" className="font-mono text-xs bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40">
-              🔒 August 2026 Locked ({filteredExpenses.length} Records)
+              🔒 {monthLabel} Locked ({filteredExpenses.length} Records)
             </Badge>
           ) : (
             <Badge variant="outline" className="font-mono text-xs">
-              {filteredExpenses.length} / {expenses.length} Purchases ({selectedMonth === "all" ? "All Time" : "September 2026"})
+              {filteredExpenses.length} / {expenses.length} Purchases ({selectedMonth === "all" ? "All Time" : "October 2026"})
             </Badge>
           )
         }
         action={
           isLocked ? (
             <Button
-              onClick={() => setSelectedMonth("2026-09")}
+              onClick={() => setSelectedMonth(activeMonthKey)}
               className="gap-2 shadow-subtle font-semibold bg-emerald-600 hover:bg-emerald-700 text-white"
             >
               <Icons.plus className="h-4 w-4" />
-              <span>Add Expense (in Sep)</span>
+              <span>Add Expense (in Oct)</span>
             </Button>
           ) : (
             <Link href="/expenses/new">
@@ -171,8 +173,8 @@ export default function ExpensesPage() {
           {/* Results Render */}
           {expenses.length === 0 ? (
             <EmptyState
-              title={isLocked ? "August 2026 mein koi kharcha nahi mila." : "September 2026 mein koi kharcha abhi tak record nahi hua."}
-              description={isLocked ? "August ka record khali hai." : "Naya month shuru ho chuka hai! Pehla kharcha add karne ke liye Add Naya Kharcha button dabayein."}
+              title={isLocked ? `${monthLabel} mein koi kharcha nahi mila.` : "October 2026 mein koi kharcha abhi tak record nahi hua."}
+              description={isLocked ? "Is mahine ka record khali hai." : "Naya month shuru ho chuka hai! Pehla kharcha add karne ke liye Add Naya Kharcha button dabayein."}
               icon={Icons.expenses}
               action={
                 !isLocked ? (

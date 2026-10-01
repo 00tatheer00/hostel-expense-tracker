@@ -12,14 +12,14 @@ export interface MonthOption {
   month: number; // 0-indexed (0 = Jan, 7 = Aug, 8 = Sep)
 }
 
-// Cutoff timestamp: August 31, 2026 23:59:59.999 (PKT / UTC+5)
-// Any expense recorded on or before this cutoff belongs to the locked August period.
-export const AUGUST_LOCK_CUTOFF_ISO = "2026-08-31T23:59:59.999+05:00";
-export const AUGUST_LOCK_CUTOFF_TIMESTAMP = new Date(AUGUST_LOCK_CUTOFF_ISO).getTime();
+// Cutoff timestamp: September 30, 2026 23:59:59.999 (PKT / UTC+5)
+// Any expense recorded on or before this cutoff belongs to the locked September/August period.
+export const SEPTEMBER_LOCK_CUTOFF_ISO = "2026-09-30T23:59:59.999+05:00";
+export const SEPTEMBER_LOCK_CUTOFF_TIMESTAMP = new Date(SEPTEMBER_LOCK_CUTOFF_ISO).getTime();
 
-// Active new month key
-export const ACTIVE_MONTH_KEY = "2026-09";
-export const LOCKED_MONTH_KEYS = ["2026-08"];
+// Active new month key (October 2026)
+export const ACTIVE_MONTH_KEY = "2026-10";
+export const LOCKED_MONTH_KEYS = ["2026-08", "2026-09"];
 
 const MONTH_NAMES = [
   "January",
@@ -37,23 +37,23 @@ const MONTH_NAMES = [
 ];
 
 /**
- * Checks if a given timestamp or ISO date string falls in a locked period (August 2026 or prior)
+ * Checks if a given timestamp or ISO date string falls in a locked period (September 2026 or prior)
  */
 export function isExpenseLocked(createdAt: string | Date | undefined | null): boolean {
   if (!createdAt) return false;
   const d = new Date(createdAt);
   if (isNaN(d.getTime())) return false;
 
-  // If date is before or within August 2026 (<= Aug 31 11:59:59 PM)
+  // If date is before or within September 2026
   const dTime = d.getTime();
-  if (dTime <= AUGUST_LOCK_CUTOFF_TIMESTAMP) {
+  if (dTime <= SEPTEMBER_LOCK_CUTOFF_TIMESTAMP) {
     return true;
   }
 
-  // Also lock if Year <= 2026 and Month <= August (month index 7)
+  // Also lock if Year <= 2026 and Month <= September (0-indexed month index 8)
   const y = d.getFullYear();
   const m = d.getMonth();
-  if (y < 2026 || (y === 2026 && m <= 7)) {
+  if (y < 2026 || (y === 2026 && m <= 8)) {
     return true;
   }
 
@@ -61,7 +61,7 @@ export function isExpenseLocked(createdAt: string | Date | undefined | null): bo
 }
 
 /**
- * Checks if a month key is locked (e.g. "2026-08")
+ * Checks if a month key is locked (e.g. "2026-08", "2026-09")
  */
 export function isMonthLocked(monthKey: string): boolean {
   if (monthKey === "all") return false;
@@ -73,7 +73,7 @@ export function isMonthLocked(monthKey: string): boolean {
   const m = parseInt(monthStr, 10); // 1-indexed
 
   if (!isNaN(y) && !isNaN(m)) {
-    if (y < 2026 || (y === 2026 && m <= 8)) {
+    if (y < 2026 || (y === 2026 && m <= 9)) {
       return true;
     }
   }
@@ -124,17 +124,27 @@ export function getMonthLabel(monthKey: string): string {
 export function getAvailableMonthOptions(expenses: { created_at: string }[] = []): MonthOption[] {
   const optionsMap = new Map<string, MonthOption>();
 
-  // 1. Always include Active Month (September 2026)
+  // 1. Always include Active Month (October 2026)
   optionsMap.set(ACTIVE_MONTH_KEY, {
     key: ACTIVE_MONTH_KEY,
-    label: "September 2026 (Active)",
+    label: "October 2026 (Active 🟢)",
     isLocked: false,
     isCurrent: true,
+    year: 2026,
+    month: 9, // October = 9 (0-indexed)
+  });
+
+  // 2. Always include September 2026 (Locked Archive)
+  optionsMap.set("2026-09", {
+    key: "2026-09",
+    label: "September 2026 (Locked Archive 🔒)",
+    isLocked: true,
+    isCurrent: false,
     year: 2026,
     month: 8, // September = 8
   });
 
-  // 2. Always include August 2026 (Locked Archive)
+  // 3. Always include August 2026 (Locked Archive)
   optionsMap.set("2026-08", {
     key: "2026-08",
     label: "August 2026 (Locked Archive 🔒)",

@@ -14,12 +14,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/lib/icons";
 
+import { useMonth } from "@/providers/month-provider";
+
 export default function SettlementHistoryPage() {
-  const { settlements, roommates, deleteSettlement, isLocked, selectedMonth } = useSettlements();
+  const { settlements, roommates, isLocked, selectedMonth } = useSettlements();
+  const { monthLabel } = useMonth();
 
   return (
     <PageWrapper>
-      {/* Month Lock Banner when viewing August */}
+      {/* Month Lock Banner when viewing archive months */}
       <MonthLockBanner />
 
       <PageHeader
@@ -28,11 +31,11 @@ export default function SettlementHistoryPage() {
         badge={
           isLocked ? (
             <Badge variant="warning" className="font-mono text-xs bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40">
-              🔒 August 2026 Archive ({settlements.length} Records)
+              🔒 {monthLabel} ({settlements.length} Records)
             </Badge>
           ) : (
             <Badge variant="outline" className="font-mono text-xs">
-              {settlements.length} Entry{settlements.length === 1 ? "" : "ies"} ({selectedMonth === "all" ? "All Time" : "September 2026"})
+              {settlements.length} Entry{settlements.length === 1 ? "" : "ies"} ({selectedMonth === "all" ? "All Time" : "October 2026"})
             </Badge>
           )
         }
@@ -74,7 +77,6 @@ export default function SettlementHistoryPage() {
                 key={st.id}
                 settlement={st}
                 roommates={roommates}
-                onDelete={deleteSettlement}
               />
             ))}
           </div>

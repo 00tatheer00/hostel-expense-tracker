@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
 
 export function MonthLockBanner() {
-  const { isLocked, selectedMonth, setSelectedMonth } = useMonth();
+  const { isLocked, selectedMonth, setSelectedMonth, monthLabel } = useMonth();
 
   if (!isLocked) return null;
 
@@ -21,14 +21,14 @@ export function MonthLockBanner() {
         <div className="space-y-0.5">
           <div className="flex flex-wrap items-center gap-2">
             <h4 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-1.5">
-              <span>🔒 August 2026 Mahina Complete & Locked Hai</span>
+              <span>🔒 {monthLabel} Mahina Complete & Locked Hai</span>
             </h4>
             <Badge variant="warning" className="text-[10px] font-mono py-0 px-2 font-bold uppercase tracking-wider">
               Read-Only Mode
             </Badge>
           </div>
           <p className="caption text-xs text-muted-foreground leading-relaxed">
-            August 2026 ka hisaab mukammal ho chuka hai aur lock hai. Koi edit ya delete nahi ho sakta. Yeh srf <strong>August ke hisaab (kis k kitny bante hain)</strong> ko read karne ke liye hai.
+            Is mahine ka hisaab mukammal ho chuka hai aur lock hai. Koi expense edit ya delete nahi kiya ja sakta. Yeh srf archive hisaab check karne ke liye hai.
           </p>
         </div>
       </div>
@@ -40,7 +40,7 @@ export function MonthLockBanner() {
           className="text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-xs w-full sm:w-auto"
         >
           <span className="h-2 w-2 rounded-full bg-emerald-200 animate-pulse" />
-          <span>Switch to September 2026 (Active)</span>
+          <span>Switch to October 2026 (Active)</span>
         </Button>
       </div>
     </div>

@@ -12,10 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/lib/icons";
 
+import { useMonth } from "@/providers/month-provider";
+
 export default function NewExpensePage() {
   const router = useRouter();
   const { roommates, createExpense } = useExpenses();
   const { user } = useAuth();
+  const { monthLabel } = useMonth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const handleSubmit = async (data: CreateExpenseInput) => {
@@ -34,11 +37,11 @@ export default function NewExpensePage() {
     <PageWrapper>
       <PageHeader
         title="Add New Expense"
-        subtitle="Record a new room expense and split it across roommates for September 2026."
+        subtitle={`Record a new room expense and split it across roommates for ${monthLabel}.`}
         badge={
           <Badge variant="success" className="font-mono text-xs gap-1">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>September 2026 Active</span>
+            <span>October 2026 Active</span>
           </Badge>
         }
         action={
@@ -57,7 +60,7 @@ export default function NewExpensePage() {
       <div className="max-w-2xl mx-auto space-y-4">
         <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2">
           <Icons.info className="h-4 w-4 shrink-0" />
-          <span>Yeh kharcha September 2026 ke naye active hisaab mein record hoga.</span>
+          <span>Yeh kharcha October 2026 ke naye active hisaab mein record hoga.</span>
         </div>
 
         <ExpenseForm
@@ -65,7 +68,7 @@ export default function NewExpensePage() {
           currentUserId={user?.id}
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
-          submitLabel="Save & Split Expense in September"
+          submitLabel="Save & Split Expense in October"
         />
       </div>
     </PageWrapper>

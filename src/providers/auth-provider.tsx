@@ -8,9 +8,28 @@ import { ALLOWED_STATIC_MEMBERS } from "@/config/site";
 
 export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
+function getInitialUser(): UserProfile | null {
+  if (typeof document === "undefined") return null;
+  try {
+    const cookiesArr = document.cookie.split("; ");
+    const authCookie = cookiesArr.find((c) => c.startsWith("kamrakhata_auth_user="));
+    if (authCookie) {
+      const rawVal = decodeURIComponent(authCookie.split("=")[1]);
+      return JSON.parse(rawVal);
+    }
+    const localSaved = localStorage.getItem("kamrakhata_auth_user");
+    if (localSaved) {
+      return JSON.parse(localSaved);
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  const [user, setUser] = React.useState<UserProfile | null>(getInitialUser);
+  const [isLoading, setIsLoading] = React.useState<boolean>(() => !getInitialUser());
   const router = useRouter();
 
   // Helper to set cookie for Next.js SSR middleware
@@ -32,90 +51,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
 
     const initializeAuth = async () => {
-      setIsLoading(true);
+      // Only set loading if no cached user exists
+      const cached = getInitialUser();
+      if (!cached) {
+        setIsLoading(true);
+      }
+
       try {
         const {
           data: { user: supabaseUser },
         } = await supabase.auth.getUser();
 
         if (supabaseUser) {
-          // Fetch actual status from DB profile (user_metadata may not have status)
-          let dbStatus: string = "approved";
-          try {
-            const res = await fetch("/api/profiles");
-            const data = await res.json();
-            const dbProfiles: UserProfile[] = data.profiles || [];
-            const dbProfile = dbProfiles.find((p: any) => p.id === supabaseUser.id || p.email === supabaseUser.email);
-            if (dbProfile) dbStatus = dbProfile.status || "approved";
-          } catch {}
           const profile: UserProfile = {
             id: supabaseUser.id,
             name: supabaseUser.user_metadata?.name || supabaseUser.email?.split("@")[0] || "Roommate",
             email: supabaseUser.email || "",
             role: supabaseUser.user_metadata?.role || "Roommate",
-            status: dbStatus as any,
+            status: (supabaseUser.user_metadata?.status || "approved") as any,
           };
           setUser(profile);
           setAuthCookie(profile);
+        } else if (cached) {
+          setUser(cached);
+          setAuthCookie(cached);
         } else {
-          const cookiesArr = typeof document !== "undefined" ? document.cookie.split("; ") : [];
-          const authCookie = cookiesArr.find((c) => c.startsWith("kamrakhata_auth_user="));
-          let restoredProfile: UserProfile | null = null;
-
-          if (authCookie) {
-            const rawVal = decodeURIComponent(authCookie.split("=")[1]);
-            try {
-              restoredProfile = JSON.parse(rawVal);
-            } catch {
-              restoredProfile = null;
-            }
-          }
-
-          if (!restoredProfile && typeof window !== "undefined") {
-            const localSaved = localStorage.getItem("kamrakhata_auth_user");
-            if (localSaved) {
-              try {
-                restoredProfile = JSON.parse(localSaved);
-              } catch {
-                restoredProfile = null;
-              }
-            }
-          }
-
-          if (restoredProfile) {
-            // Verify restored user wasn't deleted by Admin
-            if (restoredProfile.role !== "Room Admin") {
-              try {
-                const res = await fetch("/api/profiles");
-                const data = await res.json();
-                const dbProfiles: UserProfile[] = data.profiles || [];
-                const exists = dbProfiles.some(
-                  (p: any) =>
-                    p.id === restoredProfile?.id ||
-                    p.email?.toLowerCase() === restoredProfile?.email?.toLowerCase() ||
-                    p.name?.toLowerCase() === restoredProfile?.name?.toLowerCase()
-                );
-                if (!exists && dbProfiles.length > 0) {
-                  restoredProfile = null;
-                  if (typeof window !== "undefined") {
-                    localStorage.removeItem("kamrakhata_auth_user");
-                  }
-                }
-              } catch {}
-            }
-          }
-
-          if (restoredProfile) {
-            setUser(restoredProfile);
-            setAuthCookie(restoredProfile);
-          } else {
-            setUser(null);
-            setAuthCookie(null);
-          }
+          setUser(null);
+          setAuthCookie(null);
         }
       } catch (error) {
         console.error("Auth init error:", error);
-        setUser(null);
+        if (!cached) setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -190,7 +156,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           (u: any) =>
             u.email?.toLowerCase() === normalizedEmail ||
             u.name?.toLowerCase() === normalizedEmail ||
-            u.email?.toLowerCase()?.split("@")[0] === normalizedEmail
+            u.email?.toLowerCase()?.split("@")[0] === normalizedEmail ||
+            u.name?.toLowerCase()?.includes(normalizedEmail)
         ) || null;
 
         // Also sync to localStorage for faster subsequent lookups
@@ -212,7 +179,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             (u) =>
               u.email.toLowerCase() === normalizedEmail ||
               u.name.toLowerCase() === normalizedEmail ||
-              u.email.toLowerCase().split("@")[0] === normalizedEmail
+              u.email.toLowerCase().split("@")[0] === normalizedEmail ||
+              u.name.toLowerCase().includes(normalizedEmail)
           ) || null;
         } catch (e) {
           console.error("Failed to parse custom roommates", e);
@@ -226,6 +194,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         success: false,
         error: "Yeh account registered nahi hai ya Admin ne delete kar diya hai.",
       };
+    }
+
+    // Validate password if provided
+    if (password && (matchedUser as any).password) {
+      if (password !== (matchedUser as any).password) {
+        setIsLoading(false);
+        return {
+          success: false,
+          error: "Galat Password! Baraye mehrbani apna sahi password darj karein.",
+        };
+      }
     }
 
     try {
@@ -281,7 +260,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isAllowed) {
       return {
         success: false,
-        error: "Aap Room 14 ke official member nahi hain. Sirf Room 14 ke 5 official roommates (Tatheer, Sadam, Ahmed Ali, Syed ALi Mehdi, Muhammad Rohail) hi register ho sakte hain.",
+        error: "Aap Room 14 ke official member nahi hain. Sirf Room 14 ke official roommates (Tatheer, Sadam, Ahmed Ali, Syed Ali Mehdi, Muhammad Rohail, Amanullah, Aizaz, Masood) hi register ho sakte hain.",
       };
     }
 
